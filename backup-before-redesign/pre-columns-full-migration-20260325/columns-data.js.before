@@ -1,0 +1,53 @@
+window.__COLUMNS_DATA__ = {
+  "categories": [
+    {
+      "slug": "amc-series",
+      "name": "AMC系列",
+      "legacyId": 6,
+      "legacyCount": 16,
+      "legacyUrl": "https://www.cheetahstem.com/news/6/1",
+      "description": "AMC、AIME 與競賽學習路線相關文章。"
+    },
+    {
+      "slug": "about-cheetah",
+      "name": "關於獵豹",
+      "legacyId": 7,
+      "legacyCount": 17,
+      "legacyUrl": "https://www.cheetahstem.com/news/7/1",
+      "description": "品牌理念、教學方式與獵豹核心介紹。"
+    },
+    {
+      "slug": "cheetah-perspective",
+      "name": "獵豹視角",
+      "legacyId": 8,
+      "legacyCount": 33,
+      "legacyUrl": "https://www.cheetahstem.com/news/8/1",
+      "description": "從獵豹角度談學習、能力與教育判斷。"
+    },
+    {
+      "slug": "education-talk",
+      "name": "獵豹談教育",
+      "legacyId": 9,
+      "legacyCount": 35,
+      "legacyUrl": "https://www.cheetahstem.com/news/9/1",
+      "description": "教育觀點、學習方法與家長常見迷思。"
+    },
+    {
+      "slug": "science-talk",
+      "name": "獵豹談科普",
+      "legacyId": 10,
+      "legacyCount": 32,
+      "legacyUrl": "https://www.cheetahstem.com/news/10/1",
+      "description": "科普主題、數理觀念與科學延伸閱讀。"
+    },
+    {
+      "slug": "cheetah-salon",
+      "name": "獵豹私塾",
+      "legacyId": 11,
+      "legacyCount": 68,
+      "legacyUrl": "https://www.cheetahstem.com/news/11/1",
+      "description": "深度長文、學習分享與系列文章整理。"
+    }
+  ],
+  "items": []
+};

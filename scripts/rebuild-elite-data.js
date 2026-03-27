@@ -1,0 +1,158 @@
+const fs = require("fs");
+const path = require("path");
+
+const root = path.resolve(__dirname, "..");
+const sheetPath = path.join(
+  root,
+  "migration-data",
+  "current",
+  "cheetah-elite-batch-01-review-v2",
+  "content-migration-cheetah-elite-batch-01-review-v2.files",
+  "sheet001.htm"
+);
+const jsonPath = path.join(root, "assets", "data", "elite-data.json");
+const jsPath = path.join(root, "assets", "data", "elite-data.js");
+
+const headers = [
+  "舊網址",
+  "來源頁碼",
+  "標題",
+  "類型",
+  "分類",
+  "日期",
+  "摘要摘錄",
+  "圖片網址",
+  "圖片檔名",
+  "新slug建議",
+  "是否保留",
+  "對應新頁面",
+  "摘要AI生成",
+  "備註",
+  "內文原稿",
+];
+
+function readText(filePath) {
+  return fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
+}
+
+function decodeHtml(value) {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function parseRows(sheetHtml) {
+  const rows = [];
+  const trMatches = sheetHtml.match(/<tr\b[\s\S]*?<\/tr>/gi) || [];
+
+  trMatches.slice(1).forEach((rowHtml) => {
+    const cells = [];
+    const tdMatches = rowHtml.match(/<td\b[\s\S]*?<\/td>/gi) || [];
+    tdMatches.forEach((cellHtml) => {
+      const inner = cellHtml.replace(/^<td\b[^>]*>/i, "").replace(/<\/td>$/i, "");
+      cells.push(decodeHtml(inner));
+    });
+    if (cells.length >= headers.length - 1) {
+      const row = {};
+      headers.forEach((header, index) => {
+        row[header] = cells[index] || "";
+      });
+      if (row["舊網址"] || row["標題"] || row["新slug建議"]) {
+        rows.push(row);
+      }
+    }
+  });
+
+  return rows;
+}
+
+function parseDate(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  const match = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) return raw;
+
+  const month = match[1].padStart(2, "0");
+  const day = match[2].padStart(2, "0");
+  const year = match[3];
+  return `${year}-${month}-${day}`;
+}
+
+function slugFromSourceUrl(url) {
+  const match = String(url || "").match(/\/(\d+)\s*$/);
+  return match ? `cheetah-elite-${match[1]}` : "";
+}
+
+function unique(values) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function main() {
+  const sheetHtml = readText(sheetPath);
+  const rows = parseRows(sheetHtml);
+  const existing = JSON.parse(readText(jsonPath));
+
+  const bySlug = new Map(existing.map((item) => [item.slug, item]));
+  const bySourceUrl = new Map(existing.map((item) => [item.sourceUrl, item]));
+
+  const merged = rows.map((row) => {
+    const slug = row["新slug建議"] || slugFromSourceUrl(row["舊網址"]);
+    const current = bySlug.get(slug) || bySourceUrl.get(row["舊網址"]) || {};
+    const normalizedDate = parseDate(row["日期"]);
+    const year = normalizedDate ? normalizedDate.slice(0, 4) : "";
+    const keep = row["是否保留"] || "保留";
+    const summary = row["摘要AI生成"] || current.summary || row["摘要摘錄"] || current.excerpt || "";
+    const excerpt = row["摘要摘錄"] || current.excerpt || summary;
+
+    return {
+      ...current,
+      slug,
+      title: row["標題"] || current.title || "",
+      date: normalizedDate || current.date || "",
+      category: row["類型"] || current.category || "",
+      bucket: row["分類"] || current.bucket || "獵豹菁英",
+      summary,
+      excerpt,
+      sourceUrl: row["舊網址"] || current.sourceUrl || "",
+      cover: current.cover || "",
+      imageName: row["圖片檔名"] || current.imageName || "",
+      imageUrl: row["圖片網址"] || current.imageUrl || "",
+      tags: unique([row["類型"], row["分類"], year].concat(current.tags || [])),
+      keep,
+      targetPage: row["對應新頁面"] || current.targetPage || "students.html",
+      notes: row["備註"] || current.notes || "",
+      migrationPage: row["來源頁碼"] || current.migrationPage || "",
+      draftBody: row["內文原稿"] || current.draftBody || "",
+      bodyHtml: current.bodyHtml || "",
+      bodyText: current.bodyText || "",
+    };
+  });
+
+  merged.sort((a, b) => {
+    const aTime = Date.parse(a.date || "") || 0;
+    const bTime = Date.parse(b.date || "") || 0;
+    return bTime - aTime;
+  });
+
+  fs.writeFileSync(jsonPath, JSON.stringify(merged, null, 2), "utf8");
+  fs.writeFileSync(jsPath, `window.__ELITE_DATA__ = ${JSON.stringify(merged, null, 2)};\n`, "utf8");
+
+  console.log(`rebuilt ${merged.length} elite entries from review workbook`);
+}
+
+main();
+

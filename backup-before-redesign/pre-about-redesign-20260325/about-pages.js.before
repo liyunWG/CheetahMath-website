@@ -1,0 +1,187 @@
+﻿(function () {
+  function qs(selector, root) {
+    return (root || document).querySelector(selector);
+  }
+
+  function qsa(selector, root) {
+    return Array.from((root || document).querySelectorAll(selector));
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getPageName() {
+    return window.location.pathname.split('/').pop() || 'about.html';
+  }
+
+  function getParams() {
+    return new URLSearchParams(window.location.search);
+  }
+
+  function updateMeta(title, description) {
+    document.title = title;
+    [
+      ["meta[name='description']", description],
+      ["meta[property='og:title']", title],
+      ["meta[property='og:description']", description],
+      ["meta[property='og:url']", location.href],
+      ["meta[name='twitter:title']", title],
+      ["meta[name='twitter:description']", description]
+    ].forEach(function (entry) {
+      const node = document.querySelector(entry[0]);
+      if (node) node.setAttribute('content', entry[1]);
+    });
+  }
+
+  function loadModel() {
+    const raw = window.__ABOUT_DATA__ || {};
+    return {
+      sections: Array.isArray(raw.sections) ? raw.sections : [],
+      items: Array.isArray(raw.items) ? raw.items : []
+    };
+  }
+
+  function buildQuickFacts(items) {
+    return [
+      { label: '頁面數', value: String(items.length) },
+      { label: '已本地化圖片', value: String(items.reduce(function (sum, item) {
+        const matches = String(item.bodyHtml || '').match(/pic\/about\//g) || [];
+        return sum + matches.length;
+      }, 0)) },
+      { label: '更新方式', value: 'Excel 原稿 + 網站轉版' }
+    ];
+  }
+
+  function renderSelector(items, activeSlug) {
+    return (
+      '<div class="about-selector">' +
+      items.map(function (item) {
+        return (
+          '<button type="button" class="about-selector__button' +
+          (item.slug === activeSlug ? ' is-active' : '') +
+          '" data-about-slug="' + escapeHtml(item.slug) + '">' +
+          '<strong>' + escapeHtml(item.title) + '</strong>' +
+          '<span>' + escapeHtml(item.summary || '') + '</span>' +
+          '</button>'
+        );
+      }).join('') +
+      '</div>'
+    );
+  }
+
+  function renderFacts(items) {
+    return (
+      '<div class="goal-chip-row about-chip-row">' +
+      buildQuickFacts(items).map(function (fact) {
+        return '<div class="goal-chip"><span>' + escapeHtml(fact.value) + '</span><small>' + escapeHtml(fact.label) + '</small></div>';
+      }).join('') +
+      '</div>'
+    );
+  }
+
+  function renderBody(item) {
+    return (
+      '<article class="card elite-story-main about-story-main">' +
+      (item.coverImage ? '<img class="article-cover-image" src="' + escapeHtml(item.coverImage) + '" alt="' + escapeHtml(item.title) + '">' : '') +
+      '<div class="elite-story-meta">' +
+      '<span><strong>區塊：</strong>' + escapeHtml(item.section) + '</span>' +
+      '<span><strong>頁面：</strong>' + escapeHtml(item.title) + '</span>' +
+      '</div>' +
+      '<div class="article-head about-article-head">' +
+      '<span class="eyebrow">' + escapeHtml(item.section) + '</span>' +
+      '<h1>' + escapeHtml(item.title) + '</h1>' +
+      '<p class="article-summary">' + escapeHtml(item.summary || '') + '</p>' +
+      '</div>' +
+      '<div class="elite-body about-body">' + item.bodyHtml + '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderPage(model) {
+    const pageName = getPageName();
+    const sectionModel = model.sections.find(function (section) {
+      return section.page === pageName;
+    });
+    const main = qs('main.page');
+    if (!sectionModel || !main) return;
+
+    const sectionItems = sectionModel.slugs
+      .map(function (slug) {
+        return model.items.find(function (item) { return item.slug === slug; });
+      })
+      .filter(Boolean);
+
+    const params = getParams();
+    let activeSlug = params.get('slug') || (sectionItems[0] && sectionItems[0].slug) || '';
+    if (!sectionItems.some(function (item) { return item.slug === activeSlug; })) {
+      activeSlug = sectionItems[0] ? sectionItems[0].slug : '';
+    }
+
+    main.innerHTML =
+      '<section class="page-hero">' +
+      '<div class="container">' +
+      '<span class="eyebrow">' + escapeHtml(sectionModel.title) + '</span>' +
+      '<h1>' + escapeHtml(sectionModel.title) + '</h1>' +
+      '<p>' + escapeHtml(sectionModel.intro || '') + '</p>' +
+      renderFacts(sectionItems) +
+      '</div>' +
+      '</section>' +
+      '<section class="section">' +
+      '<div class="container">' +
+      '<div class="elite-toolbar about-toolbar">' +
+      '<label class="elite-toolbar__field">' +
+      '<span>切換頁面</span>' +
+      '<select id="about-select">' +
+      sectionItems.map(function (item) {
+        return '<option value="' + escapeHtml(item.slug) + '"' + (item.slug === activeSlug ? ' selected' : '') + '>' + escapeHtml(item.title) + '</option>';
+      }).join('') +
+      '</select>' +
+      '</label>' +
+      '</div>' +
+      renderSelector(sectionItems, activeSlug) +
+      '<div id="about-detail"></div>' +
+      '</div>' +
+      '</section>';
+
+    const detail = qs('#about-detail');
+    const select = qs('#about-select');
+
+    function draw(slug) {
+      const item = sectionItems.find(function (entry) { return entry.slug === slug; }) || sectionItems[0];
+      if (!item) return;
+      detail.innerHTML = renderBody(item);
+      qsa('.about-selector__button').forEach(function (button) {
+        button.classList.toggle('is-active', button.getAttribute('data-about-slug') === item.slug);
+      });
+      if (select) select.value = item.slug;
+      const url = new URL(location.href);
+      url.searchParams.set('slug', item.slug);
+      history.replaceState({}, '', url);
+      updateMeta(item.title + '｜' + sectionModel.title + '｜獵豹科教', item.summary || sectionModel.intro || '');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (select) {
+      select.addEventListener('change', function () {
+        draw(select.value);
+      });
+    }
+
+    qsa('[data-about-slug]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        draw(button.getAttribute('data-about-slug'));
+      });
+    });
+
+    draw(activeSlug);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    renderPage(loadModel());
+  });
+})();

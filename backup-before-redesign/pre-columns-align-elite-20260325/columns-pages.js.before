@@ -1,0 +1,217 @@
+(function () {
+  function pageName() {
+    return location.pathname.split("/").pop() || "index.html";
+  }
+
+  function params() {
+    return new URLSearchParams(location.search);
+  }
+
+  function model() {
+    const raw = window.__COLUMNS_DATA__ || {};
+    return {
+      categories: Array.isArray(raw.categories) ? raw.categories : [],
+      items: Array.isArray(raw.items)
+        ? raw.items.filter((item) => String(item.keep || "保留").trim() !== "不保留")
+        : []
+    };
+  }
+
+  function esc(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function updateMeta(title, description) {
+    document.title = title;
+    [
+      ["meta[name='description']", description],
+      ["meta[property='og:title']", title],
+      ["meta[property='og:description']", description],
+      ["meta[property='og:url']", location.href],
+      ["meta[name='twitter:title']", title],
+      ["meta[name='twitter:description']", description]
+    ].forEach(([selector, value]) => {
+      const node = document.querySelector(selector);
+      if (node) node.setAttribute("content", value);
+    });
+  }
+
+  function countsByCategory(items) {
+    return items.reduce((map, item) => {
+      const key = item.categorySlug || "";
+      map[key] = (map[key] || 0) + 1;
+      return map;
+    }, {});
+  }
+
+  function renderColumnsPage() {
+    const main = document.querySelector("main.page");
+    if (!main) return;
+    const { categories, items } = model();
+    const q = (params().get("q") || "").trim().toLowerCase();
+    const currentCategory = params().get("category") || "";
+    const counts = countsByCategory(items);
+    const totalLegacy = categories.reduce((sum, category) => sum + (category.legacyCount || 0), 0);
+    const filtered = items.filter((item) => {
+      if (currentCategory && item.categorySlug !== currentCategory) return false;
+      if (!q) return true;
+      const haystack = [
+        item.title,
+        item.summary,
+        item.excerpt,
+        item.bodyText,
+        (item.tags || []).join(" "),
+        item.category,
+        item.bucket
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+
+    const categoryCards = categories
+      .map((category) => {
+        const migrated = counts[category.slug] || 0;
+        const href = currentCategory === category.slug
+          ? "columns.html"
+          : "columns.html?category=" + encodeURIComponent(category.slug);
+        return (
+          '<article class="card">' +
+          '<div class="card__meta-row"><span class="chip chip--muted">舊站 ' +
+          category.legacyCount +
+          ' 篇</span><span class="chip chip--muted">已搬 ' +
+          migrated +
+          ' 篇</span></div>' +
+          "<h3>" +
+          esc(category.name) +
+          "</h3>" +
+          "<p>" +
+          esc(category.description) +
+          '</p><div class="page-nav"><a class="button button--secondary" href="' +
+          esc(href) +
+          '">' +
+          (currentCategory === category.slug ? "清除分類" : "查看此分類") +
+          '</a><a class="back-link" href="' +
+          esc(category.legacyUrl) +
+          '" target="_blank" rel="noreferrer">舊站原頁</a></div></article>'
+        );
+      })
+      .join("");
+
+    const listHtml = filtered.length
+      ? filtered
+          .map(
+            (item) => {
+              const coverBlock = item.coverImage
+                ? '<div style="margin:-24px -24px 18px;"><img src="' +
+                  esc(item.coverImage) +
+                  '" alt="' +
+                  esc(item.title) +
+                  '" style="display:block;width:100%;height:220px;object-fit:cover;border-radius:22px 22px 0 0;"></div>'
+                : '<div class="cover-art cover-art--navy" style="margin:-24px -24px 18px;border-radius:22px 22px 0 0;"><span>' +
+                  esc(item.category || "文章專欄") +
+                  "</span></div>";
+              return (
+                '<article class="card">' +
+              coverBlock +
+              '<div class="card__meta-row"><span class="chip">' +
+              esc(item.date || "") +
+              '</span><span class="chip chip--muted">' +
+              esc(item.category || "文章專欄") +
+              '</span></div><h3>' +
+              esc(item.title) +
+              "</h3><p>" +
+              esc(item.summary || item.excerpt || "") +
+              '</p><div class="tag-row">' +
+              (item.tags || [])
+                .slice(0, 4)
+                .map((tag) => '<span class="tag">' + esc(tag) + "</span>")
+                .join("") +
+              '</div><a class="card-link" href="article.html?slug=' +
+              encodeURIComponent(item.slug) +
+              '">閱讀文章</a></article>'
+              );
+            }
+          )
+          .join("")
+      : '<div class="empty-state"><h3>文章專欄骨架已建立</h3><p>目前尚未正式搬入舊站文章。之後只要把資料加入 columns-data，就會自動出現在文章專欄與全站搜尋。</p></div>';
+
+    main.innerHTML =
+      '<section class="page-hero"><div class="container"><span class="eyebrow">文章專欄</span><h1>獵豹專欄已改成獨立資料架構，準備承接舊站 201 篇文章。</h1><p>六大分類已完成盤點，接下來可分批搬移並保留分類、標籤、摘要與全文搜尋能力。</p></div></section>' +
+      '<section class="section"><div class="container"><div class="section-heading"><h2>搬移進度</h2><p>先把資料結構、分類總覽與搜尋骨架搭好，再逐批搬文章。</p></div><div class="grid grid--3"><article class="card"><h3>舊站總篇數</h3><p>' +
+      totalLegacy +
+      ' 篇</p></article><article class="card"><h3>已建立分類</h3><p>' +
+      categories.length +
+      ' 個</p></article><article class="card"><h3>已搬入新站</h3><p>' +
+      items.length +
+      ' 篇</p></article></div></div></section>' +
+      '<section class="section"><div class="container"><div class="section-heading"><h2>六大子項目</h2><p>每個分類都保留舊站篇數，方便後續核對是否搬完整。</p></div><div class="grid grid--3">' +
+      categoryCards +
+      '</div></div></section>' +
+      '<section class="section"><div class="container"><div class="section-heading"><h2>搜尋文章專欄</h2><p>這裡是文章專欄自己的搜尋入口；正式文章搬入後也會同步進全站搜尋。</p></div><div class="feature-slab"><form action="columns.html" class="search-quick-form"><label class="search-label" for="columns-search-input">搜尋關鍵字</label><input id="columns-search-input" class="search-input" type="search" name="q" value="' +
+      esc(params().get("q") || "") +
+      '" placeholder="例如：AMC、教育、科普、家長"><div class="page-nav"><button class="button button--primary" type="submit">搜尋專欄</button><a class="button button--secondary" href="columns.html">清除條件</a></div></form></div></div></section>' +
+      '<section class="section"><div class="container"><div class="section-heading"><h2>文章列表</h2><p>目前顯示的是已經正式搬入新站的文章。</p></div><div class="grid grid--3">' +
+      listHtml +
+      "</div></div></section>";
+
+    updateMeta("文章專欄｜獵豹科教", "獵豹專欄六大分類已完成盤點，文章專欄骨架與搜尋已建立，可逐批搬移舊站文章。");
+  }
+
+  function renderArticlePage() {
+    const main = document.querySelector("main.page");
+    if (!main) return;
+    const { items } = model();
+    const slug = params().get("slug") || "";
+    const item = items.find((entry) => entry.slug === slug);
+    if (!item) {
+      main.innerHTML = '<section class="section"><div class="container"><div class="empty-state"><h1>這篇文章尚未搬入新站</h1><p>文章頁骨架已準備好；等 columns-data 加入正式內容後，這裡就會顯示完整文章。</p><a class="button button--primary" href="columns.html">回文章專欄</a></div></div></section>';
+      updateMeta("文章專欄｜獵豹科教", "文章頁骨架已建立，待正式文章資料搬入後即可顯示。");
+      return;
+    }
+
+    const articleCover = item.coverImage
+      ? '<div style="margin-bottom:24px;"><img src="' +
+        esc(item.coverImage) +
+        '" alt="' +
+        esc(item.title) +
+        '" style="display:block;width:100%;max-height:460px;object-fit:cover;border-radius:24px;"></div>'
+      : "";
+
+    main.innerHTML =
+      '<section class="page-hero"><div class="container article-layout"><div class="article-main">' +
+      articleCover +
+      '<div class="article-head"><span class="eyebrow">' +
+      esc(item.category || "文章專欄") +
+      "</span><h1>" +
+      esc(item.title) +
+      '</h1><div class="card__meta-row"><span class="chip">' +
+      esc(item.date || "") +
+      '</span><span class="chip chip--muted">' +
+      esc(item.bucket || "文章專欄") +
+      '</span></div><div class="tag-row">' +
+      (item.tags || []).map((tag) => '<span class="tag">' + esc(tag) + "</span>").join("") +
+      '</div><p class="article-summary">' +
+      esc(item.summary || item.excerpt || "") +
+      '</p></div><div class="article-body">' +
+      (item.bodyHtml || "<p>這篇文章尚未補上正文。</p>") +
+      '</div><div class="page-nav"><a class="back-link" href="columns.html">回文章專欄</a><a class="back-link" href="index.html">回首頁</a></div></div><aside class="article-side"><div class="card"><h3>文章資訊</h3><p><strong>slug：</strong>' +
+      esc(item.slug) +
+      '</p><p><strong>分類：</strong>' +
+      esc(item.category || "") +
+      '</p><p><strong>來源：</strong><a href="' +
+      esc(item.sourceUrl || "#") +
+      '" target="_blank" rel="noreferrer">原文連結</a></p></div></aside></div></section>';
+
+    updateMeta(item.title + "｜獵豹科教", item.summary || item.excerpt || "獵豹文章專欄");
+  }
+
+  const page = pageName();
+  if (page === "columns.html") renderColumnsPage();
+  if (page === "article.html") renderArticlePage();
+})();

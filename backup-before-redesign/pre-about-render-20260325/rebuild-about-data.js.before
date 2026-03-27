@@ -1,0 +1,125 @@
+﻿const fs = require("fs");
+const path = require("path");
+
+const root = path.resolve(__dirname, "..");
+const jsonPath = path.join(root, "assets", "data", "about-data.json");
+const jsPath = path.join(root, "assets", "data", "about-data.js");
+const exportDir = path.join(root, "migration-data", "current", "about-cheetah-batch-01-template");
+const csvPath = path.join(exportDir, "content-migration-about-cheetah-batch-01-template.csv");
+
+const pages = [
+  { slug: "about-intro", section: "關於我們", title: "獵豹簡介", sourceUrl: "https://www.cheetahstem.com/about/10", targetPage: "about.html" },
+  { slug: "about-founders", section: "關於我們", title: "創辦與經營團隊", sourceUrl: "https://www.cheetahstem.com/about/4", targetPage: "about.html" },
+  { slug: "about-advisors", section: "關於我們", title: "師資顧問團隊", sourceUrl: "https://www.cheetahstem.com/about/11", targetPage: "about.html" },
+  { slug: "feature-curriculum", section: "獵豹特色", title: "課程體系", sourceUrl: "https://www.cheetahstem.com/service/12", targetPage: "features.html" },
+  { slug: "feature-course-strengths", section: "獵豹特色", title: "課程特色", sourceUrl: "https://www.cheetahstem.com/service/11", targetPage: "features.html" },
+  { slug: "feature-learning-method", section: "獵豹特色", title: "學習方法", sourceUrl: "https://www.cheetahstem.com/service/14", targetPage: "features.html" },
+  { slug: "feature-core-edge", section: "獵豹特色", title: "競爭核心", sourceUrl: "https://www.cheetahstem.com/service/7", targetPage: "features.html" },
+  { slug: "feature-global-vision", section: "獵豹特色", title: "全球視野", sourceUrl: "https://www.cheetahstem.com/service/3", targetPage: "features.html" }
+];
+
+function decodeHtml(value) {
+  const map = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+  return String(value || "")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&([a-z]+);/gi, (_, name) => map[name.toLowerCase()] || "&" + name + ";");
+}
+
+function stripTags(html) {
+  return decodeHtml(
+    String(html || "")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<[^>]+>/g, " ")
+  )
+    .replace(/\r/g, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function normalizeBodyHtml(html) {
+  return String(html || "")
+    .replace(/src=\"\/\//gi, 'src="https://')
+    .replace(/href=\"\/\//gi, 'href="https://')
+    .replace(/src=\"(\/[^\"]+)\"/gi, (_, value) => `src="https://www.cheetahstem.com${value}"`)
+    .replace(/href=\"(\/[^\"]+)\"/gi, (_, value) => `href="https://www.cheetahstem.com${value}"`)
+    .replace(/\sdata-ms-editor=\"[^\"]*\"/gi, "")
+    .replace(/\sspellcheck=\"[^\"]*\"/gi, "")
+    .trim();
+}
+
+function buildSummary(bodyText) {
+  const cleaned = String(bodyText || "").trim();
+  if (!cleaned) return "";
+  return cleaned.length > 120 ? cleaned.slice(0, 120).trim() + "…" : cleaned;
+}
+
+function csvEscape(value) {
+  return `"${String(value || "").replace(/"/g, '""')}"`;
+}
+
+async function fetchText(url) {
+  const response = await fetch(url, {
+    headers: {
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36"
+    }
+  });
+  if (!response.ok) throw new Error(`Fetch failed ${response.status} for ${url}`);
+  return response.text();
+}
+
+async function main() {
+  const items = [];
+  for (const page of pages) {
+    const html = await fetchText(page.sourceUrl);
+    const bodyMatch = html.match(/<article class=\"editor clearfix\"[^>]*>\s*([\s\S]*?)\s*<\/article>/i);
+    const bodyHtml = normalizeBodyHtml(bodyMatch ? bodyMatch[1] : "");
+    const bodyText = stripTags(bodyHtml);
+    items.push({
+      slug: page.slug,
+      section: page.section,
+      title: page.title,
+      sourceUrl: page.sourceUrl,
+      targetPage: page.targetPage,
+      summary: buildSummary(bodyText),
+      draftBody: bodyText,
+      bodyHtml,
+      bodyText,
+      tags: [page.section, page.title],
+      keep: "保留"
+    });
+    console.log(`Fetched ${page.title}`);
+  }
+
+  const payload = { items };
+  fs.writeFileSync(jsonPath, JSON.stringify(payload, null, 2) + "\n", "utf8");
+  fs.writeFileSync(jsPath, `window.__ABOUT_DATA__ = ${JSON.stringify(payload, null, 2)};\n`, "utf8");
+
+  fs.mkdirSync(exportDir, { recursive: true });
+  const rows = [["所屬區塊","頁面名稱","slug","摘要AI生成","來源網址","對應新頁面","是否保留","內文原稿","備註"].map(csvEscape).join(",")];
+  items.forEach((item) => {
+    rows.push([
+      item.section,
+      item.title,
+      item.slug,
+      item.summary,
+      item.sourceUrl,
+      item.targetPage,
+      item.keep,
+      item.draftBody,
+      ""
+    ].map(csvEscape).join(","));
+  });
+  fs.writeFileSync(csvPath, "\uFEFF" + rows.join("\n"), "utf8");
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
