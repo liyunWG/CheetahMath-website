@@ -23,6 +23,10 @@
     return new URLSearchParams(window.location.search);
   }
 
+  function eliteStoryUrl(slug) {
+    return slug ? "elite-story-" + slug + ".html" : "elite-story.html";
+  }
+
   function loadEliteData() {
     return (window.__ELITE_DATA__ || [])
       .filter(function (item) {
@@ -77,8 +81,8 @@
     const meta = [item.date, item.category, year].filter(Boolean);
     return (
       '<article class="card elite-card">' +
-      '<a class="elite-card__cover" href="elite-story.html?slug=' +
-      encodeURIComponent(item.slug) +
+      '<a class="elite-card__cover" href="' +
+      eliteStoryUrl(item.slug) +
       '">' +
       '<img src="' +
       escapeHtml(item.cover) +
@@ -106,8 +110,8 @@
       escapeHtml(item.summary || item.excerpt || "") +
       "</p>" +
       renderTags(item.tags) +
-      '<a class="card-link" href="elite-story.html?slug=' +
-      encodeURIComponent(item.slug) +
+      '<a class="card-link" href="' +
+      eliteStoryUrl(item.slug) +
       '">閱讀全文</a>' +
       "</article>"
     );

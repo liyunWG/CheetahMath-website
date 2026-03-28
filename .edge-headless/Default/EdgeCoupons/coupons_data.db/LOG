@@ -1,0 +1,9 @@
+2026/03/29-01:58:28.813 9220 Reusing MANIFEST E:\20260323_LiyunWG_Cheetah_website\.edge-headless\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/03/29-01:58:28.813 9220 Recovering log #1659
+2026/03/29-01:58:28.814 9220 Level-0 table #1662: started
+2026/03/29-01:58:28.888 9220 Level-0 table #1662: 682087 bytes OK
+2026/03/29-01:58:28.889 9220 Recovering log #1661
+2026/03/29-01:58:28.889 9220 Reusing old log E:\20260323_LiyunWG_Cheetah_website\.edge-headless\Default\EdgeCoupons/coupons_data.db/001661.log 
+2026/03/29-01:58:28.910 9220 Delete type=0 #1659
+2026/03/29-01:58:28.912 556c Level-0 table #1664: started
+2026/03/29-01:58:28.952 556c Level-0 table #1664: 682143 bytes OK

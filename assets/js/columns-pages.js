@@ -23,6 +23,10 @@
     return new URLSearchParams(window.location.search);
   }
 
+  function articleUrl(slug) {
+    return slug ? "article-" + slug + ".html" : "article.html";
+  }
+
   function unique(values) {
     return Array.from(new Set((values || []).filter(Boolean)));
   }
@@ -96,15 +100,15 @@
     const meta = [item.date, item.category, year].filter(Boolean);
     const coverImage = getCoverImage(item);
     const cover = coverImage
-      ? '<a class="elite-card__cover" href="article.html?slug=' +
-        encodeURIComponent(item.slug) +
+      ? '<a class="elite-card__cover" href="' +
+        articleUrl(item.slug) +
         '"><img src="' +
         escapeHtml(coverImage) +
         '" alt="' +
         escapeHtml(item.title) +
         '"></a>'
-      : '<a class="elite-card__cover" href="article.html?slug=' +
-        encodeURIComponent(item.slug) +
+      : '<a class="elite-card__cover" href="' +
+        articleUrl(item.slug) +
         '"><div class="cover-art cover-art--navy" style="height:220px;"><span>' +
         escapeHtml(item.category || "文章專欄") +
         "</span></div></a>";
@@ -132,8 +136,8 @@
       escapeHtml(item.summary || item.excerpt || "") +
       "</p>" +
       renderTags(item.tags) +
-      '<a class="card-link" href="article.html?slug=' +
-      encodeURIComponent(item.slug) +
+      '<a class="card-link" href="' +
+      articleUrl(item.slug) +
       '">閱讀全文</a>' +
       "</article>"
     );
