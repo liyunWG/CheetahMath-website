@@ -1,4 +1,4 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const vm = require("vm");
@@ -55,7 +55,9 @@ function escapeAttr(value) {
 }
 
 function stripScripts(html) {
-  return html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+  return html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, (match) => {
+    return /src="assets\/js\/site\.js"/i.test(match) ? match : "";
+  });
 }
 
 function replaceLocalUrls(html, outputPath) {
@@ -232,6 +234,7 @@ function buildShell(site, nav, title, description, url, activeHref, mainHtml, ex
   <meta name="twitter:description" content="${escapeAttr(description)}">
   <link rel="canonical" href="${escapeAttr(url)}">
   <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/site.js" defer></script>
 ${extra}</head>
 <body>
   <div class="site-shell">
@@ -241,6 +244,7 @@ ${extra}</head>
           <span class="brand__title"><img src="pic/logo.png" alt="${escapeAttr(site.brand)} logo"></span>
           <span class="brand__subtitle">${escapeHtml(site.subtitle)}</span>
         </a>
+        <button type="button" class="topbar__nav-toggle" aria-expanded="false" aria-label="Open menu"><span class="topbar__nav-toggle-bar"></span></button>
         <nav class="nav">${navHtml}</nav>
       </div>
     </header>
