@@ -1,16 +1,16 @@
-2026/03/30-03:01:24.757 d24c Reusing MANIFEST E:\20260323_LiyunWG_Cheetah_website\.edge-headless\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
-2026/03/30-03:01:24.769 d24c Recovering log #5501
-2026/03/30-03:01:24.770 d24c Level-0 table #5504: started
-2026/03/30-03:01:25.003 d24c Level-0 table #5504: 682132 bytes OK
-2026/03/30-03:01:25.004 d24c Recovering log #5503
-2026/03/30-03:01:25.004 d24c Reusing old log E:\20260323_LiyunWG_Cheetah_website\.edge-headless\Default\EdgeCoupons/coupons_data.db/005503.log 
-2026/03/30-03:01:25.051 d24c Delete type=0 #5501
-2026/03/30-03:01:25.052 9358 Compacting 4@0 + 1@1 files
-2026/03/30-03:01:25.097 9358 Generated table #5505@0: 1 keys, 681912 bytes
-2026/03/30-03:01:25.097 9358 Compacted 4@0 + 1@1 files => 681912 bytes
-2026/03/30-03:01:25.137 9358 compacted to: files[ 0 1 0 0 0 0 0 ]
-2026/03/30-03:01:25.138 9358 Delete type=2 #5495
-2026/03/30-03:01:25.138 9358 Delete type=2 #5498
-2026/03/30-03:01:25.138 9358 Delete type=2 #5500
-2026/03/30-03:01:25.138 9358 Delete type=2 #5502
-2026/03/30-03:01:25.138 9358 Delete type=2 #5504
+2026/03/30-03:43:11.037 8ee8 Reusing MANIFEST E:\20260323_LiyunWG_Cheetah_website\.edge-headless\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/03/30-03:43:11.038 8ee8 Recovering log #6919
+2026/03/30-03:43:11.040 8ee8 Level-0 table #6922: started
+2026/03/30-03:43:11.111 8ee8 Level-0 table #6922: 682132 bytes OK
+2026/03/30-03:43:11.112 8ee8 Recovering log #6921
+2026/03/30-03:43:11.112 8ee8 Reusing old log E:\20260323_LiyunWG_Cheetah_website\.edge-headless\Default\EdgeCoupons/coupons_data.db/006921.log 
+2026/03/30-03:43:11.135 8ee8 Delete type=0 #6919
+2026/03/30-03:43:11.135 d274 Compacting 4@0 + 1@1 files
+2026/03/30-03:43:11.215 d274 Generated table #6923@0: 1 keys, 681912 bytes
+2026/03/30-03:43:11.215 d274 Compacted 4@0 + 1@1 files => 681912 bytes
+2026/03/30-03:43:11.231 d274 compacted to: files[ 0 1 0 0 0 0 0 ]
+2026/03/30-03:43:11.231 d274 Delete type=2 #6913
+2026/03/30-03:43:11.231 d274 Delete type=2 #6916
+2026/03/30-03:43:11.231 d274 Delete type=2 #6918
+2026/03/30-03:43:11.231 d274 Delete type=2 #6920
+2026/03/30-03:43:11.231 d274 Delete type=2 #6922
