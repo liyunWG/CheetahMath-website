@@ -1,0 +1,40 @@
+<svg width="1400" height="900" viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="900" rx="44" fill="#FFF9EE"/>
+  <rect x="28" y="28" width="1344" height="844" rx="34" fill="#FFFDF8" stroke="#E8D8B8" stroke-width="4"/>
+
+  <text x="90" y="110" fill="#1A2F57" font-size="56" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="900">九年級才開始，最怕的是同時有兩個大考</text>
+  <text x="92" y="164" fill="#665640" font-size="30" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="700">科學班比較難，但如果科學班和會考一起逼近，孩子最容易卡在「現在到底該先準備哪一個？」</text>
+
+  <rect x="88" y="226" width="336" height="200" rx="34" fill="#162A4F"/>
+  <text x="126" y="292" fill="#FFD86E" font-size="44" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="900">科學班</text>
+  <text x="126" y="342" fill="#FFF3CB" font-size="26" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="700">難度更高</text>
+  <text x="126" y="382" fill="#FFF3CB" font-size="26" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="700">題型陌生</text>
+
+  <rect x="976" y="226" width="336" height="200" rx="34" fill="#F2D27C"/>
+  <text x="1022" y="292" fill="#6A4A0A" font-size="44" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="900">會考</text>
+  <text x="1022" y="342" fill="#74571A" font-size="26" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="700">不能不顧</text>
+  <text x="1022" y="382" fill="#74571A" font-size="26" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="700">也是大考</text>
+
+  <text x="625" y="250" fill="#111111" font-size="86" font-family="Arial, sans-serif" font-weight="900">?!√</text>
+  <circle cx="700" cy="370" r="58" fill="#111111"/>
+  <rect x="635" y="438" width="130" height="196" rx="40" fill="#111111"/>
+  <rect x="598" y="448" width="62" height="164" rx="30" transform="rotate(34 598 448)" fill="#111111"/>
+  <rect x="742" y="412" width="62" height="164" rx="30" transform="rotate(-34 742 412)" fill="#111111"/>
+  <rect x="654" y="620" width="34" height="172" rx="17" fill="#111111"/>
+  <rect x="712" y="620" width="34" height="172" rx="17" fill="#111111"/>
+
+  <path d="M438 484C530 444 586 452 632 500" fill="none" stroke="#D6A03C" stroke-width="14" stroke-linecap="round" stroke-dasharray="14 18"/>
+  <path d="M960 500C858 448 806 448 768 486" fill="none" stroke="#D6A03C" stroke-width="14" stroke-linecap="round" stroke-dasharray="14 18"/>
+
+  <path d="M644 706C566 712 500 730 438 770" fill="none" stroke="#CF9227" stroke-width="16" stroke-linecap="round"/>
+  <path d="M756 706C846 710 926 728 1002 770" fill="none" stroke="#CF9227" stroke-width="16" stroke-linecap="round"/>
+
+  <rect x="116" y="730" width="404" height="98" rx="30" fill="#FFF0C6"/>
+  <text x="146" y="788" fill="#6A4A0A" font-size="30" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="900">科學班更難，不代表會考就能不管。</text>
+
+  <rect x="878" y="730" width="404" height="98" rx="30" fill="#FFF0C6"/>
+  <text x="908" y="788" fill="#6A4A0A" font-size="30" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="900">兩邊一起來，孩子反而容易失去主軸。</text>
+
+  <rect x="270" y="824" width="860" height="40" rx="20" fill="#F5D98B"/>
+  <text x="320" y="853" fill="#60430C" font-size="26" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif" font-weight="900">真正要避免的，是九年級才同時扛兩套考試節奏，最後每天都在切換焦點。</text>
+</svg>

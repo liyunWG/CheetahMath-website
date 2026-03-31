@@ -1,51 +1,621 @@
 <!DOCTYPE html>
-<html lang="zh-Hant"><head>
+<html lang="zh-Hant">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>高中科學班｜獵豹科教</title>
-  <meta name="description" content="獵豹科教整理數理資優、升學目標與家長決策，也提供課程、文章、家長導航與獵豹菁英內容。">
+  <title>科學班專頁｜九年級資優生的高中特殊升學管道｜獵豹教育</title>
+  <meta name="description" content="科學班是九年級資優生在會考前就完成的高中獨立招生管道。本頁整理科學班時程、學生樣貌、備考重點、獵豹前瞻教學，以及 10 校簡章與官方試題下載入口。">
+  <meta name="keywords" content="科學班,科學班準備,科學班考試,科學班簡章,科學班歷屆試題,建中科學班,北一女科學班,武陵科學班,資優生升學,獵豹教育">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="zh_TW">
-  <meta property="og:site_name" content="獵豹科教">
-  <meta property="og:title" content="獵豹科教｜數理資優學習系統">
-  <meta property="og:description" content="獵豹科教整理數理資優、升學目標與家長決策，也提供課程、文章、家長導航與獵豹菁英內容。">
+  <meta property="og:site_name" content="獵豹教育">
+  <meta property="og:title" content="科學班專頁｜九年級資優生的高中特殊升學管道">
+  <meta property="og:description" content="一次看懂科學班時程、學生樣貌、備考節奏、官方簡章與歷屆試題入口。">
   <meta property="og:url" content="https://cheetah-math-website.vercel.app/need-science-class.html">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="獵豹科教｜數理資優學習系統">
-  <meta name="twitter:description" content="獵豹科教整理數理資優、升學目標與家長決策，也提供課程、文章、家長導航與獵豹菁英內容。">
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <script src="assets/data/elite-data.js" defer=""></script>
-  <script src="assets/js/site.js" defer=""></script>
-  <script src="assets/js/elite-pages.js" defer=""></script>
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="科學班專頁｜九年級資優生的高中特殊升學管道">
+  <meta name="twitter:description" content="本頁最下方已整理 10 校簡章與官方試題下載入口，家長可直接收藏。">
   <link rel="canonical" href="https://cheetah-math-website.vercel.app/need-science-class.html">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .science-page .page-hero{padding-top:40px}
+    .science-page .hero-panel--science{display:grid;gap:20px;background:radial-gradient(circle at top right,rgba(255,240,184,.72),transparent 36%),linear-gradient(155deg,rgba(18,37,72,.98),rgba(18,37,72,.92) 55%,rgba(28,48,82,.96));color:#fff;border-color:rgba(255,225,142,.28);overflow:hidden}
+    .science-page .hero-panel--science p,.science-page .hero-panel--science li{color:rgba(255,248,233,.9)}
+    .hero-kicker{display:inline-flex;align-items:center;gap:8px;width:fit-content;padding:8px 14px;border-radius:999px;background:rgba(255,242,188,.14);border:1px solid rgba(255,235,170,.24);font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+    .hero-highlight{display:grid;gap:10px;padding:18px 20px;border-radius:22px;background:linear-gradient(135deg,rgba(255,239,183,.98),rgba(255,247,216,.92));color:#22190c;box-shadow:0 22px 44px rgba(13,20,40,.22)}
+    .hero-highlight strong{font-size:20px;color:#3f2904!important}
+    .hero-highlight p{color:#2a1f10!important;line-height:1.8;font-weight:800}
+    .hero-action-row,.download-action-row{display:flex;flex-wrap:wrap;gap:12px}
+    .science-page .button--hero{color:#2b1f0d}
+    .science-page .button--ghost{color:#fff;border-color:rgba(255,228,148,.25);background:rgba(255,255,255,.08)}
+    .hero-side-stack{display:grid;gap:18px}
+    .hero-side-card{padding:22px;border-radius:26px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.95));border:1px solid rgba(185,147,72,.24);box-shadow:var(--shadow)}
+    .hero-side-card h2,.hero-side-card h3{color:var(--navy)}
+    .hero-side-card ul{padding-left:18px;display:grid;gap:8px}
+    .science-metrics{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    .science-metric{padding:18px;border-radius:22px;background:linear-gradient(180deg,#fff7df,#fffdf7);border:1px solid rgba(185,147,72,.22);text-align:center}
+    .science-metric strong{display:block;font-size:clamp(28px,5vw,38px);line-height:1;color:var(--gold);margin-bottom:8px}
+    .counter-number{font-variant-numeric:tabular-nums}
+    .notice-ribbon{position:sticky;top:78px;z-index:40;margin-bottom:6px}
+    .notice-ribbon__inner{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;border-radius:999px;background:linear-gradient(135deg,rgba(183,132,26,.96),rgba(255,235,170,.98));color:#2f2310!important;box-shadow:0 16px 32px rgba(185,147,72,.25);border:1px solid rgba(255,248,229,.65)}
+    .notice-ribbon__inner strong{font-size:15px;line-height:1.5;color:#2f2310!important}
+    .notice-ribbon__inner a{font-weight:900;color:#53380c;white-space:nowrap}
+    .timeline{position:relative;display:grid;gap:18px;padding-left:22px}
+    .timeline::before{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(185,147,72,.18),rgba(185,147,72,.92),rgba(185,147,72,.18))}
+    .timeline-item{position:relative;padding:22px 22px 22px 26px;border-radius:24px;border:1px solid rgba(185,147,72,.18);background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,251,244,.95));box-shadow:var(--shadow)}
+    .timeline-item::before{content:"";position:absolute;left:-24px;top:26px;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#f5d15a,#a97916);box-shadow:0 0 0 6px rgba(185,147,72,.15)}
+    .timeline-item__date{display:inline-flex;padding:6px 12px;border-radius:999px;background:rgba(18,37,72,.06);color:var(--navy);font-size:13px;font-weight:900;margin-bottom:10px}
+    .timeline-item h3{margin-bottom:8px;color:var(--navy);font-size:24px}
+    .timeline-lead{padding:20px 22px;border-radius:24px;background:linear-gradient(135deg,rgba(255,248,219,.95),rgba(255,255,255,.94));border:1px solid rgba(185,147,72,.2);box-shadow:var(--shadow);margin-bottom:18px}
+    .lift-card{display:grid;gap:12px;min-height:100%}
+    .lift-card h3{color:var(--navy)}
+    .icon-pill{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:18px;font-size:24px;background:linear-gradient(135deg,#fff6d7,#fffdf7);border:1px solid rgba(185,147,72,.2)}
+    .gold-panel{padding:24px;border-radius:28px;background:linear-gradient(145deg,#b47a08 0%,#e2b93f 22%,#fff7bf 44%,#f6cf52 60%,#d89e18 82%,#fff4c9 100%);color:#2c200e;border:1px solid rgba(255,248,229,.82);box-shadow:0 24px 46px rgba(185,147,72,.3),inset 0 1px 0 rgba(255,255,255,.75)}
+    .gold-panel p,.gold-panel li{color:rgba(44,32,14,.88)}
+    .gold-panel strong{color:#6f4a08}
+    .prep-layout,.journey-layout,.expert-layout,.download-layout,.learning-layout{display:grid;gap:18px}
+    .science-visual{display:grid;gap:18px;padding:24px;border-radius:28px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,249,239,.96));border:1px solid rgba(185,147,72,.18);box-shadow:var(--shadow)}
+    .learning-layout .card{min-height:100%}
+    .learning-stack{display:grid;gap:18px}
+    .learning-feature{display:grid;gap:12px;padding:22px;border-radius:24px;background:linear-gradient(180deg,#fffefb,#fff8eb);border:1px solid rgba(185,147,72,.18)}
+    .learning-feature h3{color:var(--navy)}
+    .prep-frame{display:grid;gap:18px;padding:24px;border-radius:28px;background:linear-gradient(180deg,#13274c 0%,#0f1f3e 100%);box-shadow:var(--shadow)}
+    .prep-comic{display:block;width:100%;height:auto;border-radius:24px;border:1px solid rgba(185,147,72,.18);box-shadow:var(--shadow);background:#fff}
+    .prep-stress{display:grid;gap:14px}
+    .prep-stress__row{display:grid;gap:10px}
+    .prep-stress__head{display:flex;justify-content:space-between;gap:12px;color:#fff;font-weight:900}
+    .prep-stress__bar{position:relative;height:18px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
+    .prep-stress__fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:inherit}
+    .prep-stress__fill--science{background:linear-gradient(90deg,#ff9a5b,#ffcf99);--target:88%}
+    .prep-stress__fill--exam{background:linear-gradient(90deg,#f8d15f,#ffecaf);--target:92%}
+    .prep-stress__note{padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,231,163,.18);color:rgba(255,247,231,.94)}
+    .prep-metric-grid{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .prep-metric{padding:18px;border-radius:22px;background:linear-gradient(180deg,#fffaf1,#ffffff);border:1px solid rgba(185,147,72,.18);text-align:center}
+    .prep-metric strong{display:block;font-size:clamp(30px,4vw,42px);line-height:1;color:var(--navy);margin-bottom:8px}
+    .prep-compare{display:grid;gap:12px}
+    .prep-compare__card{padding:18px 20px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.94));border:1px solid rgba(185,147,72,.18)}
+    .prep-compare__card h3{color:var(--navy);margin-bottom:8px}
+    .journey-steps,.signal-strip,.feature-comparison,.long-view-grid,.faq-list{display:grid;gap:14px}
+    .journey-step,.long-view-card,.faq-item{display:grid;gap:8px;padding:18px 20px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.94));border:1px solid rgba(185,147,72,.18)}
+    .journey-step strong,.faq-item h3,.long-view-card h3{color:var(--navy)}
+    .signal-pill{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:18px 20px;border-radius:22px;background:linear-gradient(135deg,rgba(18,37,72,.94),rgba(24,46,85,.94));color:#fff;box-shadow:0 20px 36px rgba(18,37,72,.18)}
+    .signal-pill strong{color:#ffd66d}
+    .comparison-band{position:relative;padding:20px 22px;border-radius:26px;overflow:hidden;border:1px solid rgba(185,147,72,.2);background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,249,239,.95));box-shadow:var(--shadow)}
+    .comparison-band__bar{position:relative;height:16px;margin:14px 0 10px;border-radius:999px;background:rgba(18,37,72,.1);overflow:hidden}
+    .comparison-band__fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#b17a0a,#f2cd59,#ffe79a)}
+    .comparison-band__fill--secondary{background:linear-gradient(90deg,#14284d,#20497d,#6b91c4)}
+    .reveal.is-visible .prep-stress__fill{animation:fillGrow 1.4s ease forwards}
+    .reveal.is-visible .comparison-band__fill{animation:fillGrow 1.3s ease forwards}
+    .reveal.is-visible .comparison-band__fill--secondary{animation-delay:.2s}
+    .expert-video{position:relative;width:100%;padding-top:56.25%;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(185,147,72,.18)}
+    .expert-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+    .video-fallback{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+    .program-card,.download-card{display:grid;gap:12px}
+    .download-card h3{color:var(--navy);font-size:22px}
+    .download-card__list{display:grid;gap:10px}
+    .download-card__item{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.88);border:1px solid rgba(185,147,72,.14)}
+    .download-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border-radius:999px;font-weight:900;color:#2b1f0d;background:linear-gradient(135deg,#f3e3bb,#fffefa);border:1px solid rgba(185,147,72,.25)}
+    .download-link--primary{background:linear-gradient(135deg,#b88312 0%,#e2b93f 18%,#fff0a5 42%,#f9d45f 62%,#d29b1f 82%,#fff3bf 100%);border-color:transparent;box-shadow:0 14px 28px rgba(185,147,72,.24)}
+    .download-empty{padding:18px;border-radius:20px;background:rgba(18,37,72,.04);color:var(--muted);border:1px dashed rgba(18,37,72,.14)}
+    .faq-item h3{margin-bottom:8px;font-size:21px}
+    @keyframes fillGrow{from{width:0}to{width:var(--target,100%)}}
+    @media (min-width:720px){.prep-layout,.journey-layout,.expert-layout,.download-layout,.long-view-grid,.feature-comparison,.learning-layout{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (min-width:980px){.prep-layout,.journey-layout{grid-template-columns:1.05fr .95fr}.expert-layout{grid-template-columns:1.08fr .92fr}.download-layout{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media (max-width:979px){.notice-ribbon{top:68px}.notice-ribbon__inner{border-radius:24px}}
+    @media (max-width:719px){
+      .science-page .page-hero{padding-top:24px}
+      .science-page h1{font-size:clamp(34px,11vw,50px);line-height:1.08}
+      .hero-panel--science,.hero-side-card,.science-visual,.gold-panel,.comparison-band,.card,.timeline-item,.timeline-lead,.learning-feature,.journey-step,.long-view-card,.faq-item{padding:18px}
+      .hero-highlight{padding:16px}
+      .science-metrics,.prep-metric-grid,.download-layout,.learning-layout,.expert-layout,.prep-layout,.journey-layout,.long-view-grid,.feature-comparison{grid-template-columns:1fr}
+      .hero-action-row,.download-action-row,.notice-ribbon__inner,.video-fallback{flex-direction:column;align-items:stretch}
+      .notice-ribbon{top:64px}
+      .notice-ribbon__inner{border-radius:24px;padding:14px 16px}
+      .notice-ribbon__inner a{text-align:center}
+      .timeline{padding-left:18px}
+      .timeline::before{left:4px}
+      .timeline-item{padding-left:20px}
+      .timeline-item::before{left:-20px;top:22px}
+      .prep-frame{padding:18px}
+      .download-card__item{align-items:flex-start}
+      .download-link{width:100%}
+    }
+    @media (max-width:479px){
+      .hero-kicker{font-size:12px;padding:7px 12px}
+      .hero-highlight strong{font-size:18px}
+      .science-metric strong,.prep-metric strong{font-size:34px}
+      .section-heading p{font-size:15px}
+    }
+  </style>
 </head>
 <body>
-  <div class="site-shell">
+  <div class="site-shell science-page">
     <header class="topbar">
       <div class="topbar__inner">
         <a class="brand" href="index.html">
-          <span class="brand__title"><img src="pic/logo.png" alt="獵豹科教 logo"></span>
-          <span class="brand__subtitle">高中科學班</span>
+          <span class="brand__title"><img src="pic/logo.png" alt="獵豹教育 logo"></span>
+          <span class="brand__subtitle">科學資優與升學路線導航</span>
         </a>
-        <button type="button" class="topbar__nav-toggle" aria-expanded="false" aria-label="Open menu"><span class="topbar__nav-toggle-bar"></span></button><nav class="nav"><a class="" href="index.html">首頁</a><a class="" href="one-page.html">一頁認識獵豹</a><a class="" href="needs.html">家長導航</a><a class="" href="courses.html">課程總覽</a><a class="" href="students.html">獵豹菁英</a><a class="" href="columns.html">文章專欄</a><a class="" href="star-mom.html">星媽的正能量</a><a class="" href="news.html">最新消息</a><a class="" href="learning-system.html">學習系統</a><a class="" href="about.html">關於獵豹</a><a class="" href="search.html">全站搜尋</a></nav>
+        <button type="button" class="topbar__nav-toggle" aria-expanded="false" aria-label="開啟選單"><span class="topbar__nav-toggle-bar"></span></button>
+        <nav class="nav">
+          <a href="index.html">首頁</a>
+          <a href="one-page.html">一頁式總覽</a>
+          <a class="is-active" href="needs.html">家長導航</a>
+          <a href="courses.html">課程總覽</a>
+          <a href="students.html">學生故事</a>
+          <a href="columns.html">教育專欄</a>
+          <a href="star-mom.html">明星家長</a>
+          <a href="news.html">最新消息</a>
+          <a href="learning-system.html">教學系統</a>
+          <a href="about.html">關於獵豹</a>
+          <a href="search.html">站內搜尋</a>
+        </nav>
       </div>
     </header>
-    <main class="page"><section class="page-hero"><div class="container"><span class="eyebrow">家長導航</span><h1>高中科學班</h1><p>需要數理深度、探究能力與跨科整合。</p><div class="page-nav"><a class="button button--primary" href="course-science-camp.html">看建議課程</a><a class="back-link" href="needs.html">回家長導航</a><a class="back-link" href="index.html">回首頁</a></div></div></section><section class="section "><div class="container"><div class="section-heading reveal is-visible"><h2>這個目標要先看懂的三件事</h2><p>比起急著報班，先判斷孩子目前在哪裡更重要。</p></div><div class="grid grid--3"><article class="card reveal"><h3>重點 1</h3><p>數學與自然要一起看。</p></article><article class="card reveal"><h3>重點 2</h3><p>要提前布局實驗與表達。</p></article><article class="card reveal"><h3>重點 3</h3><p>短衝很難補起真正實力。</p></article></div></div></section><section class="section "><div class="container"><div class="section-heading reveal"><h2>延伸閱讀</h2><p>把家長最常一起關心的內容一起放進來。</p></div><div class="grid grid--2"><article class="card reveal"><div class="cover-art cover-art--navy"><span>金色路徑圖</span></div><div class="card__meta-row"><span class="chip">2026-03-10</span><span class="chip chip--muted">教學觀點</span></div><h3>如何為孩子規劃一條不焦慮的資優路徑</h3><p>很多家長不是不努力，而是資訊太多，最後每個方向都想抓。真正需要的是先把目標、時間與程度排清楚。</p><div class="tag-row"><span class="tag">學習規劃</span><span class="tag">資優</span><span class="tag">家長決策</span></div><a class="card-link" href="article-gifted-path.html">閱讀更多</a></article><article class="card reveal"><div class="cover-art cover-art--navy"><span>深藍題本</span></div><div class="card__meta-row"><span class="chip">2026-02-28</span><span class="chip chip--muted">升學策略</span></div><h3>準備私中，不只是把難題做完</h3><p>私中準備的核心不是單題難度，而是穩定度、完成率與題型辨識力。</p><div class="tag-row"><span class="tag">私中</span><span class="tag">國小</span><span class="tag">數學</span></div><a class="card-link" href="article-private-school.html">閱讀更多</a></article><article class="card reveal"><h3>對應課程</h3><p>若你已大致確認目標與方向，可以先看對應課程，再決定是否需要諮詢。</p><a class="card-link" href="course-science-camp.html">前往課程頁</a></article></div></div></section></main>
-    <footer class="footer"><div class="footer__inner"><div class="footer-grid"><div><h3>獵豹科教</h3><p>獵豹科教把數理資優、升學目標與家長決策整理成更清楚的學習路徑。</p></div><div><h3>快速入口</h3><div class="footer-links"><a href="one-page.html">一頁認識獵豹</a><a href="needs.html">家長導航</a><a href="search.html">全站搜尋</a></div></div><div><h3>社群與客服</h3><div class="footer-social"><a class="footer-social__link footer-social__link--line" href="https://lin.ee/RsjA0Yd" target="_blank" rel="noreferrer"><img src="pic/line_icon.png" alt="官方 Line"><span>一對一專業教育諮詢</span></a><a class="footer-social__link" href="https://www.facebook.com/groups/695697124716309" target="_blank" rel="noreferrer"><img src="pic/FB_icon.png" alt="Facebook"><span>Facebook 社團</span></a><a class="footer-social__link" href="https://www.youtube.com/@liyuncheetah" target="_blank" rel="noreferrer"><img src="pic/YT_icon.png" alt="YouTube"><span>YouTube 頻道</span></a></div></div></div></div></footer>
-    <div class="social-float"><a class="social-float__link social-float__link--line" href="https://lin.ee/RsjA0Yd" target="_blank" rel="noreferrer"><span class="social-float__badge">一對一專業<br>教育諮詢</span><img src="pic/line_icon.png" alt="官方 Line"></a><a class="social-float__link" href="https://www.facebook.com/groups/695697124716309" target="_blank" rel="noreferrer"><img src="pic/FB_icon.png" alt="Facebook"></a><a class="social-float__link" href="https://www.youtube.com/@liyuncheetah" target="_blank" rel="noreferrer"><img src="pic/YT_icon.png" alt="YouTube"></a></div>
+
+    <main class="page">
+      <section class="page-hero">
+        <div class="container page-hero__grid">
+          <article class="hero-panel hero-panel--science reveal">
+            <span class="hero-kicker">家長導航區｜科學班專頁</span>
+            <div>
+              <span class="eyebrow">九年級資優生的特殊升學管道</span>
+              <h1>科學班是在會考前就完成的<br>高中獨立招生</h1>
+              <p>對許多資優生家庭來說，科學班不是單純多做題目，而是一段提早切換學習節奏、重整眼界與能力上限的歷程。這條路從二月說明會與報名開始，三月初試、三月底複試與放榜，等到五月底會考時，真正挑戰科學班的孩子，早已走過一段與同齡同學完全不同的學習軌跡。</p>
+            </div>
+            <div class="hero-highlight">
+              <strong>本頁最下方已整理 10 校簡章與官方試題下載入口</strong>
+              <p>如果你只想先把最重要資料收藏起來，建議先跳到文末下載區。本站的核心，就是讓家長能一站式取得資優生真正需要知道的科學班資訊，弭平訊息差。</p>
+            </div>
+            <div class="hero-action-row">
+              <a class="button button--primary button--hero" href="#downloads-brochures">直接看各校簡章</a>
+              <a class="button button--primary button--hero" href="#downloads-tests">直接看官方試題</a>
+              <a class="button button--ghost" href="course-fa00.html">了解獵豹科學班備考課程</a>
+            </div>
+          </article>
+          <aside class="hero-side-stack">
+            <article class="hero-side-card reveal">
+              <h2>家長先抓住三件事</h2>
+              <ul>
+                <li>科學班是獨立招生，不是等會考成績出來才開始。</li>
+                <li>真正的準備重點，不只是超前，而是高難度知識的吸收速度與思考品質。</li>
+                <li>即使最後沒有進入科學班，正確訓練累積下來的數學與科學優勢，往往會一路帶到高中。</li>
+              </ul>
+            </article>
+            <article class="hero-side-card reveal">
+              <h3>關鍵數字</h3>
+              <div class="science-metrics">
+                <div class="science-metric"><strong><span class="counter-number" data-target="2" data-suffix=" 月">0</span></strong><span>各校說明會與報名開始</span></div>
+                <div class="science-metric"><strong><span class="counter-number" data-target="3" data-suffix=" 月">0</span></strong><span>全台 10 間科學班統一初試日期</span></div>
+                <div class="science-metric"><strong><span class="counter-number" data-target="30" data-suffix=" 人">0</span></strong><span>以建中科學班為例，名額極少</span></div>
+                <div class="science-metric"><strong><span class="counter-number" data-target="10" data-suffix=" 校">0</span></strong><span>文末提供簡章與官方資源入口</span></div>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </section>
+
+      <section class="notice-ribbon">
+        <div class="container">
+          <div class="notice-ribbon__inner">
+            <strong>家長請先記住：本頁最下方已整理好「10 校簡章」與「官方歷屆試題 / 範例題入口」，可直接點選下載。</strong>
+            <a href="#downloads-tests">跳到下載區</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>科學班招生時間軸</h2>
+            <p>最重要的觀念，是科學班招生早於會考。當其他孩子還在用一般升學節奏前進時，決定衝科學班的學生，已經在獨立招生的軸線上持續加速。</p>
+          </div>
+          <div class="timeline-lead reveal">
+            <p><strong>先抓核心：</strong>科學班不是等會考考完才處理的選項，而是在會考前就完成的各校獨立招生。對家長來說，時間點一旦看錯，整個準備節奏就會錯位。</p>
+          </div>
+          <div class="timeline">
+            <article class="timeline-item reveal"><span class="timeline-item__date">Step 1</span><h3>二月｜各校說明會與報名</h3><p>開始蒐集學校風格、甄選方式、學習資源、報名規定與資料繳交節點。這一步不是行政而已，而是確認家庭是否真的要投入這條路。</p></article>
+            <article class="timeline-item reveal"><span class="timeline-item__date">Step 2</span><h3>三月初｜初試</h3><p>全台 10 間科學班統一日期初試，代表孩子幾乎不可能同時應付多所學校的不同考法，只能用真正的能力厚度去面對。</p></article>
+            <article class="timeline-item reveal"><span class="timeline-item__date">Step 3</span><h3>三月底｜複試</h3><p>複試更能看出學生的思考力、整合力、實作力與臨場表現。這裡往往不再只是考熟悉度，而是看孩子如何處理陌生材料與新情境。</p></article>
+            <article class="timeline-item reveal"><span class="timeline-item__date">Step 4</span><h3>三月底到四月｜公告錄取名單</h3><p>許多家庭到這一步才真正感受到，科學班是一條在會考前就已經分出不同軌道的升學路線。</p></article>
+            <article class="timeline-item reveal"><span class="timeline-item__date">Step 5</span><h3>五月底｜會考</h3><p>會考當然仍然重要，但對於認真衝刺科學班的學生來說，真正的高強度訓練與能力檢驗，其實早在前面就已經展開。</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>科學班的學生是什麼樣子的？</h2>
+            <p>真正走進科學班的孩子，通常不是傳統印象中的「十項全能、樣樣都第一」，而是一群各自帶著強項、彼此碰撞之後更加進步的學生。</p>
+          </div>
+          <div class="grid grid--2">
+            <article class="card lift-card reveal">
+              <span class="icon-pill">⚡</span>
+              <h3>臥虎藏龍，不再期待一個人樣樣都頂尖</h3>
+              <p>科學班裡常見的是每個孩子在不同面向各有突出之處。有人抽象思考很強，有人實驗觀察敏銳，有人閱讀與整理資訊極快。真正珍貴的，不是什麼都最強，而是進入一個能讓能力被拉高的環境。</p>
+            </article>
+            <article class="card lift-card reveal">
+              <span class="icon-pill">🚀</span>
+              <h3>同儕之間的互相學習與激勵，是最好的推進器</h3>
+              <p>當身邊都是認真、反應快、願意挑戰難題的同學，孩子會自然進入更高標準的學習狀態。很多進步，不是靠家長催，而是被環境帶起來。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>科學班的學習有什麼？</h2>
+            <p>家長真正要看到的，不只是「提早學」三個字，而是孩子接觸問題、資源、世界與同儕的尺度都被打開了。</p>
+          </div>
+          <div class="learning-layout">
+            <article class="card reveal">
+              <div class="learning-stack">
+                <div class="learning-feature">
+                  <span class="icon-pill">🧪</span>
+                  <h3>課程加深、加廣、加速</h3>
+                  <p>科學班的學習核心，不只是活動多，而是內容密度真的不同。像是兩年完成高中三年課程，讓孩子提早進入更高階的數學與自然思維。</p>
+                </div>
+                <div class="learning-feature">
+                  <span class="icon-pill">🏫</span>
+                  <h3>校內外活動非常豐富</h3>
+                  <p>除了校內專題、校外營隊、競賽與成果發表，還常有大學參訪、實驗室實作、科教館活動、企業或研究機構參訪等多元機會。</p>
+                </div>
+              </div>
+            </article>
+            <article class="card reveal">
+              <div class="learning-stack">
+                <div class="learning-feature">
+                  <span class="icon-pill">🌍</span>
+                  <h3>跨校、跨國、跨領域的眼界打開</h3>
+                  <p>跨校交流、國外參訪、不同學校聯合活動與課程合作，讓孩子不是只在原班級裡突出，而是逐步走進更大的學習網絡。</p>
+                </div>
+                <div class="learning-feature">
+                  <span class="icon-pill">🚀</span>
+                  <h3>從高中一路延伸到大學</h3>
+                  <p>從高三到大學修課、專題探索到實際研究導向的訓練，學生會提早知道自己的能力可以走到哪裡，也更早理解真正的科學學習長什麼樣子。</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>什麼時候開始準備？</h2>
+            <p>如果已經下定決心要挑戰科學班，就要走完整策略，而不是一邊普通升學節奏、一邊抱著試試看的心態，最後變成蠟燭兩頭燒。</p>
+          </div>
+          <div class="prep-layout">
+            <div class="science-visual reveal">
+              <img class="prep-comic" src="pic/science-class-prep-comic.svg" alt="靜態漫畫圖：黑色火柴人站在中間，左邊是較難的科學班，右邊是不能忽略的會考，表達九年級同時面對兩個大考容易兩頭燒。">
+              <div class="prep-stress__note">這張漫畫圖要表達的重點是：科學班本身難度更高，但真正讓孩子最容易卡住的，是九年級同時面對兩個大考，日常安排與注意力一直被拉扯。</div>
+            </div>
+            <div class="science-visual reveal">
+              <h3>如果已經確定要走科學班，就要提早布局</h3>
+              <div class="prep-metric-grid">
+                <div class="prep-metric"><strong><span class="counter-number" data-target="150">0</span></strong><span>北台灣約 150 所國中</span></div>
+                <div class="prep-metric"><strong><span class="counter-number" data-target="30">0</span></strong><span>建中科學班名額</span></div>
+                <div class="prep-metric"><strong><span class="counter-number" data-target="5">0</span><span> : 1</span></strong><span>平均 5 間國中才出 1 位</span></div>
+              </div>
+              <div class="prep-compare">
+                <article class="prep-compare__card">
+                  <h3>提早準備</h3>
+                  <p>可以用比較完整的節奏把難度慢慢墊高，把科學班所需的數學與科學思考穩穩養起來。</p>
+                </article>
+                <article class="prep-compare__card">
+                  <h3>九年級才開始</h3>
+                  <p>就容易變成會考與科學班一起衝，時間切碎、壓力疊高，孩子很難保有穩定吸收與深度思考的空間。</p>
+                </article>
+              </div>
+            </div>
+          </div>
+          <div class="gold-panel reveal" style="margin-top:18px;">
+            <strong>重點提醒：</strong>
+            <p>當孩子決定要考科學班，他的學習歷程就注定會和隔壁同學完全不同。這不是提早偷跑，而是提早進入一套更高密度、更高要求、更需要自律與耐性的訓練系統。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>神奇的備考之旅</h2>
+            <p>這段歷程最珍貴的地方，不在於它看起來很難，而在於孩子會在過程中長出許多高中甚至大學都繼續受用的能力。</p>
+          </div>
+          <div class="journey-layout">
+            <div class="science-visual reveal">
+              <div class="journey-steps">
+                <div class="journey-step"><strong>從被動學習，走向主動追問</strong><p>孩子會開始習慣面對沒有標準套路的題目，學著自己拆解、驗證、重組資訊，而不是只等老師給答案。</p></div>
+                <div class="journey-step"><strong>從會解題，走向會處理陌生知識</strong><p>真正的科學班訓練，不只是做過考古題，而是培養在更短時間內吸收更多知識、面對更高難度內容的能力。</p></div>
+                <div class="journey-step"><strong>從分數導向，走向科學人才養成</strong><p>高品質備考會訓練孩子的抽象推理、閱讀理解、資訊轉換、耐挫力與精準表達。這些能力疊加起來，才更接近真正的科學人才。</p></div>
+              </div>
+            </div>
+            <div class="science-visual reveal">
+              <div class="signal-strip">
+                <div class="signal-pill"><strong>近兩年複試命題風格的提醒</strong><span>有些題目背景可能來自 Wikipedia 條目、科教影片、科普文章，甚至是某個實驗現象的延伸理解。</span></div>
+                <div class="journey-step"><strong>所以，科學班不是只靠刷題</strong><p>如果孩子平常只熟悉固定題型，遇到跨領域材料就容易卡住。反過來說，若平常有訓練閱讀陌生資訊、快速抓重點、把新知識轉成可運算的能力，複試反而更能拉開差距。</p></div>
+                <div class="journey-step"><strong>家長要看見的，是學習質地的改變</strong><p>孩子不只是在背更多，而是在學習如何更快理解、更準推理、更穩表達。這才是科學班準備最值得投資的部分。</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>不只是做考古題，獵豹前瞻教學</h2>
+            <p>如果備考只停在整理舊題，孩子通常只能追過去；真正有價值的訓練，是把能力推到足以面對下一份更難的考卷。</p>
+          </div>
+          <div class="feature-comparison">
+            <article class="comparison-band reveal">
+              <h3>2026 建中科學班數學考題難度，為什麼讓家長震撼？</h3>
+              <p>不少家長在看到 2026 建中科學班數學題後，才真正意識到：坊間很多號稱在準備科學班的課程，和真正考場需要的深度之間，其實仍然有落差。</p>
+              <div class="comparison-band__bar"><div class="comparison-band__fill" style="--target:92%;"></div></div>
+              <p><strong>觀察重點：</strong>不是題目名稱像不像科學班，而是平常訓練的深度，能不能真的對上考場要求。</p>
+            </article>
+            <article class="comparison-band reveal">
+              <h3>獵豹前瞻營模考，才是真正對應難度的訓練</h3>
+              <p>獵豹不是到考前才突然拉高難度，而是平常就穩紮穩打做足夠深度的訓練，讓孩子一步一步長出能對應真正科學班考題的能力。</p>
+              <div class="comparison-band__bar"><div class="comparison-band__fill comparison-band__fill--secondary" style="--target:90%;"></div></div>
+              <p><strong>前瞻教學的價值：</strong>不是臨時衝刺，而是從平時就把孩子帶在正確深度上，穩穩走到考前。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>凡走過必留下痕跡</h2>
+            <p>科學班錄取人數少，結果當然重要，但家長更該放遠的是：正確訓練過的學習能力，絕不會因為一次結果不如預期就化為零。</p>
+          </div>
+          <div class="long-view-grid">
+            <article class="long-view-card reveal"><h3>沒有考上，不代表前面都白費</h3><p>很多孩子即使最後沒有進入科學班，到了數資班、資優班或其他競爭場域，仍然會遇到同一批學生。差別在於，他已經提早建立了處理高難度內容的能力。</p></article>
+            <article class="long-view-card reveal"><h3>認真學過的，最後都會留在自己身上</h3><p>抽象思考、解題速度、抗壓性、閱讀陌生材料的能力，這些不是只服務某一場考試，而是會變成孩子往後學習的底層資產。</p></article>
+            <article class="long-view-card reveal"><h3>正確科學班數學訓練，常把優勢一路帶到高中</h3><p>即便最後沒有就讀科學班，許多受過正確備考訓練的學生，進入高中後仍然能維持數學優勢。因為他不是只記方法，而是已經建立更高階的理解與思考模式。</p></article>
+            <article class="gold-panel reveal"><strong>家長視角要拉遠：</strong><p>科學班備考的價值，不應只用「有沒有錄取」來判斷。更值得看的是，孩子是否藉由這段歷程，變成一個更能獨立學習、更能處理難題、更能長期前進的人。</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>什麼才是正確的科學班備考數學學習？</h2>
+            <p>答案不是更快背完更多章節，而是逐步培養出專家的數學思考模式：看見結構、理解原理、精準建模、快速驗證、清楚表達。</p>
+          </div>
+          <div class="expert-layout">
+            <div class="science-visual reveal">
+              <div class="expert-video">
+                <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/yQoreybV0eY?rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+              </div>
+              <div class="video-fallback">
+                <a class="download-link download-link--primary" href="https://youtu.be/yQoreybV0eY?si=o45JwQbBcuNqypaZ" target="_blank" rel="noreferrer">直接到 YouTube 觀看</a>
+              </div>
+            </div>
+            <article class="gold-panel program-card reveal">
+              <strong>獵豹科學班備考 2604FA00</strong>
+              <p>AI 年代，改變孩子一生的數學課程。獵豹菁英系列，八大頂尖名師帶隊，重點不是補更多，而是把孩子送進真正能對應科學班難度的深水區。</p>
+              <div class="tag-row">
+                <span class="tag">全台最強科學班備考課程</span>
+                <span class="tag">2026 新版 FA00</span>
+                <span class="tag">新增複試題型</span>
+                <span class="tag">AMC / AIME 深水區解析</span>
+              </div>
+              <div class="download-action-row">
+                <a class="download-link download-link--primary" href="course-fa00.html">看課程介紹</a>
+                <a class="download-link" href="https://www.facebook.com/share/p/14Yyxfs4nYZ/" target="_blank" rel="noreferrer">看家長分享</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="downloads-brochures">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>各校簡章下載</h2>
+            <p>以下整理 115 學年度 10 間科學班簡章 PDF，家長可直接下載保存。建議先存好，再回頭對照本頁的時間軸與備考節奏規劃。</p>
+          </div>
+          <div class="download-layout">
+            <article class="card download-card reveal">
+              <h3>北區學校</h3>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>建國中學</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/01_建國中學_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>北一女中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/02_北一女中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>師大附中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/03_師大附中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>武陵高中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/04_武陵高中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+              </div>
+            </article>
+            <article class="card download-card reveal">
+              <h3>中區學校</h3>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>國立竹科實中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/05_國立竹科實中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>臺中一中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/06_臺中一中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>彰化高中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/07_彰化高中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>嘉義高中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/08_嘉義高中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+              </div>
+            </article>
+            <article class="card download-card reveal">
+              <h3>南區學校</h3>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>臺南一中</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/09_臺南一中_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+                <div class="download-card__item"><span>高雄中學</span><a class="download-link download-link--primary" href="20260330_115Science_Class_pdf/10_高雄中學_115科學班甄選入學簡章.pdf" download>下載簡章</a></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="downloads-tests">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>官方歷屆試題與範例題入口</h2>
+            <p>以下連結來自你提供的 <code>Science_class_test_paper.xlsx</code> 官方資源整理，我已逐一檢查頁面可連線，僅保留官方發布或官方站內入口。部分學校公開的是歷屆索引頁、部分是單年度試題、部分是範例題或招生專區。</p>
+          </div>
+          <div class="download-layout">
+            <article class="card download-card reveal">
+              <h3>北區官方入口</h3>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>建中｜歷屆試題（98-114）</span><a class="download-link download-link--primary" href="https://sites.google.com/gl.ck.tp.edu.tw/scienter/%E6%AD%B7%E5%B1%86%E8%A9%A6%E9%A1%8C?authuser=0" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>北一女｜科學班專區</span><a class="download-link" href="https://www.fg.tp.edu.tw/fgscience/%E7%A7%91%E5%AD%B8%E7%8F%AD/" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>北一女｜甄選試題範例</span><a class="download-link download-link--primary" href="https://www.fg.tp.edu.tw/news/%E3%80%90%E7%A7%91%E5%AD%B8%E7%8F%AD%E3%80%91%E7%94%84%E9%81%B8%E8%A9%A6%E9%A1%8C%E7%AF%84%E4%BE%8B/" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>師大附中｜科學班首頁</span><a class="download-link" href="https://www.hs.ntnu.edu.tw/science-class/" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>師大附中｜110 科學能力檢定</span><a class="download-link download-link--primary" href="https://www.hs.ntnu.edu.tw/science-class/content?a=T0RESU5USTNOREU1T0RVPTRVek4ySWpOeGNsVGludGVseQ%3D%3D" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>武陵｜114 科學能力檢定</span><a class="download-link download-link--primary" href="https://www.wlsh.tyc.edu.tw/p/404-1000-39130.php?Lang=zh-tw" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>武陵｜113 科學能力檢定</span><a class="download-link" href="https://www.wlsh.tyc.edu.tw/p/404-1000-36517.php?Lang=zh-tw" target="_blank" rel="noreferrer">前往官方</a></div>
+              </div>
+            </article>
+            <article class="card download-card reveal">
+              <h3>中區官方入口</h3>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>臺中一中｜歷屆試題（105-114）</span><a class="download-link download-link--primary" href="https://tcfsh.tc.edu.tw/p/412-1076-20840.php" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>彰化高中｜歷屆索引（106-114）</span><a class="download-link" href="https://www.chsh.chc.edu.tw/p/412-1009-4510.php" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>彰化高中｜114 初試＋複試</span><a class="download-link download-link--primary" href="https://www.chsh.chc.edu.tw/p/405-1009-182120%2Cc4510.php" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>嘉義高中｜歷屆試題（107-114）</span><a class="download-link download-link--primary" href="https://www.cysh.cy.edu.tw/p/412-1008-888.php" target="_blank" rel="noreferrer">前往官方</a></div>
+              </div>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>竹科實中｜科學班甄選錄取方式說明</span><a class="download-link" href="https://nehs346.wordpress.com/%E9%A6%96%E9%A0%81/%E5%A0%B1%E8%80%83%E8%B3%87%E8%A8%8A/%E6%8B%9B%E7%94%9F%E7%9B%B8%E9%97%9C%E8%A6%8F%E5%AE%9A/%E7%94%84%E9%81%B8%E9%8C%84%E5%8F%96%E6%96%B9%E5%BC%8F/" target="_blank" rel="noreferrer">前往官方</a></div>
+              </div>
+              <div class="download-empty">
+                <strong>竹科實中提醒：</strong>目前沒有找到官方公開的歷屆試題下載頁，因此這裡改提供官方科學班說明頁，方便家長先了解甄選方式與制度。
+              </div>
+            </article>
+            <article class="card download-card reveal">
+              <h3>南區官方入口</h3>
+              <div class="download-card__list">
+                <div class="download-card__item"><span>臺南一中｜114 初試＋複試</span><a class="download-link download-link--primary" href="https://www.tnfsh.tn.edu.tw/sub/latestevent/Details.aspx?Parser=9%2C31%2C200%2C%2C%2C%2C18451" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>臺南一中｜113 初試＋複試</span><a class="download-link" href="https://www.tnfsh.tn.edu.tw/sub/latestevent/Details.aspx?Parser=9%2C31%2C200%2C%2C%2C%2C18449" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜歷屆索引（105-114）</span><a class="download-link" href="https://www.kshs.kh.edu.tw/sub/form/index?Parser=2%2C34%2C211" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜歷屆索引第 2 頁（補 104）</span><a class="download-link" href="https://www.kshs.kh.edu.tw/sub/form/index?Parser=2%2C34%2C211%2C%2C%2C%2C%2C%2C%2C%2C1" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜114 初試試題</span><a class="download-link download-link--primary" href="https://www.kshs.kh.edu.tw/sub/form/Details?Parser=2%2C34%2C211%2C%2C%2C%2C317" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜113 初試試題</span><a class="download-link" href="https://www.kshs.kh.edu.tw/sub/form/Details?Parser=2%2C34%2C211%2C%2C%2C%2C200" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜112 初試試題</span><a class="download-link" href="https://www.kshs.kh.edu.tw/sub/form/Details?Parser=2%2C34%2C211%2C%2C%2C%2C199" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜109 初試試題</span><a class="download-link" href="https://www.kshs.kh.edu.tw/sub/form/Details?Parser=2%2C34%2C211%2C%2C%2C%2C196" target="_blank" rel="noreferrer">前往官方</a></div>
+                <div class="download-card__item"><span>高雄中學｜104 初試試題</span><a class="download-link" href="https://www.kshs.kh.edu.tw/sub/form/Details?Parser=2%2C34%2C211%2C%2C%2C%2C191" target="_blank" rel="noreferrer">前往官方</a></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section-heading reveal">
+            <h2>家長常見問題</h2>
+            <p>如果你是第一次接觸科學班，先把以下三件事想清楚，後續選課、排程與資源分配就會穩很多。</p>
+          </div>
+          <div class="faq-list">
+            <article class="faq-item reveal"><h3>科學班是不是只適合「天生超強」的學生？</h3><p>不是。真正適合的孩子，往往是對知識有強烈好奇、能接受挑戰、願意投入高密度訓練的人。天分重要，但持續訓練與環境刺激更重要。</p></article>
+            <article class="faq-item reveal"><h3>科學班準備會不會耽誤會考？</h3><p>如果沒有完整規劃，確實可能兩頭燒；但若從一開始就用正確節奏準備，孩子在數學、理解力、抽象思考與時間管理上的成長，反而常會反映到後續整體表現。</p></article>
+            <article class="faq-item reveal"><h3>家長該怎麼判斷孩子需不需要走這條路？</h3><p>除了看成績，更要看孩子面對陌生難題時的反應、對高難度知識的耐受度、是否願意長時間投入，以及家庭能否接受這條路對作息與節奏的重新配置。</p></article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <div class="footer-grid">
+          <div>
+            <h3>獵豹教育</h3>
+            <p>獵豹教育專注於資優生、科學班、數理資優與高階數學學習路線，協助家長掌握真正重要的升學資訊與能力養成方向。</p>
+          </div>
+          <div>
+            <h3>快速入口</h3>
+            <div class="footer-links">
+              <a href="one-page.html">一頁式總覽</a>
+              <a href="needs.html">家長導航</a>
+              <a href="search.html">站內搜尋</a>
+            </div>
+          </div>
+          <div>
+            <h3>聯絡獵豹</h3>
+            <div class="footer-social">
+              <a class="footer-social__link footer-social__link--line" href="https://lin.ee/RsjA0Yd" target="_blank" rel="noreferrer"><img src="pic/line_icon.png" alt="Line"><span>加入 Line 詢問課程</span></a>
+              <a class="footer-social__link" href="https://www.facebook.com/groups/695697124716309" target="_blank" rel="noreferrer"><img src="pic/FB_icon.png" alt="Facebook"><span>Facebook 社團</span></a>
+              <a class="footer-social__link" href="https://www.youtube.com/@liyuncheetah" target="_blank" rel="noreferrer"><img src="pic/YT_icon.png" alt="YouTube"><span>YouTube 頻道</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div class="social-float">
+      <a class="social-float__link social-float__link--line" href="https://lin.ee/RsjA0Yd" target="_blank" rel="noreferrer"><span class="social-float__badge">加入 Line<br>快速詢問</span><img src="pic/line_icon.png" alt="Line"></a>
+      <a class="social-float__link" href="https://www.facebook.com/groups/695697124716309" target="_blank" rel="noreferrer"><img src="pic/FB_icon.png" alt="Facebook"></a>
+      <a class="social-float__link" href="https://www.youtube.com/@liyuncheetah" target="_blank" rel="noreferrer"><img src="pic/YT_icon.png" alt="YouTube"></a>
+    </div>
   </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</body></html>
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"Article","headline":"科學班專頁｜九年級資優生的高中特殊升學管道","description":"一次看懂科學班時程、學生樣貌、備考節奏、學習歷程，以及 10 校簡章與官方試題入口。","inLanguage":"zh-Hant","author":{"@type":"Organization","name":"獵豹教育"},"publisher":{"@type":"Organization","name":"獵豹教育"},"mainEntityOfPage":"https://cheetah-math-website.vercel.app/need-science-class.html"}
+  </script>
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"科學班是什麼？","acceptedAnswer":{"@type":"Answer","text":"科學班是九年級資優生可以參加的高中特殊升學管道，招生流程通常在會考前就完成，各校以獨立招生方式辦理。"}},{"@type":"Question","name":"科學班什麼時候開始準備？","acceptedAnswer":{"@type":"Answer","text":"若已明確決定挑戰科學班，通常需要提早進入完整規劃，避免同時追逐太多目標而兩頭燒。"}},{"@type":"Question","name":"科學班準備只是在做超前學習嗎？","acceptedAnswer":{"@type":"Answer","text":"不是。真正有效的科學班備考，核心是訓練學生在有限時間內處理更高難度知識、建立專家型數學與科學思考，逐步養成真正的科學人才。"}}]}
+  </script>
+  <script>
+    (function(){
+      const shell=document.querySelector(".topbar__inner");
+      const button=shell?shell.querySelector(".topbar__nav-toggle"):null;
+      const nav=shell?shell.querySelector(".nav"):null;
+      if(button&&nav){
+        button.addEventListener("click",function(){
+          const open=button.getAttribute("aria-expanded")==="true";
+          button.setAttribute("aria-expanded",String(!open));
+          shell.classList.toggle("is-nav-open",!open);
+          nav.classList.toggle("is-open",!open);
+        });
+        nav.querySelectorAll("a").forEach(function(link){
+          link.addEventListener("click",function(){
+            button.setAttribute("aria-expanded","false");
+            shell.classList.remove("is-nav-open");
+            nav.classList.remove("is-open");
+          });
+        });
+      }
+      const revealItems=document.querySelectorAll(".reveal:not(.is-visible)");
+      const observer=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },{threshold:.18,rootMargin:"0px 0px -8% 0px"});
+      revealItems.forEach(function(item){observer.observe(item);});
+      const counters=document.querySelectorAll(".counter-number");
+      const counterObserver=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(!entry.isIntersecting){return;}
+          const el=entry.target;
+          const target=Number(el.getAttribute("data-target")||"0");
+          const suffix=el.getAttribute("data-suffix")||"";
+          const start=performance.now();
+          const duration=1100;
+          function tick(now){
+            const progress=Math.min((now-start)/duration,1);
+            const value=Math.round(target*progress);
+            el.textContent=String(value)+suffix;
+            if(progress<1){
+              requestAnimationFrame(tick);
+            }else{
+              el.textContent=String(target)+suffix;
+            }
+          }
+          requestAnimationFrame(tick);
+          counterObserver.unobserve(el);
+        });
+      },{threshold:.5,rootMargin:"0px 0px -10% 0px"});
+      counters.forEach(function(counter){
+        counterObserver.observe(counter);
+      });
+    })();
+  </script>
+</body>
+</html>
