@@ -24,7 +24,9 @@
   }
 
   function articleUrl(slug) {
-    return slug ? "article-" + slug + ".html" : "article.html";
+    return slug
+      ? "article.html?slug=" + encodeURIComponent(slug)
+      : "article.html";
   }
 
   function unique(values) {

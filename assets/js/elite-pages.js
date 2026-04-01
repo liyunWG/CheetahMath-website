@@ -24,7 +24,9 @@
   }
 
   function eliteStoryUrl(slug) {
-    return slug ? "elite-story-" + slug + ".html" : "elite-story.html";
+    return slug
+      ? "elite-story.html?slug=" + encodeURIComponent(slug)
+      : "elite-story.html";
   }
 
   function loadEliteData() {
@@ -42,7 +44,7 @@
   }
 
   function renderTags(tags) {
-    const normalized = unique(tags).slice(0, 4);
+    const normalized = unique(tags);
     if (!normalized.length) return "";
     return (
       '<div class="tag-row">' +

@@ -1,2 +1,7 @@
 migration-data/
 backup-before-redesign/
+.edge-headless/
+.edge-headless-amc/
+.edge-headless-private/
+.edge-headless-search/
+tmp/
