@@ -36,6 +36,10 @@ h1,h2,h3,p,ul{margin:0}
 .nav a,.button,.back-link,.goal-chip,.tag,.social-float a,.social-float__link,.card-link,.feature-box,.card,.hero-panel,.search-input,.search-panel select{transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease,background .24s ease,opacity .24s ease}
 .nav a{padding:10px 14px;border-radius:var(--radius-pill);font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap}
 .nav a:hover,.nav a.is-active{color:var(--navy);background:linear-gradient(135deg,rgba(242,224,182,.72),rgba(255,255,255,.92));box-shadow:inset 0 0 0 1px rgba(185,147,72,.28)}
+@media (min-width:980px){
+  .topbar__inner{align-items:flex-start}
+  .nav{flex:1 1 640px;flex-wrap:wrap;justify-content:flex-end;align-items:center;overflow:visible;padding-bottom:0}
+}
 .page{position:relative;z-index:1;padding-bottom:120px}
 .hero,.page-hero,.section{padding:34px 0}
 .hero{padding-top:52px}
