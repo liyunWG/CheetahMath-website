@@ -141,6 +141,10 @@ p,li{color:var(--muted);line-height:1.84}
 .reveal-seq{animation:goalRise .45s ease both;animation-delay:var(--delay)}
 .article-cover-image,.elite-card__cover img{display:block;width:100%;height:auto}
 .article-cover-image{border-radius:20px;border:1px solid var(--line);box-shadow:var(--shadow);background:#fff}
+.course-detail-gallery{display:grid;gap:20px;margin:0 0 24px}
+.article-cover,.course-detail-gallery .article-cover{width:100%;margin:0 0 24px}
+.article-cover:last-child,.course-detail-gallery .article-cover:last-child{margin-bottom:0}
+.article-cover img,.course-detail-gallery .article-cover img{display:block;width:100%;height:auto;margin:0;border-radius:18px;box-shadow:var(--shadow);background:#fff}
 .article-body,.elite-body,.about-body,.about-story-main{min-width:0}
 .article-body :where(img,video,svg,canvas),.elite-body :where(img,video,svg,canvas),.about-body :where(img,video,svg,canvas){max-width:100%;height:auto}
 .article-body :where(a),.elite-body :where(a),.about-body :where(a){overflow-wrap:anywhere;word-break:break-word}

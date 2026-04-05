@@ -1,0 +1,32 @@
+{
+  "slug": "cheetah-salon-107",
+  "title": "數學X程式課是什麼樣子呢？",
+  "date": "2021-12-17",
+  "category": "獵豹私塾",
+  "categorySlug": "cheetah-salon",
+  "bucket": "文章專欄",
+  "summary": "這考驗邏輯分析與思考能力，而不是讓數學只是作計算。",
+  "excerpt": "這考驗邏輯分析與思考能力，而不是讓數學只是作計算。",
+  "sourceUrl": "https://www.cheetahstem.com/news_detail/107",
+  "coverImage": "pic/columns/2023080405502770406.png",
+  "imageUrl": "pic/columns/2023080405502770406.png",
+  "imageName": "2023080405502770406.png",
+  "tags": [
+    "文章專欄",
+    "獵豹私塾",
+    "2021"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<div class=\"is-container-in\">\n<div class=\"remote-row clearfix\">\n<div class=\"column full\">\n<p class=\"normal-txt\"><strong><span style=\"font-size:28px;\">數學X程式課是什麼樣子呢？</span></strong><br />\n<span style=\"font-size:22px;\">謝謝朱安強博士給我們的解說<br />\n影片連結：<a href=\"https://www.facebook.com/100000269015754/videos/246141797590136/\" target=\"_blank\" title=\"\">https://www.facebook.com/100000269015754/videos/246141797590136/</a></span></p>\n</div>\n</div>\n\n<div class=\"remote-row clearfix\">\n<div class=\"column half\">\n<p class=\"normal-txt\"><span style=\"font-size:20px;\">先從 2015 年爆紅的邏輯思考題『謝麗爾生日』來談起。<br />\n<br />\n謝爾麗說：我的生日在以下 10 個日期內。<br />\n5/15,5/16, 5/19, 6/17, 6/18,<br />\n7/14, 7/16, 8/14, 8/15, 8/17<br />\n<br />\n接著將月份告訴 A，再將 日期告訴 B 。</span></p>\n</div>\n\n<div class=\"column half\"><img src=\"pic/columns/2023080405502770406-3e1c89be.png\" /></div>\n</div>\n\n<div class=\"remote-row clearfix\">\n<div class=\"column full\">\n<p class=\"normal-txt\"><span style=\"font-size:20px;\">這時 A 說：我不知道是哪天，但我知道 B 不知道。<br />\n接著 B 說：我原本不知道，我現在知道了。<br />\n接著 A 說：那我現在也知道生日哪一天了。<br />\n<br />\n根據以上對話：你知道謝爾麗的生日是哪天嗎？<br />\n<br />\n原題是來自 SASMO 亞洲學校數奧競賽題，這考驗邏輯分析與思考能力，而不是讓數學只是作計算。<br />\n<br />\n在我們這堂『數學xPython』課，除了要學會分析這道題的思路，還要將這個思路轉化為數學語言表達給電腦聽，也就是寫個 Python 程式來找出這類題的答案！<br />\n<br />\n除了讓程式解題，是否也可以讓程式『出題』呢？<br />\n<br />\n其實這也是相同的原理，你可設定一些相關參數，調整數字的範圍與數量，都可自動產生這些題，在這過程我們會練習迴圈、判斷、列表的使用。<br />\n<br />\n寫程式不是只要認識語法，我們要學會轉化問題，讓我們用數學思維來搭配程式語法寫個好玩動腦的程式吧。<br />\n<br />\n歡迎加入獵豹 朱安強博士 的『 Math X Python』課！<br />\n『CheetahMath程式設計課程四大系列同時開跑<br />\nScratch、Geogebra、Python、C/C++』<br />\n<a href=\"https://www.facebook.com/groups/695697124716309/posts/934298084189544/?__tn__=-UK-R\" role=\"link\" tabindex=\"0\">https://www.facebook.com/groups/695697124716309/permalink/934298084189544</a></span></p>\n</div>\n</div>\n</div>",
+  "notes": "舊站自動搬移於 2026-03-24",
+  "migrationPage": "news/cheetah-salon",
+  "listDescription": "這考驗邏輯分析與思考能力，而不是讓數學只是作計算。",
+  "legacyId": 107,
+  "legacyCategoryId": 11,
+  "legacyCategoryUrl": "https://www.cheetahstem.com/news/11/1",
+  "coverLabel": "",
+  "popularity": 0,
+  "freshness": 0
+}

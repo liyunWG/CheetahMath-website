@@ -1,0 +1,32 @@
+{
+  "slug": "science-talk-230",
+  "title": "祖沖之如何測算冬至",
+  "date": "2020-12-21",
+  "category": "獵豹談科普",
+  "categorySlug": "science-talk",
+  "bucket": "文章專欄",
+  "summary": "這應是歷史上「數學文學的典範」。",
+  "excerpt": "這應是歷史上「數學文學的典範」。",
+  "sourceUrl": "https://www.cheetahstem.com/news_detail/230",
+  "coverImage": "pic/columns/2023082707183422852.png",
+  "imageUrl": "pic/columns/2023082707183422852.png",
+  "imageName": "2023082707183422852.png",
+  "tags": [
+    "文章專欄",
+    "獵豹談科普",
+    "2020"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<div class=\"is-container-in\">\n<div class=\"remote-row clearfix\">\n<div class=\"column full\">\n<h1 class=\"size-38 is-title1-48 is-title-bold is-upper\" style=\"text-align:left;\">祖沖之如何測算冬至</h1>\n</div>\n</div>\n\n<div class=\"remote-row clearfix\">\n<div class=\"column full\">\n<p class=\"normal-txt\"><span style=\"font-size:20px;\">中國南北朝偉大的數學家祖沖之 ，不但在圓周率的計算上領先世界，也對中國的曆法作出劃時代的貢獻 ，創造了「大明曆」，給出一個回歸年是365.2428的精確數字 ，這成就領先了西方幾百年！<br />\n<br />\n他當時為了改革曆法 與朝廷寵臣戴法興進行了一場留名青史、震古鑠今的辯論，後來他寫下著名的「辯戴法興難新曆」載於宋書--律曆志 ，這應是歷史上「數學文學的典範」。<br />\n<br />\n我曾在課堂上背了前幾句：<br />\n<strong>～臣少銳愚尚，專功數術，搜練古今，博採沉奧，唐篇夏典，莫不揆量，周正漢朔，咸加該驗。罄策籌之思，究疏密之辨～</strong><br />\n<br />\n今天12/21 數字是回文 ，節氣是冬至，祖沖之如何測算出每年精確的冬至時刻呢？<br />\n<br />\n說來也簡單，由於竿影變化在短期內成比例，只要把這三天的晷長並列畫出，先從最短的那條晷長頂端，畫一條延長線通過冬至當天測得的晷長頂端，然後再從另一條晷長頂端，反方向畫一條相同斜率的線，兩條線的交會處就是「真正」的冬至時刻晷長。接下來只需要應用線性內插法，用一個簡單的除式就可推算出真正的冬至時刻。</span><br />\n&nbsp;</p>\n\n<p class=\"normal-txt\"><span style=\"font-size:20px;\"><a href=\"https://www.facebook.com/groups/695697124716309/permalink/719668148985873/\" target=\"_blank\" title=\"\">https://www.facebook.com/groups/695697124716309/permalink/719668148985873/</a></span></p>\n</div>\n</div>\n\n<div class=\"remote-row clearfix\">\n<div class=\"column half pic-center-page\"><img src=\"pic/columns/2023082707183422852-7d590ce3.png\" /></div>\n\n<div class=\"column half pic-center-page\"><img src=\"pic/columns/2023082707183568524-fba88127.png\" /></div>\n</div>\n</div>",
+  "notes": "舊站自動搬移於 2026-03-24",
+  "migrationPage": "news/science-talk",
+  "listDescription": "這應是歷史上「數學文學的典範」。",
+  "legacyId": 230,
+  "legacyCategoryId": 10,
+  "legacyCategoryUrl": "https://www.cheetahstem.com/news/10/1",
+  "coverLabel": "",
+  "popularity": 0,
+  "freshness": 0
+}

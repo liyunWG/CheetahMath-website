@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   function qs(selector, root) {
     return (root || document).querySelector(selector);
   }
@@ -33,6 +33,28 @@
     return Array.from(new Set((values || []).filter(Boolean)));
   }
 
+  function escapeRegExp(value) {
+    return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function normalizeAssetSrc(value) {
+    return String(value || "").replace(/&amp;/g, "&").trim();
+  }
+
+  function stripDuplicateImageNodes(html, sources) {
+    let result = String(html || "");
+    unique((sources || []).map(normalizeAssetSrc)).forEach(function (src) {
+      if (!src) return;
+      const escaped = escapeRegExp(src).replace(/&/g, "(?:&|&amp;)");
+      result = result
+        .replace(new RegExp('<p[^>]*>\\s*<img[^>]+src="' + escaped + '"[^>]*>\\s*</p>', "gi"), "")
+        .replace(new RegExp('<div[^>]*>\\s*<img[^>]+src="' + escaped + '"[^>]*>\\s*</div>', "gi"), "")
+        .replace(new RegExp('<figure[^>]*>\\s*<img[^>]+src="' + escaped + '"[^>]*>\\s*</figure>', "gi"), "")
+        .replace(new RegExp('<img[^>]+src="' + escaped + '"[^>]*>', "gi"), "");
+    });
+    return result;
+  }
+
   function updateMeta(title, description) {
     document.title = title;
     [
@@ -62,8 +84,8 @@
     return { categories: categories, items: items };
   }
 
-  function renderTags(tags) {
-    const normalized = unique(tags).slice(0, 4);
+  function renderTags(tags, limit) {
+    const normalized = typeof limit === "number" ? unique(tags).slice(0, limit) : unique(tags);
     if (!normalized.length) return "";
     return (
       '<div class="tag-row">' +
@@ -137,7 +159,7 @@
       "<p>" +
       escapeHtml(item.summary || item.excerpt || "") +
       "</p>" +
-      renderTags(item.tags) +
+      renderTags(item.tags, 4) +
       '<a class="card-link" href="' +
       articleUrl(item.slug) +
       '">閱讀全文</a>' +
@@ -307,11 +329,14 @@
     const heroImage = getCoverImage(item);
     const metaChips = [
       item.date ? "<span><strong>日期：</strong>" + escapeHtml(item.date) + "</span>" : "",
-      item.category ? "<span><strong>分類：</strong>" + escapeHtml(item.category) + "</span>" : "",
-      item.slug ? "<span><strong>slug：</strong>" + escapeHtml(item.slug) + "</span>" : ""
+      item.category ? "<span><strong>分類：</strong>" + escapeHtml(item.category) + "</span>" : ""
     ]
       .filter(Boolean)
       .join("");
+    const bodyHtml = stripDuplicateImageNodes(item.bodyHtml || "<p>這篇文章目前沒有內文。</p>", [heroImage]);
+    const slugBlock = item.slug
+      ? '<div class="elite-story-meta"><span><strong>slug：</strong>' + escapeHtml(item.slug) + "</span></div>"
+      : "";
 
     main.innerHTML =
       '<section class="page-hero">' +
@@ -338,9 +363,10 @@
           '"></div>'
         : "") +
       '<div class="article-body elite-body">' +
-      (item.bodyHtml || "<p>這篇文章目前沒有內文。</p>") +
+      bodyHtml +
       "</div>" +
       (metaChips ? '<div class="elite-story-meta">' + metaChips + "</div>" : "") +
+      slugBlock +
       "</article>" +
       "</div>" +
       "</section>";
@@ -361,3 +387,8 @@
     init();
   }
 })();
+
+
+
+
+

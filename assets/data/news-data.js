@@ -1,35 +1,43 @@
 window.__NEWS_DATA__ = [
   {
-    title: "春季課程諮詢與程度診斷開放預約",
-    date: "2026-03-20",
-    category: "最新消息",
-    tags: ["諮詢", "活動"],
-    keywords: ["諮詢", "程度診斷"],
-    summary: "針對私中、資優鑑定、科學班與長線數理培育需求，開放一對一諮詢。",
-    cover: "診斷開放",
-    popularity: 65,
-    freshness: 100
-  },
-  {
-    title: "科學班前瞻營說明會公告",
-    date: "2026-03-12",
-    category: "活動訊息",
-    tags: ["科學班前瞻營", "說明會"],
-    keywords: ["營隊", "說明會"],
-    summary: "將說明前瞻營內容、適合對象與後續如何銜接科學班準備。",
-    cover: "營隊說明會",
-    popularity: 59,
-    freshness: 90
-  },
-  {
-    title: "首頁精選文章本月已更新",
-    date: "2026-03-03",
-    category: "站務公告",
-    tags: ["網站", "精選文章"],
-    keywords: ["首頁", "文章"],
-    summary: "本月新增家長規劃、AMC 佈局與科學班準備三篇重點文章。",
-    cover: "首頁更新",
-    popularity: 48,
-    freshness: 82
+    "slug": "science-camp-2018019432484065",
+    "title": "獵豹從不說空話 ～「2026 獵豹科學班前瞻營」說到做到‼️",
+    "date": "2026-04-05",
+    "category": "活動訊息",
+    "summary": "從二月模考到科學班放榜，這篇消息完整說明獵豹前瞻營與備考直播講座，並整理難度設計、放榜成果與後續直播安排。",
+    "excerpt": "從二月模考到科學班放榜，這篇消息完整說明獵豹前瞻營與備考直播講座，並整理難度設計、放榜成果與後續直播安排。",
+    "sourceUrl": "https://www.facebook.com/groups/695697124716309/posts/2018019432484065/",
+    "coverImage": "pic/news/news-2018019432484065.jpg",
+    "cover": "科學班前瞻營",
+    "imageName": "news-2018019432484065.jpg",
+    "tags": [
+      "科學班",
+      "數資班",
+      "直播講座",
+      "前瞻營",
+      "模考",
+      "FA00",
+      "2026"
+    ],
+    "keywords": [
+      "科學班",
+      "數資班",
+      "建中科學班",
+      "中一中科學班",
+      "資優數學",
+      "數理資優",
+      "劉璿",
+      "宗翰"
+    ],
+    "keep": "保留",
+    "targetPage": "news.html",
+    "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-48 is-title1-48 is-title-bold\">獵豹從不說空話 ～「2026 獵豹科學班前瞻營」說到做到‼️</h1><p class=\"normal-txt\"><span style=\"font-size:20px;\"><strong>#科學班直播講座 #按贊留言參加 #數學 #自然</strong></span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column half\"><p class=\"normal-txt\"><span style=\"font-size:22px;\">今年二月參與獵豹/劉璿模考的同學 經歷了一次震撼教育❗️</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">數學科原始平均分數僅僅20餘分（滿分108），跟他們平時在補習班的考試成績相距甚遠。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">當時許多家長與同學甚至認為：獵豹的數學題目 刁難學生、販賣焦慮、譁眾取寵…</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">但宗翰老師在考前語重心長地對61位參與模考的同學一段話，堪稱暮鼓晨鐘：</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">「這次的考試，同學們不要在意成績，以我對［你們所接受的訓練］的瞭解（考古題的套路/記憶、刷題的訓練、欠缺思維模式與能力的養成..）這次的考試大家的分數一定不理想！</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">但是從這次考試中檢視自己的不足之處並仔細聆聽我的解析，你會收穫良多。」</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">科學班陸續放榜中，印證了獵豹的「前瞻」絕非虛矯誇大的廣告詞。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">建中的數學初試（比複試題難），考生一片哀嚎，平均分數為近年新低❗️</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">參與獵豹模考的同學驚嘆：原來獵豹的難度才與建科吻合！中一中科學班 亦是如此。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">而獵豹模考一共三位同學的原始分數超過60分。這三位同學都是長期在獵豹網課學習。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">排名第一的同學，在本次建科數學初試分數遙遙領先第二名，T分數超過100‼️</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">排名第二的同學，在本次中一中科班數學初試獲得榜首</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">排名第三的竟是國小六年級的吳仁惠小朋友(貝貝同學)‼️</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">獵豹沒有辜負家長的托付、同學的信任、對得起他們的學費。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>====</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>『科學班／數資班入學考試備考直播講座』</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">因應科學班考科,獵豹特地邀請自然科劉璿老師一同來分享</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>#按讚留言參加</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>📅 時間｜</strong></span><br /><span style=\"font-size:22px;\">2026年4月12日（日）上午10:00-12:00 自然科 劉璿老師</span><br /><span style=\"font-size:22px;\">2026年4月19日（日）上午10:00-12:00 數學科 宗翰老師</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>🎥 形式｜</strong> 線上直播</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>👥 主講｜</strong></span><br /><span style=\"font-size:22px;\">– 宗翰老師（獵豹科教召集人）</span><br /><span style=\"font-size:22px;\">– 劉璿老師（劉璿科學基地召集人）</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">獵豹/劉璿學子在今年科學班入學考試中表現傑出，無論校內外，眾多志在高中科學班／數資班的考生與家長都在詢問──</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">「究竟該如何系統化備考，才能在激烈競爭中脫穎而出？」</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">兩位資優教育領域的頂尖專家，將深入分享：</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">科學班／數資班的出題趨勢與命題思路</span><br /><span style=\"font-size:22px;\">高效備考策略：如何分配學習時間與資源</span><br /><span style=\"font-size:22px;\">歷屆試題解析與重點突破</span><br /><span style=\"font-size:22px;\">心態建設與臨場應試技巧</span><br /><span style=\"font-size:22px;\">家長如何協助孩子持續進步</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">無論你是剛起步的考生，或是已經進入刷題階段的衝刺選手，宗翰老師與劉璿老師的經驗精華與實戰洞見，都將帶給你：</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">清晰的備考路線圖</span><br /><span style=\"font-size:22px;\">一次掌握關鍵提分技巧</span><br /><span style=\"font-size:22px;\">建立自信、穩定發揮的心態準備</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>#按讚留言參加</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">立即行動，和頂尖師資一起，邁向科學班／數資班的成功之路！</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>=========</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">AI年代 改變孩子一生的數學課程 全台最強【科學班備考】課程</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>【獵豹2026新版 FA00】新增：科學班複試題型; AMC/AIME 深水區解析</strong></span></p><p class=\"normal-txt\"><a href=\"https://www.facebook.com/share/p/14Yyxfs4nYZ/\" target=\"_blank\" rel=\"noreferrer\">https://www.facebook.com/share/p/14Yyxfs4nYZ/</a></p><p class=\"normal-txt\"><span style=\"font-size:20px;\"><strong>#科學班 #數資班 #建中科學班 #中一中科學班 #資優數學 #數理資優</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:18px;\"><a href=\"https://www.facebook.com/groups/695697124716309/posts/2018019432484065/\" target=\"_blank\" rel=\"noreferrer\">查看 Facebook 原文</a></span></p></div><div class=\"column half pic-center-page\"><img src=\"pic/news/news-2018019432484065.jpg\" alt=\"獵豹從不說空話 ～「2026 獵豹科學班前瞻營」說到做到‼️\" /></div></div></div>",
+    "bodyText": "獵豹從不說空話 ～「2026 獵豹科學班前瞻營」說到做到‼️\n #科學班直播講座 #按贊留言參加 #數學 #自然\n\n 今年二月參與獵豹/劉璿模考的同學 經歷了一次震撼教育❗️\n 數學科原始平均分數僅僅20餘分（滿分108），跟他們平時在補習班的考試成績相距甚遠。\n 當時許多家長與同學甚至認為：獵豹的數學題目 刁難學生、販賣焦慮、譁眾取寵…\n 但宗翰老師在考前語重心長地對61位參與模考的同學一段話，堪稱暮鼓晨鐘：\n 「這次的考試，同學們不要在意成績，以我對［你們所接受的訓練］的瞭解（考古題的套路/記憶、刷題的訓練、欠缺思維模式與能力的養成..）這次的考試大家的分數一定不理想！\n 但是從這次考試中檢視自己的不足之處並仔細聆聽我的解析，你會收穫良多。」\n 科學班陸續放榜中，印證了獵豹的「前瞻」絕非虛矯誇大的廣告詞。\n 建中的數學初試（比複試題難），考生一片哀嚎，平均分數為近年新低❗️\n 參與獵豹模考的同學驚嘆：原來獵豹的難度才與建科吻合！中一中科學班 亦是如此。\n 而獵豹模考一共三位同學的原始分數超過60分。這三位同學都是長期在獵豹網課學習。\n 排名第一的同學，在本次建科數學初試分數遙遙領先第二名，T分數超過100‼️\n 排名第二的同學，在本次中一中科班數學初試獲得榜首\n 排名第三的竟是國小六年級的吳仁惠小朋友(貝貝同學)‼️\n 獵豹沒有辜負家長的托付、同學的信任、對得起他們的學費。\n ====\n 『科學班／數資班入學考試備考直播講座』\n 因應科學班考科,獵豹特地邀請自然科劉璿老師一同來分享\n #按讚留言參加\n 📅 時間｜\n 2026年4月12日（日）上午10:00-12:00 自然科 劉璿老師\n 2026年4月19日（日）上午10:00-12:00 數學科 宗翰老師\n 🎥 形式｜ 線上直播\n 👥 主講｜\n – 宗翰老師（獵豹科教召集人）\n – 劉璿老師（劉璿科學基地召集人）\n 獵豹/劉璿學子在今年科學班入學考試中表現傑出，無論校內外，眾多志在高中科學班／數資班的考生與家長都在詢問──\n 「究竟該如何系統化備考，才能在激烈競爭中脫穎而出？」\n 兩位資優教育領域的頂尖專家，將深入分享：\n 科學班／數資班的出題趨勢與命題思路\n 高效備考策略：如何分配學習時間與資源\n 歷屆試題解析與重點突破\n 心態建設與臨場應試技巧\n 家長如何協助孩子持續進步\n 無論你是剛起步的考生，或是已經進入刷題階段的衝刺選手，宗翰老師與劉璿老師的經驗精華與實戰洞見，都將帶給你：\n 清晰的備考路線圖\n 一次掌握關鍵提分技巧\n 建立自信、穩定發揮的心態準備\n #按讚留言參加\n 立即行動，和頂尖師資一起，邁向科學班／數資班的成功之路！\n =========\n AI年代 改變孩子一生的數學課程 全台最強【科學班備考】課程\n 【獵豹2026新版 FA00】新增：科學班複試題型; AMC/AIME 深水區解析\n https://www.facebook.com/share/p/14Yyxfs4nYZ/\n #科學班 #數資班 #建中科學班 #中一中科學班 #資優數學 #數理資優\n 查看 Facebook 原文",
+    "imageUrl": "pic/news/news-2018019432484065.jpg",
+    "notes": "2026-04-05 由 Facebook share 連結匯入，並依提供全文補齊正文。date 暫以匯入日代填，若後續取得原始貼文日期可再修正。",
+    "migrationPage": "facebook-share-import-20260405",
+    "listDescription": "從二月模考到科學班放榜，這篇消息完整說明獵豹前瞻營與備考直播講座，並整理難度設計、放榜成果與後續直播安排。",
+    "popularity": 92,
+    "freshness": 100
   }
 ];

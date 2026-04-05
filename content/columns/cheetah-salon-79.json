@@ -1,0 +1,33 @@
+{
+  "slug": "cheetah-salon-79",
+  "title": "獵豹「程式與數學」課程 學員心得分享",
+  "date": "2021-08-06",
+  "category": "獵豹私塾",
+  "categorySlug": "cheetah-salon",
+  "bucket": "文章專欄",
+  "summary": "看到網路上的動圖，竟可親自動手做出來，就是很有成就感。",
+  "excerpt": "看到網路上的動圖，竟可親自動手做出來，就是很有成就感。",
+  "sourceUrl": "https://www.cheetahstem.com/news_detail/79",
+  "coverImage": "pic/columns/20220125120351cyf3m.jpg",
+  "imageUrl": "pic/columns/20220125120351cyf3m.jpg",
+  "imageName": "20220125120351cyf3m.jpg",
+  "tags": [
+    "文章專欄",
+    "獵豹私塾",
+    "資優",
+    "2021"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<div class=\"is-container-in\">\n<div class=\"remote-row clearfix\">\n<div class=\"column half\">\n<h3 class=\"big-one-two\"><span style=\"font-size:28px;\"></span></h3>\n\n<p><strong></strong><strong><span style=\"font-size:28px;\">獵豹「程式與數學」課程 學員心得分享</span></strong><small></small></p>\n\n<p><span style=\"font-size:18px;\">升小六的資優生宇倫同學是獵豹網課S101/CM02/Sci101的學員，在班群內，好多位孩子都表現得積極、上進，宇倫雖然在班上年紀小，但是表現令人驚豔，常常看到宇倫在班群內參與討論，非常努力又認真。<br />\n謝謝宇倫大方分享他優秀的Geogebra作品以及學習心得！也謝謝授課老師--朱安強博士評語！</span></p>\n</div>\n\n<div class=\"column half\">\n<div class=\"embed-responsive embed-responsive-4by3\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/OxEU1zcOWBM?rel=0\" width=\"100%\"></iframe></div>\n</div>\n</div>\n\n<div class=\"remote-row clearfix\">\n<div class=\"column full\">\n<p><span style=\"font-size:24px;\"><strong>教師評語</strong></span><br />\nby朱安強博士</p>\n\n<p><strong>『看到網路上的動圖，竟可親自動手做出來，就是很有成就感。』</strong><br />\n我想，支持宇倫每週課後願意主動投入時間來鑽研的動力，就是來自於親手做出這些『作品』的成就感！<br />\n學用數學 Geogebra 課是以案例為出發，來讓學生動手做出這些作品。<br />\n但除了認識Geogebra 的『程式指令語法』、更重要的是『問題拆解能力』與『數學語言』的使用。<br />\n以下我用幾個宇倫的作品為例來說明。<br />\n<br />\n在縮放的五角星任務中，其數學原理就是利用到五邊形的黃金比例關係。接著分析其縮放與旋轉的規則，再利用到試算表的迭代，搭配 ZoomIn 就可做出無限縮放的動圖。<br />\n<br />\n正立方體的展開圖也是競賽題常考題型，在這任務宇倫學會觀察如何剪開正立方體的邊，在搭配 Geogebra 的三維空間，探究了 11 種展開形式。<br />\n<br />\n在 Muller Lyer 的錯覺圖，課堂只講述用三角函數來控制單邊的上下擺動。宇倫再搭配另一個任務學到的序列指令，將這兩者進行結合。用數學去思考分析波浪的運動規律。做出這多邊迭代的波浪圖。<br />\n<br />\n在不可能圖形的任務，是學習空間向量座標的好練習。在課堂上演示艾雪的不可能三角形，宇倫還參考網路上其他不可能圖形的圖片，自己獨立做出另一個不可能圖形的錯覺圖，顯示宇倫已經掌握空間向量的思維。<br />\n<br />\n但除了知識與技能，更值得讚許的就是他的態度，能積極挑戰一些額外的任務，在已學會的知識上不斷地改編與突破。<br />\n<br />\n本門課除了 Geogebra 也教了些 Python 的基礎語法（這是後續 Python 專題課的預備知識）。宇倫除了完成課上練習題，還積極找了很多網路的資源來學習。對這些資優生來說，我的角色只是幫他們開拓一個視野，但後續就是學生勇於去探究。這門課最大的好處就是讓宇倫體會到原來數學不只是一些計算解題，更重要的是還可搭配電腦做出很多應用，而從動手製作的過程中，也體驗數學的有用，讓他對數學知識有更深的理解。<br />\n&nbsp;</p>\n\n<p><span style=\"font-size:24px;\"><strong>學生心得</strong></span><br />\nBy宇倫同學</p>\n\n<p>我很開心能上到朱安強老師的課程，我覺得這些課程很有趣。<br />\n<br />\nCM02的課程中，在Geogebra的部分，之前老師說我們要嘗試自己動手做一次、多做幾遍，才能夠上手。其實一開始我都還是邊看影片邊做，看一點點就停，一個指令一個動作，沒什麼思考。但是後來，我試著先看完整部影片再憑著記憶自己動手做做看，發現會更有成就感，且因為邊做邊想而能記得更清楚。<br />\n<br />\n我發現，每一個作品都非常有趣，都可以從作品中學到新的東西，所以我會盡量找時間把老師所有放在文件上的作品，都自己做一遍。當我在做「正立方體的十一種展開圖」的時候，雖然老師有提供所有指令的文件，但是我還是嘗試自己想想看，用「Magformers磁性建構片」來思考怎麼展開。<br />\n<br />\n在Python的部分，我本來就會寫程式 ( Scratch ) ， Scratch是用拖拉的方式，可是大部分的程式，是用打字的方式，但是我大概知道程式的邏輯，也很喜歡寫程式。所以，我在聽到要學Python時就充滿期待。最初用Snakify時，我連續兩天幾乎整天都在做題目，一下做完了5個章節。<br />\n<br />\n在Snakify上程式全部做完後，我也在HackerRank、LeetCode和CodeWars自己嘗試做很多題目。老師會一直鼓勵我們多練習，而且很有耐心講解我們不容易了解的地方。我在學Turtle時，也有試著自己畫奧運的標誌。<br />\n<br />\nCM02的課程雖然才進行到一半，可是真的讓我覺得充滿驚喜，而且收穫滿滿。對程式有興趣的同學，真的很建議一起來上課！</p>\n\n<p class=\"normal-txt\"><span style=\"font-size:18px;\"><a href=\"https://www.facebook.com/groups/695697124716309/permalink/862925327993487/\" target=\"_blank\" title=\"\">https://www.facebook.com/groups/695697124716309/permalink/862925327993487/</a></span></p>\n</div>\n</div>\n</div>",
+  "notes": "舊站自動搬移於 2026-03-24",
+  "migrationPage": "news/cheetah-salon",
+  "listDescription": "看到網路上的動圖，竟可親自動手做出來，就是很有成就感。",
+  "legacyId": 79,
+  "legacyCategoryId": 11,
+  "legacyCategoryUrl": "https://www.cheetahstem.com/news/11/1",
+  "coverLabel": "",
+  "popularity": 0,
+  "freshness": 0
+}

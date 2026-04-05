@@ -1,0 +1,33 @@
+{
+  "slug": "cheetah-salon-74",
+  "title": "「數學」與「程式」的精彩結合",
+  "date": "2021-05-27",
+  "category": "獵豹私塾",
+  "categorySlug": "cheetah-salon",
+  "bucket": "文章專欄",
+  "summary": "這裡分享一段朱安強老師的Geogebra簡介，看完我都想學了！也推薦給大家！",
+  "excerpt": "這裡分享一段朱安強老師的Geogebra簡介，看完我都想學了！也推薦給大家！",
+  "sourceUrl": "https://www.cheetahstem.com/news_detail/74",
+  "coverImage": "pic/columns/20220125120351cyf3m.jpg",
+  "imageUrl": "pic/columns/20220125120351cyf3m.jpg",
+  "imageName": "20220125120351cyf3m.jpg",
+  "tags": [
+    "文章專欄",
+    "獵豹私塾",
+    "幾何",
+    "2021"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<div class=\"is-container-in\">\n<div class=\"remote-row clearfix\">\n<div class=\"column half\">\n<h3 class=\"big-one-two\"><span style=\"font-size:28px;\"></span>「數學」與「程式」的精彩結合<span style=\"font-size:26px;\"></span><small></small></h3>\n\n<p class=\"normal-txt\"><span style=\"font-size:18px;\">星很喜歡數學中的幾何題，他也在去年的APMO(亞太數奧)一題幾何得到了滿分，我發現他在做幾何題的時候，也常利用Geogebra輔助觀察和思考，後來我看到了 獵豹朱安強老師 的Geogebra作品，才知道，原來Geogebra能做到的比我所知的多更多！<br />\n<br />\n這裡分享一段朱安強老師的Geogebra簡介，看完我都想學了!也推薦給大家！</span></p>\n\n<p class=\"normal-txt\"><u style=\"color: rgb(0, 158, 145); font-size: 20px;\"><a href=\"https://www.facebook.com/groups/695697124716309/permalink/818075355811818/\" target=\"_blank\" title=\"\">https://www.facebook.com/groups/695697124716309/permalink/818075355811818/</a></u></p>\n</div>\n\n<div class=\"column half\">\n<div class=\"embed-responsive embed-responsive-4by3\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/H7QupZQ0Y-U?rel=0\" width=\"100%\"></iframe></div>\n</div>\n</div>\n</div>",
+  "notes": "舊站自動搬移於 2026-03-24",
+  "migrationPage": "news/cheetah-salon",
+  "listDescription": "這裡分享一段朱安強老師的Geogebra簡介，看完我都想學了！也推薦給大家！",
+  "legacyId": 74,
+  "legacyCategoryId": 11,
+  "legacyCategoryUrl": "https://www.cheetahstem.com/news/11/1",
+  "coverLabel": "",
+  "popularity": 0,
+  "freshness": 0
+}

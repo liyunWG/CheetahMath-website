@@ -15,7 +15,8 @@ window.__SITE_PAGE_DATA__ = {
     },
     featuredArticles: {
       title: "精選文章",
-      intro: "首頁固定顯示文章專欄最新三篇，之後只要改 columns-data.js 即可同步。"
+      intro: "可用 slugs 指定首頁要放哪些文章；若留空就顯示文章專欄最新三篇。",
+      slugs: []
     },
     search: {
       title: "全站搜尋",
@@ -28,15 +29,22 @@ window.__SITE_PAGE_DATA__ = {
     },
     news: {
       title: "最新消息",
-      intro: "活動訊息、開課公告與站務更新分開呈現，不和深度文章混在一起。"
+      intro: "可用 slugs 指定首頁要放哪些最新消息；若留空就顯示最新三篇。",
+      slugs: []
     },
     students: {
       title: "獵豹菁英",
-      intro: "這一區專門用來放榜單與錄取成果，後續可依年度、類型與學校分組。"
+      intro: "可用 slugs 指定首頁要放哪些獵豹菁英文章；若留空就顯示最新三篇。",
+      slugs: [
+	"cheetah-elite-45",
+	"cheetah-elite-113",
+	"cheetah-elite-122"
+	]
     },
     moms: {
       title: "星媽正能量",
-      intro: "用圖文、短句與分類，提供讓家長喘一口氣的內容區。"
+      intro: "可用 slugs 指定首頁要放哪些星媽正能量文章；若留空就顯示最新三篇。",
+      slugs: []
     },
     learningSystem: {
       title: "快速進入學習系統",

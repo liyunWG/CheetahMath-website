@@ -1,0 +1,34 @@
+{
+  "slug": "replace-with-slug",
+  "title": "請填寫文章標題",
+  "date": "2026-04-04",
+  "category": "請填寫分類名稱",
+  "categorySlug": "",
+  "bucket": "星媽正能量",
+  "summary": "請填寫列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "",
+  "imageUrl": "",
+  "imageName": "",
+  "tags": [
+    "請填標籤 1",
+    "請填標籤 2"
+  ],
+  "keywords": [
+    "請填關鍵字 1",
+    "請填關鍵字 2"
+  ],
+  "keep": "保留",
+  "targetPage": "mom-power.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-38 is-title1-48 is-title-bold\">請填寫文章標題</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請把正文 HTML 放在這裡。</span></p></div></div></div>",
+  "notes": "",
+  "migrationPage": "",
+  "listDescription": "",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "coverLabel": "封面標籤文字",
+  "popularity": 90,
+  "freshness": 90
+}

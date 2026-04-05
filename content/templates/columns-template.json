@@ -1,0 +1,31 @@
+{
+  "slug": "replace-with-slug",
+  "title": "請填寫文章標題",
+  "date": "2026-04-04",
+  "category": "請填寫分類名稱",
+  "categorySlug": "replace-category-slug",
+  "bucket": "文章專欄",
+  "summary": "請填寫列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "pic/columns/your-cover-image.jpg",
+  "imageUrl": "pic/columns/your-cover-image.jpg",
+  "imageName": "your-cover-image.jpg",
+  "tags": [
+    "請填標籤 1",
+    "請填標籤 2"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-38 is-title1-48 is-title-bold\">請填寫文章標題</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請把正文 HTML 放在這裡。</span></p></div></div></div>",
+  "notes": "",
+  "migrationPage": "",
+  "listDescription": "",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "coverLabel": "",
+  "popularity": 84,
+  "freshness": 80
+}

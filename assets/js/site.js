@@ -3,6 +3,7 @@
     "assets/data/site-shell-data.js",
     "assets/data/site-page-data.js",
     "assets/data/needs-data.js",
+    "assets/data/elite-data.js",
     "assets/data/courses-data.js",
     "assets/data/moms-data.js",
     "assets/data/news-data.js",
@@ -28,6 +29,7 @@
       !window.__SITE_SHELL__ ||
       !window.__SITE_PAGE_DATA__ ||
       !window.__NEEDS_DATA__ ||
+      !window.__ELITE_DATA__ ||
       !window.__COURSES_DATA__ ||
       !window.__MOMS_DATA__ ||
       !window.__NEWS_DATA__ ||
@@ -48,6 +50,7 @@
   const BANNERS = Array.isArray(SHELL.banners) ? SHELL.banners : [];
   const FOOTER = SHELL.footer || {};
   const GOALS = Array.isArray(window.__NEEDS_DATA__) ? window.__NEEDS_DATA__ : [];
+  const ELITE = Array.isArray(window.__ELITE_DATA__) ? window.__ELITE_DATA__ : [];
   const COURSES = Array.isArray(window.__COURSES_DATA__) ? window.__COURSES_DATA__ : [];
   const MOMS = Array.isArray(window.__MOMS_DATA__) ? window.__MOMS_DATA__ : [];
   const NEWS = Array.isArray(window.__NEWS_DATA__) ? window.__NEWS_DATA__ : [];
@@ -55,7 +58,10 @@
   const CASES = Array.isArray(STUDENTS.cases) ? STUDENTS.cases : [];
   const STUDENT_HONORS = Array.isArray(STUDENTS.honors) ? STUDENTS.honors : [];
 
-  const PAGE = () => location.pathname.split("/").pop() || "index.html";
+  const PAGE = () => {
+    const raw = location.pathname.split("/").pop() || "index.html";
+    return raw.includes(".") ? raw : raw + ".html";
+  };
   const PARAMS = () => new URLSearchParams(location.search);
   const articleUrl = (slug) =>
     slug ? `article.html?slug=${encodeURIComponent(slug)}` : "article.html";
@@ -63,6 +69,8 @@
     slug ? `elite-story.html?slug=${encodeURIComponent(slug)}` : "elite-story.html";
   const momUrl = (slug) =>
     slug ? `mom-power.html?slug=${encodeURIComponent(slug)}` : "mom-power.html";
+  const newsStoryUrl = (slug) =>
+    slug ? `news-story.html?slug=${encodeURIComponent(slug)}` : "news-story.html";
 
   const getColumnItems = () => {
     const data = window.__COLUMNS_DATA__;
@@ -71,21 +79,16 @@
 
   const keepItem = (item) => String(item.keep || "保留").trim() !== "不保留";
 
-  const featuredArticles = (count) =>
-    getColumnItems()
-      .filter(keepItem)
-      .slice(0, count)
-      .map((item) => ({
-        slug: item.slug,
-        title: item.title,
-        date: item.date,
-        category: item.category,
-        tags: (item.tags || []).filter(Boolean),
-        summary: item.summary || item.excerpt || "",
-        cover: item.cover || "",
-        popularity: item.popularity || 84,
-        freshness: item.freshness || 80
-      }));
+  const toSlugMap = (items) =>
+    new Map((items || []).filter((item) => item && item.slug).map((item) => [String(item.slug), item]));
+
+  const pickBySlugs = (items, slugs, fallbackCount) => {
+    const list = Array.isArray(items) ? items : [];
+    const normalized = Array.isArray(slugs) ? slugs.map((item) => String(item || "").trim()).filter(Boolean) : [];
+    if (!normalized.length) return list.slice(0, fallbackCount);
+    const bySlug = toSlugMap(list);
+    return normalized.map((slug) => bySlug.get(slug)).filter(Boolean);
+  };
 
   const page = (route) => {
     const main = document.querySelector("main.page");
@@ -95,8 +98,8 @@
   const cover = (label, tone) =>
     `<div class="cover-art cover-art--${tone || "gold"}"><span>${label}</span></div>`;
 
-  const tags = (list, pink) =>
-    `<div class="tag-row">${(list || [])
+  const tags = (list, pink, limit) =>
+    `<div class="tag-row">${((typeof limit === "number" ? (list || []).slice(0, limit) : (list || [])))
       .map((item) => `<span class="tag${pink ? " tag--pink" : ""}">${item}</span>`)
       .join("")}</div>`;
 
@@ -106,13 +109,60 @@
     }</div>`;
 
   const card = (item, link, tone, pink) =>
-    `<article class="card${pink ? " card--mom" : ""}">${
-      item.cover ? cover(item.cover, tone) : ""
-    }${meta(item.date, item.category, pink)}<h3>${item.title}</h3><p>${
-      item.summary || item.text || ""
-    }</p>${tags(item.tags, pink)}${
-      link ? `<a class="card-link" href="${link}">前往內容</a>` : ""
-    }</article>`;
+      `<article class="card${pink ? " card--mom" : ""}">${
+        item.cover ? cover(item.cover, tone) : ""
+      }${meta(item.date, item.category, pink)}<h3>${item.title}</h3><p>${
+        item.summary || item.text || ""
+      }</p>${tags(item.tags, pink, 4)}${
+        link ? `<a class="card-link" href="${link}">前往內容</a>` : ""
+      }</article>`;
+
+  const newsCard = (item) =>
+    `<article class="card elite-card">${
+      item.coverImage
+        ? `<a class="elite-card__cover" href="${item.slug ? newsStoryUrl(item.slug) : "news-story.html"}"><img src="${
+            item.coverImage
+          }" alt="${item.title}"></a>`
+        : `<a class="elite-card__cover" href="${item.slug ? newsStoryUrl(item.slug) : "news-story.html"}">${cover(
+            item.cover || item.category || "最新消息",
+            "gold"
+          )}</a>`
+    }${meta(item.date, item.category)}<h3>${item.title}</h3><p>${
+      item.summary || item.excerpt || ""
+    }</p>${tags(item.tags, false, 4)}<a class="card-link" href="${
+      item.slug ? newsStoryUrl(item.slug) : "news-story.html"
+    }">閱讀全文</a></article>`;
+
+  const columnCard = (item) => {
+    const year = (item.date || "").slice(0, 4);
+    const metaItems = [item.date, item.category, year].filter(Boolean);
+    const coverImage = item.coverImage || item.cover || "";
+    return `<article class="card elite-card">${
+      coverImage
+        ? `<a class="elite-card__cover" href="${articleUrl(item.slug)}"><img src="${coverImage}" alt="${item.title}"></a>`
+        : `<a class="elite-card__cover" href="${articleUrl(item.slug)}">${cover(item.category || "文章專欄", "navy")}</a>`
+    }<div class="card__meta-row">${metaItems
+      .map((value, index) => `<span class="chip${index === 0 ? "" : " chip--muted"}">${value}</span>`)
+      .join("")}</div><h3>${item.title}</h3><p>${item.summary || item.excerpt || ""}</p>${tags(
+      item.tags,
+      false,
+      4
+    )}<a class="card-link" href="${articleUrl(item.slug)}">閱讀全文</a></article>`;
+  };
+
+  const eliteCard = (item) => {
+    const year = (item.date || "").slice(0, 4);
+    const metaItems = [item.date, item.category, year].filter(Boolean);
+    return `<article class="card elite-card"><a class="elite-card__cover" href="${eliteStoryUrl(item.slug)}"><img src="${
+      item.cover
+    }" alt="${item.title}"></a><div class="card__meta-row">${metaItems
+      .map((value, index) => `<span class="chip${index === 0 ? "" : " chip--muted"}">${value}</span>`)
+      .join("")}</div><h3>${item.title}</h3><p>${item.summary || item.excerpt || ""}</p>${tags(
+      item.tags,
+      false,
+      4
+    )}<a class="card-link" href="${eliteStoryUrl(item.slug)}">閱讀全文</a></article>`;
+  };
 
   const section = (title, intro, content, cls) =>
     `<section class="section ${cls || ""}"><div class="container"><div class="section-heading"><h2>${title}</h2><p>${intro}</p></div>${content}</div></section>`;
@@ -260,9 +310,43 @@
         };
       });
 
+
+  const staticPageSearchItems = () => {
+    const home = PAGE_DATA.home || {};
+    const onePage = PAGE_DATA.onePage || {};
+    const learning = PAGE_DATA.learningSystem || {};
+    const about = PAGE_DATA.about || {};
+    const features = PAGE_DATA.features || {};
+    const studentsLanding = PAGE_DATA.studentsLanding || {};
+    const contact = PAGE_DATA.contact || {};
+    const coursesLanding = PAGE_DATA.coursesLanding || {};
+    const newsLanding = PAGE_DATA.newsLanding || {};
+    const momsLanding = PAGE_DATA.momsLanding || {};
+
+    const sectionText = (sections) =>
+      (sections || [])
+        .flatMap((section) => [section.title, section.intro].concat((section.cards || []).flatMap((card) => [card.title, card.text])))
+        .filter(Boolean)
+        .join(" ");
+
+    return [
+      { type: "\u9996\u9801", title: home.landing?.title || "\u9996\u9801", summary: home.landing?.intro || home.search?.intro || "", tags: ["\u9996\u9801", "\u7375\u8c79\u79d1\u6559"], keywords: [home.landing?.headline, home.search?.title, home.learningSystem?.title].filter(Boolean), body: [home.landing?.headline, home.landing?.text, home.search?.intro, home.news?.intro, home.students?.intro, home.moms?.intro].filter(Boolean).join(" "), url: "index.html", popularity: 96, freshness: 88, grade: "\u5168\u7ad9", topic: "\u9996\u9801", date: "" },
+      { type: "\u4e00\u9801\u8a8d\u8b58\u7375\u8c79", title: onePage.title || "\u4e00\u9801\u8a8d\u8b58\u7375\u8c79", summary: onePage.intro || "", tags: ["\u4e00\u9801\u8a8d\u8b58\u7375\u8c79", "\u54c1\u724c"], keywords: [onePage.eyebrow, onePage.subtitle].filter(Boolean), body: sectionText(onePage.sections), url: "one-page.html", popularity: 74, freshness: 70, grade: "\u5168\u7ad9", topic: "\u54c1\u724c\u4ecb\u7d39", date: "" },
+      { type: "\u5b78\u7fd2\u7cfb\u7d71", title: learning.title || "\u5b78\u7fd2\u7cfb\u7d71", summary: learning.intro || "", tags: ["\u5b78\u7fd2\u7cfb\u7d71", "\u7cfb\u7d71\u5165\u53e3"], keywords: [learning.eyebrow, learning.sectionTitle].filter(Boolean), body: [learning.headline, learning.text, sectionText(learning.cards ? [{ cards: learning.cards }] : []), learning.sectionIntro].filter(Boolean).join(" "), url: "learning-system.html", popularity: 72, freshness: 68, grade: "\u5168\u7ad9", topic: "\u5b78\u7fd2\u7cfb\u7d71", date: "" },
+      { type: "\u95dc\u65bc\u7375\u8c79", title: about.title || "\u95dc\u65bc\u7375\u8c79", summary: about.intro || "", tags: ["\u95dc\u65bc\u7375\u8c79", "\u54c1\u724c\u7406\u5ff5"], keywords: [about.eyebrow, about.sectionTitle].filter(Boolean), body: [about.sectionIntro, sectionText([{ cards: about.cards || [] }])].filter(Boolean).join(" "), url: "about.html", popularity: 70, freshness: 66, grade: "\u5168\u7ad9", topic: "\u95dc\u65bc\u7375\u8c79", date: "" },
+      { type: "\u6838\u5fc3\u7279\u8272", title: features.title || "\u6838\u5fc3\u7279\u8272", summary: features.intro || "", tags: ["\u6838\u5fc3\u7279\u8272", "\u6559\u5b78\u7279\u8272"], keywords: [features.eyebrow, features.sectionTitle].filter(Boolean), body: [features.sectionIntro, sectionText([{ cards: features.cards || [] }])].filter(Boolean).join(" "), url: "features.html", popularity: 68, freshness: 64, grade: "\u5168\u7ad9", topic: "\u6838\u5fc3\u7279\u8272", date: "" },
+      { type: "\u7375\u8c79\u83c1\u82f1", title: studentsLanding.title || "\u7375\u8c79\u83c1\u82f1", summary: studentsLanding.intro || "", tags: ["\u7375\u8c79\u83c1\u82f1", "\u699c\u55ae"], keywords: [studentsLanding.honorsTitle, studentsLanding.extraTitle].filter(Boolean), body: [studentsLanding.honorsIntro, studentsLanding.extraIntro, sectionText([{ cards: studentsLanding.extraCards || [] }])].filter(Boolean).join(" "), url: "students.html", popularity: 78, freshness: 72, grade: "\u5168\u7ad9", topic: "\u7375\u8c79\u83c1\u82f1", date: "" },
+      { type: "\u806f\u7d61\u6211\u5011", title: contact.title || "\u806f\u7d61\u6211\u5011", summary: contact.intro || "", tags: ["\u806f\u7d61\u6211\u5011", "\u5ba2\u670d"], keywords: [contact.lineLabel, contact.fbLabel].filter(Boolean), body: [contact.sectionIntro, sectionText([{ cards: contact.cards || [] }])].filter(Boolean).join(" "), url: "contact.html", popularity: 65, freshness: 62, grade: "\u5168\u7ad9", topic: "\u806f\u7d61\u6211\u5011", date: "" },
+      { type: "\u8ab2\u7a0b\u7e3d\u89bd", title: coursesLanding.title || "\u8ab2\u7a0b\u7e3d\u89bd", summary: coursesLanding.intro || "", tags: ["\u8ab2\u7a0b\u7e3d\u89bd", "\u8ab2\u7a0b"], keywords: [coursesLanding.sectionTitle].filter(Boolean), body: [coursesLanding.sectionIntro].filter(Boolean).join(" "), url: "courses.html", popularity: 82, freshness: 76, grade: "\u5168\u7ad9", topic: "\u8ab2\u7a0b\u7e3d\u89bd", date: "" },
+      { type: "\u6700\u65b0\u6d88\u606f", title: newsLanding.title || "\u6700\u65b0\u6d88\u606f", summary: newsLanding.intro || "", tags: ["\u6700\u65b0\u6d88\u606f", "\u516c\u544a"], keywords: [newsLanding.sectionTitle].filter(Boolean), body: [newsLanding.sectionIntro].filter(Boolean).join(" "), url: "news.html", popularity: 67, freshness: 70, grade: "\u5168\u7ad9", topic: "\u6700\u65b0\u6d88\u606f", date: "" },
+      { type: "\u661f\u5abd\u6b63\u80fd\u91cf", title: momsLanding.title || "\u661f\u5abd\u6b63\u80fd\u91cf", summary: momsLanding.intro || "", tags: ["\u661f\u5abd\u6b63\u80fd\u91cf", "\u5bb6\u9577"], keywords: [momsLanding.sectionTitle].filter(Boolean), body: [momsLanding.sectionIntro].filter(Boolean).join(" "), url: "star-mom.html", popularity: 66, freshness: 64, grade: "\u5bb6\u9577", topic: "\u661f\u5abd\u6b63\u80fd\u91cf", date: "" }
+    ];
+  };
+
   const searchData = () => [
+    ...staticPageSearchItems(),
     ...GOALS.map((item) => ({
-      type: "家長導航",
+      type: "\u5bb6\u9577\u5c0e\u822a",
       title: item.title,
       summary: item.intro,
       tags: [item.grade, item.topic, item.short],
@@ -276,45 +360,48 @@
       date: ""
     })),
     ...COURSES.map((item) => ({
-      type: "課程",
+      type: "\u8ab2\u7a0b",
       title: item.title,
       summary: item.summary,
-      tags: item.tags,
-      keywords: item.tags,
-      body: item.bullets.join(" "),
-      url: item.file,
-      popularity: 82,
-      freshness: 74,
-      grade: item.level,
-      topic: "課程",
-      date: ""
+      tags: item.tags || [],
+      keywords: item.keywords || item.tags || [],
+      body: [Array.isArray(item.bullets) ? item.bullets.join(" ") : "", item.bodyText || ""].filter(Boolean).join(" "),
+      url:
+        item.slug && (item.bodyHtml || item.bodyText || item.coverImage)
+          ? "course-article.html?slug=" + encodeURIComponent(item.slug)
+          : item.file || (item.slug ? "course-article.html?slug=" + encodeURIComponent(item.slug) : "courses.html"),
+      popularity: Number.isFinite(item.popularity) ? item.popularity : 82,
+      freshness: Number.isFinite(item.freshness) ? item.freshness : 74,
+      grade: item.level || "\u8ab2\u7a0b",
+      topic: item.category || "\u8ab2\u7a0b",
+      date: item.date || ""
     })),
     ...columnsSearchItems(),
     ...MOMS.map((item) => ({
-      type: "星媽正能量",
+      type: "\u661f\u5abd\u6b63\u80fd\u91cf",
       title: item.title,
       summary: item.summary,
       tags: item.tags,
       keywords: item.keywords,
-      body: item.body.join(" "),
+      body: item.bodyText || ((item.body || []).join(" ")),
       url: momUrl(item.slug),
       popularity: item.popularity,
       freshness: item.freshness,
-      grade: "家長",
+      grade: "\u5bb6\u9577",
       topic: item.category,
       date: item.date || ""
     })),
     ...NEWS.map((item) => ({
-      type: "最新消息",
+      type: "\u6700\u65b0\u6d88\u606f",
       title: item.title,
       summary: item.summary,
       tags: item.tags,
       keywords: item.keywords,
-      body: item.summary,
-      url: "news.html",
+      body: [item.summary, item.bodyText].filter(Boolean).join(" "),
+      url: item.slug ? newsStoryUrl(item.slug) : "news-story.html",
       popularity: item.popularity,
       freshness: item.freshness,
-      grade: "全站",
+      grade: "\u6700\u65b0\u6d88\u606f",
       topic: item.category,
       date: item.date || ""
     })),
@@ -324,7 +411,10 @@
   const buildHome = () => {
     const home = PAGE_DATA.home || {};
     const landing = home.landing || {};
-    const featured = featuredArticles(3);
+    const featured = pickBySlugs(getColumnItems().filter(keepItem), home.featuredArticles?.slugs, 3);
+    const homeNews = pickBySlugs(NEWS, home.news?.slugs, 3);
+    const homeElite = pickBySlugs(ELITE, home.students?.slugs, 3);
+    const homeMoms = pickBySlugs(MOMS, home.moms?.slugs, 3);
     const search = home.search || {};
     const learning = home.learningSystem || {};
     const tiles = Array.isArray(learning.tiles) ? learning.tiles : [];
@@ -348,7 +438,7 @@
     )}${section(
       home.featuredArticles ? home.featuredArticles.title : "",
       home.featuredArticles ? home.featuredArticles.intro : "",
-      `<div class="grid grid--3">${featured.map((item) => card(item, articleUrl(item.slug), "navy")).join("")}</div>`
+      `<div class="grid grid--3 elite-grid">${featured.map((item) => columnCard(item)).join("")}</div>`
     )}${section(
       search.title || "",
       search.intro || "",
@@ -361,20 +451,18 @@
         .join("")}</div><div class="page-nav"><button class="button button--primary" type="submit">${
         search.submitLabel || ""
       }</button><a class="button button--secondary" href="search.html">${search.linkLabel || ""}</a></div></form></div>`
-    )}${section(
-      home.news ? home.news.title : "",
-      home.news ? home.news.intro : "",
-      `<div class="grid grid--3">${NEWS.map((item) => card(item, "news.html", "gold")).join("")}</div>`
-    )}${section(
-      home.students ? home.students.title : "",
-      home.students ? home.students.intro : "",
-      `<div class="grid grid--3">${STUDENT_HONORS.map(
-        (item) => `<article class="card"><h3>${item.title}</h3><p>${item.text}</p>${tags(item.tags)}</article>`
-      ).join("")}</div>`
+      )}${section(
+        home.news ? home.news.title : "",
+        home.news ? home.news.intro : "",
+        `<div class="grid grid--3 elite-grid">${homeNews.map((item) => newsCard(item)).join("")}</div>`
+      )}${section(
+        home.students ? home.students.title : "",
+        home.students ? home.students.intro : "",
+      `<div class="grid grid--3 elite-grid">${homeElite.map((item) => eliteCard(item)).join("")}</div>`
     )}${section(
       home.moms ? home.moms.title : "",
       home.moms ? home.moms.intro : "",
-      `<div class="grid grid--3">${MOMS.map((item) => card(item, momUrl(item.slug), "pink", true)).join("")}</div>`,
+      `<div class="grid grid--3">${homeMoms.map((item) => card(item, momUrl(item.slug), "pink", true)).join("")}</div>`,
       "section--mom"
     )}${section(
       learning.title || "",
@@ -421,6 +509,12 @@
 
   const momPage = (item) => {
     const detail = PAGE_DATA.momDetail || {};
+    const bodyHtml = item.bodyHtml
+      ? item.bodyHtml
+      : (item.body || []).map((paragraph) => `<p>${paragraph}</p>`).join("");
+    const slugBlock = item.slug
+      ? `<div class="elite-story-meta"><span><strong>slug：</strong>${item.slug}</span></div>`
+      : "";
     return `<section class="page-hero page-hero--mom"><div class="container article-layout"><div class="article-main">${cover(
       item.cover,
       "pink"
@@ -428,11 +522,9 @@
       item.date,
       item.category,
       true
-    )}${tags(item.tags, true)}<p class="article-summary">${item.summary}</p></div><div class="article-body">${item.body
-      .map((paragraph) => `<p>${paragraph}</p>`)
-      .join("")}</div><div class="page-nav"><a class="back-link" href="star-mom.html">${
+    )}${tags(item.tags, true)}<p class="article-summary">${item.summary}</p></div><div class="article-body">${bodyHtml}</div><div class="page-nav"><a class="back-link" href="star-mom.html">${
       detail.backListLabel || ""
-    }</a><a class="back-link" href="index.html">${detail.backHomeLabel || ""}</a></div></div><aside class="article-side"><div class="card card--mom"><h3>${
+    }</a><a class="back-link" href="index.html">${detail.backHomeLabel || ""}</a></div>${slugBlock}</div><aside class="article-side"><div class="card card--mom"><h3>${
       detail.categoryTitle || ""
     }</h3><p>${item.category}</p><p><strong>${detail.keywordsLabel || ""}</strong>${(
       item.keywords || []
@@ -477,34 +569,8 @@
         })
       ];
     },
-    "courses.html": () => {
-      const config = PAGE_DATA.coursesLanding || {};
-      return [
-        config.seoTitle || "",
-        config.subtitle || "",
-        buildListPage(config.eyebrow || "", {
-          title: config.title || "",
-          intro: config.intro || "",
-          nav: pageNav(config.buttons || []),
-          sections: [
-            section(
-              config.sectionTitle || "",
-              config.sectionIntro || "",
-              `<div class="grid grid--3">${COURSES.map(
-                (course) =>
-                  `<article class="card">${cover(course.title, course.theme)}${meta("", course.level)}<h3>${
-                    course.title
-                  }</h3><p>${course.summary}</p><ul class="list">${course.bullets
-                    .map((bullet) => `<li>${bullet}</li>`)
-                    .join("")}</ul><a class="card-link" href="${course.file}">${
-                    config.cardLinkLabel || ""
-                  }</a></article>`
-              ).join("")}</div>`
-            )
-          ]
-        })
-      ];
-    },
+    "courses.html": () => ["課程總覽｜獵豹科教", "課程總覽", ""],
+    "course-article.html": () => ["課程詳情｜獵豹科教", "課程總覽", ""],
     "columns.html": () => ["文章專欄｜獵豹科教", "文章專欄", ""],
     "star-mom.html": () => {
       const config = PAGE_DATA.momsLanding || {};
@@ -533,10 +599,10 @@
             section(
               config.sectionTitle || "",
               config.sectionIntro || "",
-              `<div class="grid grid--3">${NEWS.map((item) => card(item, "", "gold")).join("")}</div>`
-            )
-          ]
-        })
+                `<div class="grid grid--3 elite-grid">${NEWS.map((item) => newsCard(item)).join("")}</div>`
+              )
+            ]
+          })
       ];
     },
     "learning-system.html": () => {
@@ -705,7 +771,7 @@
 
   const picked = (routes[PAGE()] || routes["index.html"])();
   const main = document.querySelector("main.page");
-  const shouldHydrateMain = !main || !main.children.length;
+  const shouldHydrateMain = !main || !main.children.length || PAGE() === "index.html";
   applyChrome(picked[0], picked[1]);
   if (shouldHydrateMain) page(picked[2]);
   wrapRichContentImages();
@@ -797,8 +863,7 @@
     const columnType = normalize("文章專欄");
     const eliteType = normalize("獵豹菁英");
 
-    const categoryRank = (item) =>
-      item._search && item._search.typeNorm === goalType ? 0 : item._search && item._search.typeNorm === momType ? 2 : 1;
+    const categoryRank = () => 0;
 
     const fieldLevel = (norm, tight, phrase, phraseTight) => {
       if (!phrase) return -1;
@@ -877,8 +942,6 @@
     };
 
     const compareBest = (a, b) => {
-      const categoryDiff = categoryRank(a) - categoryRank(b);
-      if (categoryDiff) return categoryDiff;
       const bucketDiff = (a.rank.bucket ?? 99) - (b.rank.bucket ?? 99);
       if (bucketDiff) return bucketDiff;
       const scoreDiff = (b.rank.score || 0) - (a.rank.score || 0);
@@ -891,61 +954,14 @@
     };
 
     const compareLatest = (a, b) => {
-      const momDiff = categoryRank(a) - categoryRank(b);
-      if (momDiff && Math.max(categoryRank(a), categoryRank(b)) === 2) return momDiff;
       return (Date.parse(b.date || "") || 0) - (Date.parse(a.date || "") || 0) || b.freshness - a.freshness || compareBest(a, b);
     };
 
     const comparePopular = (a, b) => {
-      const momDiff = categoryRank(a) - categoryRank(b);
-      if (momDiff && Math.max(categoryRank(a), categoryRank(b)) === 2) return momDiff;
       return b.popularity - a.popularity || b.freshness - a.freshness || compareBest(a, b);
     };
 
-    const weaveColumnElite = (list) => {
-      const pinnedHead = [];
-      const pinnedTail = [];
-      const middle = [];
-      list.forEach((item) => {
-        const rank = categoryRank(item);
-        if (rank === 0) pinnedHead.push(item);
-        else if (rank === 2) pinnedTail.push(item);
-        else middle.push(item);
-      });
-      const groups = [];
-      middle.forEach((item) => {
-        const prev = groups[groups.length - 1];
-        const score = item.rank && typeof item.rank.score === "number" ? item.rank.score : 0;
-        if (!prev || prev.bucket !== (item.rank && item.rank.bucket) || Math.abs(prev.score - score) > 260) {
-          groups.push({ bucket: item.rank && item.rank.bucket, score, items: [item] });
-          return;
-        }
-        prev.items.push(item);
-      });
-      const woven = groups.flatMap((group) => {
-        const columns = [];
-        const elites = [];
-        group.items.forEach((item) => {
-          if (item._search && item._search.typeNorm === columnType) columns.push(item);
-          else if (item._search && item._search.typeNorm === eliteType) elites.push(item);
-        });
-        if (!columns.length || !elites.length) return group.items;
-        const useColumnFirst = ((columns[0].rank && columns[0].rank.score) || 0) >= ((elites[0].rank && elites[0].rank.score) || 0);
-        let pullColumn = useColumnFirst;
-        const targets = [];
-        while (columns.length || elites.length) {
-          if (pullColumn && columns.length) targets.push(columns.shift());
-          else if (!pullColumn && elites.length) targets.push(elites.shift());
-          else if (columns.length) targets.push(columns.shift());
-          else if (elites.length) targets.push(elites.shift());
-          pullColumn = !pullColumn;
-        }
-        return group.items.map((item) =>
-          item._search && (item._search.typeNorm === columnType || item._search.typeNorm === eliteType) ? targets.shift() : item
-        );
-      });
-      return pinnedHead.concat(woven, pinnedTail);
-    };
+    const weaveColumnElite = (list) => list;
 
     const render = () => {
       const q = input.value.trim();
@@ -955,7 +971,6 @@
         .map((item) => ({ ...item, rank: rankItem(item, q) }))
         .filter((item) => !q || item.rank.matched)
         .sort((a, b) => (sort.value === "latest" ? compareLatest(a, b) : sort.value === "popular" ? comparePopular(a, b) : compareBest(a, b)));
-      if (q && sort.value === "best") list = weaveColumnElite(list);
       box.innerHTML = list.length
         ? list
             .map(
@@ -979,3 +994,5 @@
     render();
   }
 })();
+
+
