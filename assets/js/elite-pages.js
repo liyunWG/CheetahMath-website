@@ -7,6 +7,8 @@
     return Array.from((root || document).querySelectorAll(selector));
   }
 
+  const ARTICLE = window.__ARTICLE_FORMAT__ || {};
+
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -101,44 +103,17 @@
   }
 
   function renderEliteCard(item) {
-    const year = (item.date || "").slice(0, 4);
-    const meta = [item.date, item.category, year].filter(Boolean);
-    return (
-      '<article class="card elite-card">' +
-      '<a class="elite-card__cover" href="' +
-      eliteStoryUrl(item.slug) +
-      '">' +
-      '<img src="' +
-      escapeHtml(item.cover) +
-      '" alt="' +
-      escapeHtml(item.title) +
-      '">' +
-      "</a>" +
-      '<div class="card__meta-row">' +
-      meta
-        .map(function (value, index) {
-          return (
-            '<span class="chip' +
-            (index === 0 ? "" : " chip--muted") +
-            '">' +
-            escapeHtml(value) +
-            "</span>"
-          );
+    return ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item: item,
+          url: eliteStoryUrl(item.slug),
+          coverImage: item.cover,
+          fallbackLabel: item.category || "獵豹菁英",
+          fallbackTone: "gold",
+          previewMetaFields: ["date", "category", "bucket"],
+          linkLabel: "閱讀全文"
         })
-        .join("") +
-      "</div>" +
-      "<h3>" +
-      escapeHtml(item.title) +
-      "</h3>" +
-      "<p>" +
-      escapeHtml(item.summary || item.excerpt || "") +
-      "</p>" +
-      renderTags(item.tags, 4) +
-      '<a class="card-link" href="' +
-      eliteStoryUrl(item.slug) +
-      '">閱讀全文</a>' +
-      "</article>"
-    );
+      : "";
   }
 
   function renderPager(currentPage, totalPages) {
@@ -327,50 +302,18 @@
 
     document.title = item.title + "｜獵豹菁英";
 
-    const heroImage = getFirstBodyImage(item);
-    const metaChips = [
-      item.date ? "<span><strong>日期：</strong>" + escapeHtml(item.date) + "</span>" : "",
-      item.category ? "<span><strong>類型：</strong>" + escapeHtml(item.category) + "</span>" : "",
-    ]
-      .filter(Boolean)
-      .join("");
-    const bodyHtml = stripDuplicateImageNodes(item.bodyHtml || "<p>這篇文章目前沒有內文。</p>", [heroImage]);
-    const slugBlock = item.slug
-      ? '<div class="elite-story-meta"><span><strong>slug：</strong>' + escapeHtml(item.slug) + "</span></div>"
-      : "";
-
-    main.innerHTML =
-      '<section class="page-hero">' +
-      '<div class="container">' +
-      '<a class="back-link" href="students.html">返回獵豹菁英</a>' +
-      '<span class="eyebrow">獵豹菁英</span>' +
-      "<h1>" +
-      escapeHtml(item.title) +
-      "</h1>" +
-      "<p>" +
-      escapeHtml(item.summary || item.excerpt || "") +
-      "</p>" +
-      renderTags(item.tags) +
-      "</div>" +
-      "</section>" +
-      '<section class="section">' +
-      '<div class="container elite-story-wrap">' +
-      '<article class="card article-card elite-story-main">' +
-      (heroImage
-        ? '<div class="article-cover"><img src="' +
-          escapeHtml(heroImage) +
-          '" alt="' +
-          escapeHtml(item.title) +
-          '"></div>'
-        : "") +
-      '<div class="article-body elite-body">' +
-      bodyHtml +
-      "</div>" +
-      (metaChips ? '<div class="elite-story-meta">' + metaChips + "</div>" : "") +
-      slugBlock +
-      "</article>" +
-      "</div>" +
-      "</section>";
+    main.innerHTML = ARTICLE.renderDetailPage({
+      sectionLabel: "獵豹菁英",
+      backHref: "students.html",
+      backLabel: "返回獵豹菁英",
+      item: item,
+      stripImages: [item.cover],
+      metadataItems: [
+        { label: "日期", value: item.date },
+        { label: "分類", value: item.category },
+        { label: "slug", value: item.slug }
+      ]
+    });
   }
 
   function renderEliteSearch(data) {

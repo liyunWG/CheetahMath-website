@@ -4,6 +4,8 @@ window.__MOMS_DATA__ = [
     "title": "你不需要把每一條路都替孩子贏下來",
     "date": "2026-03-08",
     "category": "放下過度焦慮",
+    "categorySlug": "",
+    "bucket": "星媽正能量",
     "tags": [
       "情緒支持",
       "家長壓力"
@@ -14,6 +16,11 @@ window.__MOMS_DATA__ = [
       "陪伴"
     ],
     "summary": "真正能陪孩子走得遠的，不是每一步都替他清空風險，而是讓他知道有人穩穩陪著。",
+    "excerpt": "真正能陪孩子走得遠的，不是每一步都替他清空風險，而是讓他知道有人穩穩陪著。",
+    "sourceUrl": "",
+    "coverImage": "",
+    "imageUrl": "",
+    "imageName": "",
     "cover": "溫柔金粉",
     "popularity": 96,
     "freshness": 96,
@@ -23,13 +30,23 @@ window.__MOMS_DATA__ = [
     ],
     "bodyHtml": "<p class=\"normal-txt\"><span style=\"font-size:24px;\">教育從來不是單次勝負，而是很多段起伏的長跑。</span></p>\n<p class=\"normal-txt\"><span style=\"font-size:24px;\">你不需要把每一條路都替孩子贏下來，只需要陪他把真正重要的那幾步走穩。</span></p>",
     "bodyText": "教育從來不是單次勝負，而是很多段起伏的長跑。\n\n 你不需要把每一條路都替孩子贏下來，只需要陪他把真正重要的那幾步走穩。",
-    "keep": "保留"
+    "keep": "保留",
+    "targetPage": "mom-power.html",
+    "notes": "",
+    "migrationPage": "",
+    "listDescription": "真正能陪孩子走得遠的，不是每一步都替他清空風險，而是讓他知道有人穩穩陪著。",
+    "legacyId": 0,
+    "legacyCategoryId": 0,
+    "legacyCategoryUrl": "",
+    "coverLabel": "溫柔金粉"
   },
   {
     "slug": "slow-down",
     "title": "在做決定之前，先讓自己慢下來",
     "date": "2026-02-24",
     "category": "讓心安定",
+    "categorySlug": "",
+    "bucket": "星媽正能量",
     "tags": [
       "決策",
       "媽媽"
@@ -40,6 +57,11 @@ window.__MOMS_DATA__ = [
       "焦慮"
     ],
     "summary": "當你很急的時候，通常不是最適合做重大教育決定的時候。",
+    "excerpt": "當你很急的時候，通常不是最適合做重大教育決定的時候。",
+    "sourceUrl": "",
+    "coverImage": "",
+    "imageUrl": "",
+    "imageName": "",
     "cover": "靜心粉霧",
     "popularity": 83,
     "freshness": 87,
@@ -49,13 +71,23 @@ window.__MOMS_DATA__ = [
     ],
     "bodyHtml": "<p class=\"normal-txt\"><span style=\"font-size:24px;\">很多好決定，都不是在最焦慮的那一刻做出來的。</span></p>\n<p class=\"normal-txt\"><span style=\"font-size:24px;\">先停一下、先整理、先看清楚你們家庭真正的目標，再做選擇。</span></p>",
     "bodyText": "很多好決定，都不是在最焦慮的那一刻做出來的。\n\n 先停一下、先整理、先看清楚你們家庭真正的目標，再做選擇。",
-    "keep": "保留"
+    "keep": "保留",
+    "targetPage": "mom-power.html",
+    "notes": "",
+    "migrationPage": "",
+    "listDescription": "當你很急的時候，通常不是最適合做重大教育決定的時候。",
+    "legacyId": 0,
+    "legacyCategoryId": 0,
+    "legacyCategoryUrl": "",
+    "coverLabel": "靜心粉霧"
   },
   {
     "slug": "child-not-project",
     "title": "孩子不是一個待完成的專案",
     "date": "2026-01-18",
     "category": "陪伴提醒",
+    "categorySlug": "",
+    "bucket": "星媽正能量",
     "tags": [
       "親子",
       "陪伴"
@@ -66,6 +98,11 @@ window.__MOMS_DATA__ = [
       "陪伴"
     ],
     "summary": "當我們太用力管理孩子，很容易忘記他其實是一個正在長成自己的生命。",
+    "excerpt": "當我們太用力管理孩子，很容易忘記他其實是一個正在長成自己的生命。",
+    "sourceUrl": "",
+    "coverImage": "",
+    "imageUrl": "",
+    "imageName": "",
     "cover": "暖心漫畫",
     "popularity": 90,
     "freshness": 74,
@@ -75,6 +112,14 @@ window.__MOMS_DATA__ = [
     ],
     "bodyHtml": "<p class=\"normal-txt\"><span style=\"font-size:24px;\">規劃很重要，但不要讓孩子只剩下被安排。</span></p>\n<p class=\"normal-txt\"><span style=\"font-size:24px;\">真正長久的教育，不只是把孩子推高，而是讓他在成長裡沒有失去自己。</span></p>",
     "bodyText": "規劃很重要，但不要讓孩子只剩下被安排。\n\n 真正長久的教育，不只是把孩子推高，而是讓他在成長裡沒有失去自己。",
-    "keep": "保留"
+    "keep": "保留",
+    "targetPage": "mom-power.html",
+    "notes": "",
+    "migrationPage": "",
+    "listDescription": "當我們太用力管理孩子，很容易忘記他其實是一個正在長成自己的生命。",
+    "legacyId": 0,
+    "legacyCategoryId": 0,
+    "legacyCategoryUrl": "",
+    "coverLabel": "暖心漫畫"
   }
 ];

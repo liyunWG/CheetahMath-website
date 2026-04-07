@@ -261,6 +261,7 @@ function buildColumnsModel() {
       excerpt,
       sourceUrl: item.sourceUrl || "",
       coverImage,
+      detailImages: unique(item.detailImages || []),
       cover: coverImage,
       imageName: item.imageName || fileNameFromCover(coverImage),
       tags: unique(item.tags || []),
@@ -287,21 +288,38 @@ function buildMomsItems() {
   const items = loadArticleSources("moms").map((item) => {
     const bodyHtml = item.bodyHtml || "";
     const bodyParagraphs = Array.isArray(item.body) && item.body.length ? item.body : htmlToParagraphs(bodyHtml);
+    const coverImage = item.coverImage || item.cover || item.imageUrl || "";
+    const excerpt = item.excerpt || item.summary || "";
     return {
       slug: item.slug,
       title: item.title || "",
       date: item.date || "",
       category: item.category || "",
+      categorySlug: item.categorySlug || "",
+      bucket: item.bucket || "?????",
       tags: unique(item.tags || []),
       keywords: unique(item.keywords || []),
-      summary: item.summary || "",
-      cover: item.coverLabel || item.cover || "",
+      summary: item.summary || excerpt,
+      excerpt,
+      sourceUrl: item.sourceUrl || "",
+      coverImage,
+      imageUrl: item.imageUrl || coverImage || item.sourceUrl || "",
+      imageName: item.imageName || fileNameFromCover(coverImage),
+      cover: item.coverLabel || item.cover || item.category || "?????",
       popularity: Number.isFinite(item.popularity) ? item.popularity : 80,
       freshness: Number.isFinite(item.freshness) ? item.freshness : 80,
       body: bodyParagraphs,
       bodyHtml,
       bodyText: stripTags(bodyHtml),
-      keep: item.keep || "保留"
+      keep: item.keep || "??",
+      targetPage: item.targetPage || "mom-power.html",
+      notes: item.notes || "",
+      migrationPage: item.migrationPage || "",
+      listDescription: item.listDescription || item.summary || excerpt,
+      legacyId: item.legacyId || 0,
+      legacyCategoryId: item.legacyCategoryId || 0,
+      legacyCategoryUrl: item.legacyCategoryUrl || "",
+      coverLabel: item.coverLabel || ""
     };
   });
 
@@ -389,6 +407,7 @@ function buildCoursesItems() {
       excerpt,
       sourceUrl: item.sourceUrl || "",
       coverImage,
+      detailImages: unique(item.detailImages || []),
       cover: coverImage,
       imageName: item.imageName || fileNameFromCover(coverImage),
       tags: unique(item.tags || []),

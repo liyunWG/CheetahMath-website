@@ -1,0 +1,26 @@
+{
+  "slug": "news-xxx",
+  "title": "請替換成最新消息標題",
+  "date": "2026-04-08",
+  "category": "活動訊息",
+  "summary": "請替換成列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "pic/news/your-cover-image.jpg",
+  "imageUrl": "pic/news/your-cover-image.jpg",
+  "imageName": "your-cover-image.jpg",
+  "coverLabel": "最新消息",
+  "tags": [
+    "最新消息",
+    "活動訊息"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "news.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-48 is-title1-48 is-title-bold\">請替換成最新消息標題</h1><p class=\"normal-txt\"><span style=\"font-size:22px;\">請在這裡貼上第一段內文。</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/news/your-body-image-1.jpg\" alt=\"請替換成圖片說明\" /></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:22px;\">這裡繼續放圖片後的段落。</span></p></div></div></div>",
+  "notes": "",
+  "migrationPage": "news-manual-template",
+  "listDescription": "",
+  "popularity": 82,
+  "freshness": 92
+}

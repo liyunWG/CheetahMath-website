@@ -29,6 +29,7 @@ const MIME_TYPES = {
 
 const ROOT_PAGE_EXCLUDES = new Set([
   ".tmp-dump.html",
+  "index.html",
   "article.html",
   "elite-story.html",
   "mom-power.html",

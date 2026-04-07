@@ -1,6 +1,7 @@
 ﻿(function () {
   function qs(selector, root) { return (root || document).querySelector(selector); }
   function qsa(selector, root) { return Array.from((root || document).querySelectorAll(selector)); }
+  const ARTICLE = window.__ARTICLE_FORMAT__ || {};
   function escapeHtml(value) {
     return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;");
   }
@@ -44,9 +45,17 @@
     return html + '</div>';
   }
   function renderNewsCard(item) {
-    const meta = [item.date, item.category].filter(Boolean);
-    const cover = item.coverImage ? '<a class="elite-card__cover" href="' + newsStoryUrl(item.slug) + '"><img src="' + escapeHtml(item.coverImage) + '" alt="' + escapeHtml(item.title) + '"></a>' : '<a class="elite-card__cover" href="' + newsStoryUrl(item.slug) + '"><div class="cover-art cover-art--gold" style="height:220px;"><span>' + escapeHtml(item.cover || item.category || '最新消息') + '</span></div></a>';
-    return '<article class="card elite-card">' + cover + '<div class="card__meta-row">' + meta.map(function (value, index) { return '<span class="chip' + (index === 0 ? '' : ' chip--muted') + '">' + escapeHtml(value) + '</span>'; }).join('') + '</div><h3>' + escapeHtml(item.title) + '</h3><p>' + escapeHtml(item.summary || item.excerpt || '') + '</p>' + renderTags(item.tags, 4) + '<a class="card-link" href="' + newsStoryUrl(item.slug) + '">閱讀全文</a></article>';
+    return ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item: item,
+          url: newsStoryUrl(item.slug),
+          coverImage: item.coverImage,
+          fallbackLabel: item.cover || item.category || '最新消息',
+          fallbackTone: 'gold',
+          previewMetaFields: ['date', 'category', 'bucket'],
+          linkLabel: '閱讀全文'
+        })
+      : '';
   }
   function renderNewsPage(data) {
     const main = qs('main.page'); if (!main) return;
@@ -76,10 +85,18 @@
     const main = qs('main.page'); if (!main) return;
     const slug = getParams().get('slug'); const item = data.find(function (entry) { return entry.slug === slug; }) || data[0];
     if (!item) { main.innerHTML = '<section class="section"><div class="container"><div class="empty-state"><h1>找不到這篇最新消息</h1><p>請回到最新消息列表重新選擇文章。</p><a class="button button--primary" href="news.html">回到最新消息</a></div></div></section>'; return; }
-    const metaChips = [item.date ? '<span><strong>日期：</strong>' + escapeHtml(item.date) + '</span>' : '', item.category ? '<span><strong>分類：</strong>' + escapeHtml(item.category) + '</span>' : ''].filter(Boolean).join('');
-    const bodyHtml = stripDuplicateImageNodes(item.bodyHtml || '<p>這篇最新消息目前沒有內文。</p>', [item.coverImage]);
-    const slugBlock = item.slug ? '<div class="elite-story-meta"><span><strong>slug：</strong>' + escapeHtml(item.slug) + '</span></div>' : '';
-    main.innerHTML = '<section class="page-hero"><div class="container"><a class="back-link" href="news.html">返回最新消息</a><span class="eyebrow">最新消息</span><h1>' + escapeHtml(item.title) + '</h1><p>' + escapeHtml(item.summary || item.excerpt || '') + '</p>' + renderTags(item.tags) + '</div></section><section class="section"><div class="container elite-story-wrap"><article class="card article-card elite-story-main">' + (item.coverImage ? '<div class="article-cover"><img src="' + escapeHtml(item.coverImage) + '" alt="' + escapeHtml(item.title) + '"></div>' : '') + '<div class="article-body elite-body">' + bodyHtml + '</div>' + (metaChips ? '<div class="elite-story-meta">' + metaChips + '</div>' : '') + slugBlock + '</article></div></section>';
+    main.innerHTML = ARTICLE.renderDetailPage({
+      sectionLabel: '最新消息',
+      backHref: 'news.html',
+      backLabel: '返回最新消息',
+      item: item,
+      stripImages: [item.coverImage],
+      metadataItems: [
+        { label: '日期', value: item.date },
+        { label: '分類', value: item.category },
+        { label: 'slug', value: item.slug }
+      ]
+    });
     updateMeta(item.title + '｜最新消息', item.summary || item.excerpt || '最新消息');
   }
   function init() { const data = loadNewsData(); if (!data.length) return; const page = getPageName(); if (page === 'news.html') renderNewsPage(data); if (page === 'news-story.html') renderNewsStory(data); }

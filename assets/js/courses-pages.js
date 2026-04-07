@@ -7,6 +7,8 @@
     return Array.from((root || document).querySelectorAll(selector));
   }
 
+  var ARTICLE = window.__ARTICLE_FORMAT__ || {};
+
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -15,26 +17,12 @@
       .replace(/"/g, "&quot;");
   }
 
-  function escapeRegExp(value) {
-    return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  function unique(values) {
+    return Array.from(new Set((values || []).filter(Boolean)));
   }
 
   function normalizeAssetSrc(value) {
     return String(value || "").replace(/&amp;/g, "&").trim();
-  }
-
-  function stripDuplicateImageNodes(html, sources) {
-    var result = String(html || "");
-    unique((sources || []).map(normalizeAssetSrc)).forEach(function (src) {
-      if (!src) return;
-      var escaped = escapeRegExp(src).replace(/&/g, "(?:&|&amp;)");
-      result = result
-        .replace(new RegExp('<p[^>]*>\\s*<img[^>]+src="' + escaped + '"[^>]*>\\s*</p>', "gi"), "")
-        .replace(new RegExp('<div[^>]*>\\s*<img[^>]+src="' + escaped + '"[^>]*>\\s*</div>', "gi"), "")
-        .replace(new RegExp('<figure[^>]*>\\s*<img[^>]+src="' + escaped + '"[^>]*>\\s*</figure>', "gi"), "")
-        .replace(new RegExp('<img[^>]+src="' + escaped + '"[^>]*>', "gi"), "");
-    });
-    return result;
   }
 
   function getPageName() {
@@ -47,9 +35,7 @@
   }
 
   function courseArticleUrl(slug) {
-    return slug
-      ? "course-article.html?slug=" + encodeURIComponent(slug)
-      : "course-article.html";
+    return slug ? "course-article.html?slug=" + encodeURIComponent(slug) : "course-article.html";
   }
 
   function courseLink(item) {
@@ -69,83 +55,45 @@
       });
   }
 
-  function unique(values) {
-    return Array.from(new Set((values || []).filter(Boolean)));
-  }
-
   function renderTags(tags) {
-    var normalized = unique(tags);
-    if (!normalized.length) return "";
-    return (
-      '<div class="tag-row">' +
-      normalized
-        .map(function (tag) {
-          return '<span class="tag">' + escapeHtml(tag) + "</span>";
-        })
-        .join("") +
-      "</div>"
-    );
+    return ARTICLE.renderTags ? ARTICLE.renderTags(tags) : "";
   }
 
   var CATEGORY_THEMES = {
-    "小學P": "gold",
-    "國中J": "navy",
-    "科學班FA00": "navy",
-    "高中S": "navy",
-    "GGB": "gold"
+    P: "gold",
+    J: "navy",
+    FA00: "navy",
+    S: "navy",
+    GGB: "gold",
+    "科學班前瞻營": "gold",
+    FA: "navy"
   };
 
   var CATEGORY_LABELS = {
-    "小學P": "小學 P",
-    "國中J": "國中 J",
-    "科學班FA00": "科學班 FA00",
-    "高中S": "高中 S",
-    "GGB": "GGB"
+    P: "國小數學 P",
+    J: "國中數學 J",
+    FA00: "科學班 FA00",
+    S: "高中數學 S",
+    GGB: "GGB",
+    "科學班前瞻營": "科學班前瞻營",
+    FA: "FA 高階競賽"
   };
 
-  var ALL_CATEGORIES = ["小學P", "國中J", "科學班FA00", "高中S", "GGB"];
+  var ALL_CATEGORIES = ["P", "J", "FA00", "S", "GGB", "科學班前瞻營", "FA"];
 
   function renderCourseCard(item) {
-    var theme = CATEGORY_THEMES[item.category] || "navy";
-    var label = CATEGORY_LABELS[item.category] || item.category;
-    var year = (item.date || "").slice(0, 4);
-    var meta = [item.date, item.category, year].filter(Boolean);
-
-    var coverHtml;
-    if (item.cover) {
-      coverHtml =
-        '<a class="course-card__cover" href="' + courseLink(item) + '">' +
-        '<img src="' + escapeHtml(item.cover) + '" alt="' + escapeHtml(item.title) + '">' +
-        '</a>';
-    } else {
-      coverHtml =
-        '<a class="course-card__cover cover-art cover-art--' + escapeHtml(theme) + '" href="' + courseLink(item) + '">' +
-        '<span>' + escapeHtml(label) + '</span>' +
-        '</a>';
-    }
-
-    return (
-      '<article class="card elite-card">' +
-      coverHtml +
-      '<div class="card__meta-row">' +
-      meta
-        .map(function (value, index) {
-          return (
-            '<span class="chip' +
-            (index === 0 ? "" : " chip--muted") +
-            '">' +
-            escapeHtml(value) +
-            "</span>"
-          );
+    var category = item.category || "";
+    return ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item: item,
+          url: courseLink(item),
+          coverImage: item.cover,
+          fallbackLabel: CATEGORY_LABELS[category] || category || "課程總覽",
+          fallbackTone: CATEGORY_THEMES[category] || "navy",
+          previewMetaFields: ["date", "category", "code", "level"],
+          linkLabel: "閱讀全文"
         })
-        .join("") +
-      "</div>" +
-      "<h3>" + escapeHtml(item.title) + "</h3>" +
-      "<p>" + escapeHtml(item.summary || item.excerpt || "") + "</p>" +
-      renderTags((item.tags || []).slice(0, 4)) +
-      '<a class="card-link" href="' + courseLink(item) + '">查看課程詳情</a>' +
-      "</article>"
-    );
+      : "";
   }
 
   function renderPager(currentPage, totalPages) {
@@ -155,12 +103,13 @@
       html +=
         '<button type="button" class="elite-pager__button' +
         (i === currentPage ? " is-active" : "") +
-        '" data-page="' + i + '">' +
+        '" data-page="' +
+        i +
+        '">' +
         i +
         "</button>";
     }
-    html += "</div>";
-    return html;
+    return html + "</div>";
   }
 
   function renderCoursesPage(data) {
@@ -171,34 +120,25 @@
       '<section class="page-hero">' +
       '<div class="container">' +
       '<span class="eyebrow">課程總覽</span>' +
-      '<h1>課程不是平鋪直敘地從淺到深，而是對應不同階段、目標與能力結構。</h1>' +
-      '<div class="page-nav">' +
-      '<a class="button button--primary" href="contact.html">預約選課諮詢</a>' +
-      '<a class="button button--secondary" href="learning-system.html">看學習系統</a>' +
-      '</div>' +
-      '</div>' +
-      '</section>' +
+      "<h1>課程總覽</h1>" +
+      "<p>依年級、課程方向與目標快速查看所有課程與延伸內容。</p>" +
+      "</div>" +
+      "</section>" +
       '<section class="section">' +
       '<div class="container">' +
       '<div class="elite-toolbar">' +
-      '<label class="elite-toolbar__field">' +
-      '<span>搜尋課程</span>' +
-      '<input id="courses-search" class="search-input" type="search" placeholder="輸入關鍵字，例如 科學班、AMC、高中、數資班">' +
-      '</label>' +
-      '<label class="elite-toolbar__field">' +
-      '<span>分類</span>' +
-      '<select id="courses-category"><option value="">全部分類</option>' +
-      ALL_CATEGORIES.map(function (cat) {
-        return '<option value="' + escapeHtml(cat) + '">' + escapeHtml(CATEGORY_LABELS[cat] || cat) + '</option>';
+      '<label class="elite-toolbar__field"><span>搜尋課程</span><input id="courses-search" class="search-input" type="search" placeholder="輸入關鍵字，例如 AMC、FA00、科學班、GGB"></label>' +
+      '<label class="elite-toolbar__field"><span>分類</span><select id="courses-category"><option value="">全部分類</option>' +
+      ALL_CATEGORIES.map(function (category) {
+        return '<option value="' + escapeHtml(category) + '">' + escapeHtml(CATEGORY_LABELS[category] || category) + "</option>";
       }).join("") +
-      '</select>' +
-      '</label>' +
-      '</div>' +
-      '<div class="elite-summary-bar"><strong id="courses-count">0</strong><span>門課程</span></div>' +
+      "</select></label>" +
+      "</div>" +
+      '<div class="elite-summary-bar"><strong id="courses-count">0</strong><span>篇結果</span></div>' +
       '<div id="courses-results" class="grid grid--3 elite-grid"></div>' +
       '<div id="courses-pager-wrap"></div>' +
-      '</div>' +
-      '</section>';
+      "</div>" +
+      "</section>";
 
     var searchInput = qs("#courses-search");
     var categorySelect = qs("#courses-category");
@@ -213,16 +153,13 @@
       var categoryValue = categorySelect.value;
 
       return data.filter(function (item) {
-        var haystack = [item.title, item.summary, item.excerpt, item.bodyText, item.code]
+        var haystack = [item.title, item.summary, item.excerpt, item.bodyText, item.code, item.level]
           .concat(item.tags || [])
           .concat(item.keywords || [])
           .join(" ")
           .toLowerCase();
 
-        return (
-          (!q || haystack.indexOf(q) >= 0) &&
-          (!categoryValue || item.category === categoryValue)
-        );
+        return (!q || haystack.indexOf(q) >= 0) && (!categoryValue || item.category === categoryValue);
       });
     }
 
@@ -237,7 +174,7 @@
       countNode.textContent = String(filtered.length);
       resultsNode.innerHTML = items.length
         ? items.map(renderCourseCard).join("")
-        : '<div class="empty-state elite-empty"><h3>找不到符合條件的課程</h3><p>請試試別的關鍵字，或先清空分類篩選。</p></div>';
+        : '<div class="empty-state elite-empty"><h3>找不到符合條件的課程</h3><p>請試試別的關鍵字，或先清空分類條件。</p></div>';
 
       pagerNode.innerHTML = renderPager(currentPage, totalPages);
       qsa("[data-page]", pagerNode).forEach(function (button) {
@@ -268,83 +205,50 @@
     if (!main) return;
 
     var slug = getParams().get("slug");
-    var item =
-      data.find(function (entry) {
-        return entry.slug === slug;
-      }) || null;
+    var item = data.find(function (entry) {
+      return entry.slug === slug;
+    }) || null;
 
     if (!item) {
       main.innerHTML =
-        '<section class="section"><div class="container"><div class="empty-state"><h1>找不到這門課程</h1><p>請回到課程總覽重新選擇。</p><a class="button button--primary" href="courses.html">回到課程總覽</a></div></div></section>';
+        '<section class="section"><div class="container"><div class="empty-state"><h1>找不到這門課程</h1><p>請回到課程總覽重新選擇內容。</p><a class="button button--primary" href="courses.html">回到課程總覽</a></div></div></section>';
       return;
     }
 
-    document.title = item.title + "｜課程總覽｜獵豹科教";
+    document.title = item.title + "｜課程總覽";
 
-    var detailImages = unique(
-      []
-        .concat(item.detailImages || [])
-        .filter(Boolean)
-        .map(normalizeAssetSrc)
-    ).filter(function (src) {
+    var detailImages = unique([].concat(item.detailImages || []).filter(Boolean).map(normalizeAssetSrc)).filter(function (src) {
       return src && src !== normalizeAssetSrc(item.cover);
     });
-
-    var bodyHtml = stripDuplicateImageNodes(
-      item.bodyHtml || "<p>這門課程目前沒有詳細說明。</p>",
-      [item.cover].concat(detailImages)
-    );
 
     var detailImagesHtml = detailImages.length
       ? '<div class="course-detail-gallery">' +
         detailImages
           .map(function (src, index) {
-            return (
-              '<figure class="article-cover">' +
-              '<img src="' + escapeHtml(src) + '" alt="' + escapeHtml(item.title + ' 課程圖 ' + (index + 1)) + '">' +
-              "</figure>"
-            );
+            return '<figure class="article-cover"><img src="' + escapeHtml(src) + '" alt="' + escapeHtml(item.title + " 課程圖片 " + (index + 1)) + '"></figure>';
           })
           .join("") +
         "</div>"
       : "";
 
-    var metaChips = [
-      item.date ? "<span><strong>日期：</strong>" + escapeHtml(item.date) + "</span>" : "",
-      item.category ? "<span><strong>分類：</strong>" + escapeHtml(item.category) + "</span>" : "",
-      item.code ? "<span><strong>課程編號：</strong>" + escapeHtml(item.code) + "</span>" : ""
-    ]
-      .filter(Boolean)
-      .join("");
-    var slugBlock = item.slug
-      ? '<div class="elite-story-meta"><span><strong>slug：</strong>' + escapeHtml(item.slug) + "</span></div>"
-      : "";
+    var bodyHtml = ARTICLE.normalizeDetailBody
+      ? ARTICLE.normalizeDetailBody(item, { stripImages: [item.cover] })
+      : item.bodyHtml || "<p>這門課程目前沒有詳細說明。</p>";
 
-    main.innerHTML =
-      '<section class="page-hero">' +
-      '<div class="container">' +
-      '<a class="back-link" href="courses.html">返回課程總覽</a>' +
-      '<span class="eyebrow">課程總覽</span>' +
-      "<h1>" + escapeHtml(item.title) + "</h1>" +
-      "<p>" + escapeHtml(item.summary || item.excerpt || "") + "</p>" +
-      renderTags(item.tags) +
-      "</div>" +
-      "</section>" +
-      '<section class="section">' +
-      '<div class="container elite-story-wrap">' +
-      '<article class="card article-card elite-story-main">' +
-      (item.cover
-        ? '<div class="article-cover"><img src="' + escapeHtml(item.cover) + '" alt="' + escapeHtml(item.title) + '"></div>'
-        : "") +
-      detailImagesHtml +
-      '<div class="article-body elite-body">' +
-      bodyHtml +
-      "</div>" +
-      (metaChips ? '<div class="elite-story-meta">' + metaChips + "</div>" : "") +
-      slugBlock +
-      "</article>" +
-      "</div>" +
-      "</section>";
+    main.innerHTML = ARTICLE.renderDetailPage({
+      sectionLabel: "課程總覽",
+      backHref: "courses.html",
+      backLabel: "返回課程總覽",
+      item: item,
+      bodyHtml: bodyHtml + detailImagesHtml,
+      stripImages: [item.cover],
+      metadataItems: [
+        { label: "日期", value: item.date },
+        { label: "分類", value: item.category },
+        { label: "課程編號", value: item.code },
+        { label: "slug", value: item.slug }
+      ]
+    });
   }
 
   function renderCoursesSearch(data) {
@@ -356,7 +260,7 @@
     if (!main) return;
 
     var results = data.filter(function (item) {
-      var haystack = [item.title, item.summary, item.excerpt, item.bodyText, item.code]
+      var haystack = [item.title, item.summary, item.excerpt, item.bodyText, item.code, item.level]
         .concat(item.tags || [])
         .concat(item.keywords || [])
         .join(" ")
@@ -364,10 +268,7 @@
       return haystack.indexOf(query) >= 0;
     });
 
-    var anchorSection =
-      qsa(".section", main).slice(-1)[0] ||
-      main;
-
+    var anchorSection = qsa(".section", main).slice(-1)[0] || main;
     var existing = qs("[data-courses-search]", main);
     if (existing) existing.remove();
 
@@ -376,22 +277,17 @@
     block.setAttribute("data-courses-search", "true");
     block.innerHTML =
       '<div class="container">' +
-      '<div class="section-heading">' +
-      "<h2>課程總覽搜尋結果</h2>" +
-      "<p>目前找到 " +
+      '<div class="section-heading"><h2>課程總覽搜尋結果</h2><p>目前找到 ' +
       results.length +
-      " 門與「" +
+      ' 篇與「' +
       escapeHtml(query) +
-      "」相關的課程。</p>" +
-      "</div>" +
+      '」相關的課程內容。</p></div>' +
       '<div class="grid grid--3 elite-grid">' +
       (results.length
         ? results.slice(0, 12).map(renderCourseCard).join("")
-        : '<div class="empty-state elite-empty"><h3>課程總覽沒有符合結果</h3><p>可改試課程名稱、級別或科目關鍵字。</p></div>') +
+        : '<div class="empty-state elite-empty"><h3>課程總覽沒有符合結果</h3><p>可改試課程名稱、年級、課程代碼或目標關鍵字。</p></div>') +
       "</div>" +
-      (results.length > 12
-        ? '<div class="page-nav"><a class="button button--secondary" href="courses.html">到課程總覽查看更多</a></div>'
-        : "") +
+      (results.length > 12 ? '<div class="page-nav"><a class="button button--secondary" href="courses.html">到課程總覽查看更多</a></div>' : "") +
       "</div>";
 
     anchorSection.insertAdjacentElement("afterend", block);

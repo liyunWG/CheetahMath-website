@@ -7,6 +7,8 @@
     return Array.from((root || document).querySelectorAll(selector));
   }
 
+  const ARTICLE = window.__ARTICLE_FORMAT__ || {};
+
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -120,51 +122,18 @@
   }
 
   function renderColumnCard(item) {
-    const year = (item.date || "").slice(0, 4);
-    const meta = [item.date, item.category, year].filter(Boolean);
     const coverImage = getCoverImage(item);
-    const cover = coverImage
-      ? '<a class="elite-card__cover" href="' +
-        articleUrl(item.slug) +
-        '"><img src="' +
-        escapeHtml(coverImage) +
-        '" alt="' +
-        escapeHtml(item.title) +
-        '"></a>'
-      : '<a class="elite-card__cover" href="' +
-        articleUrl(item.slug) +
-        '"><div class="cover-art cover-art--navy" style="height:220px;"><span>' +
-        escapeHtml(item.category || "文章專欄") +
-        "</span></div></a>";
-
-    return (
-      '<article class="card elite-card">' +
-      cover +
-      '<div class="card__meta-row">' +
-      meta
-        .map(function (value, index) {
-          return (
-            '<span class="chip' +
-            (index === 0 ? "" : " chip--muted") +
-            '">' +
-            escapeHtml(value) +
-            "</span>"
-          );
+    return ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item: item,
+          url: articleUrl(item.slug),
+          coverImage: coverImage,
+          fallbackLabel: item.category || "文章專欄",
+          fallbackTone: "navy",
+          previewMetaFields: ["date", "category", "bucket"],
+          linkLabel: "閱讀全文"
         })
-        .join("") +
-      "</div>" +
-      "<h3>" +
-      escapeHtml(item.title) +
-      "</h3>" +
-      "<p>" +
-      escapeHtml(item.summary || item.excerpt || "") +
-      "</p>" +
-      renderTags(item.tags, 4) +
-      '<a class="card-link" href="' +
-      articleUrl(item.slug) +
-      '">閱讀全文</a>' +
-      "</article>"
-    );
+      : "";
   }
 
   function renderColumnsPage(model) {
@@ -326,50 +295,18 @@
 
     document.title = item.title + "｜文章專欄";
 
-    const heroImage = getCoverImage(item);
-    const metaChips = [
-      item.date ? "<span><strong>日期：</strong>" + escapeHtml(item.date) + "</span>" : "",
-      item.category ? "<span><strong>分類：</strong>" + escapeHtml(item.category) + "</span>" : ""
-    ]
-      .filter(Boolean)
-      .join("");
-    const bodyHtml = stripDuplicateImageNodes(item.bodyHtml || "<p>這篇文章目前沒有內文。</p>", [heroImage]);
-    const slugBlock = item.slug
-      ? '<div class="elite-story-meta"><span><strong>slug：</strong>' + escapeHtml(item.slug) + "</span></div>"
-      : "";
-
-    main.innerHTML =
-      '<section class="page-hero">' +
-      '<div class="container">' +
-      '<a class="back-link" href="columns.html">返回文章專欄</a>' +
-      '<span class="eyebrow">文章專欄</span>' +
-      "<h1>" +
-      escapeHtml(item.title) +
-      "</h1>" +
-      "<p>" +
-      escapeHtml(item.summary || item.excerpt || "") +
-      "</p>" +
-      renderTags(item.tags) +
-      "</div>" +
-      "</section>" +
-      '<section class="section">' +
-      '<div class="container elite-story-wrap">' +
-      '<article class="card article-card elite-story-main">' +
-      (heroImage
-        ? '<div class="article-cover"><img src="' +
-          escapeHtml(heroImage) +
-          '" alt="' +
-          escapeHtml(item.title) +
-          '"></div>'
-        : "") +
-      '<div class="article-body elite-body">' +
-      bodyHtml +
-      "</div>" +
-      (metaChips ? '<div class="elite-story-meta">' + metaChips + "</div>" : "") +
-      slugBlock +
-      "</article>" +
-      "</div>" +
-      "</section>";
+    main.innerHTML = ARTICLE.renderDetailPage({
+      sectionLabel: "文章專欄",
+      backHref: "columns.html",
+      backLabel: "返回文章專欄",
+      item: item,
+      stripImages: [getCoverImage(item)],
+      metadataItems: [
+        { label: "日期", value: item.date },
+        { label: "分類", value: item.category },
+        { label: "slug", value: item.slug }
+      ]
+    });
 
     updateMeta(item.title + "｜文章專欄", item.summary || item.excerpt || "文章專欄");
   }
