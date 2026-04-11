@@ -310,13 +310,37 @@
         };
       });
 
+  const aboutSearchItems = () => {
+    const raw = window.__ABOUT_DATA__ || {};
+    const items = Array.isArray(raw.items) ? raw.items : [];
+    return items
+      .filter((item) => item && item.keep !== "移除")
+      .map((item) => {
+        const isFeature = String(item.slug || "").startsWith("feature-");
+        const url = "about.html?slug=" + encodeURIComponent(item.slug || "about-intro");
+        return {
+          type: "關於獵豹",
+          title: item.title || "關於獵豹",
+          summary: item.summary || "",
+          tags: (item.tags || []).filter(Boolean),
+          keywords: [item.section, item.slug].concat(item.tags || []).filter(Boolean),
+          body: [item.draftBody, item.bodyText].filter(Boolean).join(" "),
+          url,
+          popularity: isFeature ? 72 : 76,
+          freshness: 62,
+          grade: "全站",
+          topic: isFeature ? "關於獵豹 / 獵豹特色" : "關於獵豹",
+          date: ""
+        };
+      });
+  };
+
 
   const staticPageSearchItems = () => {
     const home = PAGE_DATA.home || {};
     const onePage = PAGE_DATA.onePage || {};
     const learning = PAGE_DATA.learningSystem || {};
     const about = PAGE_DATA.about || {};
-    const features = PAGE_DATA.features || {};
     const studentsLanding = PAGE_DATA.studentsLanding || {};
     const contact = PAGE_DATA.contact || {};
     const coursesLanding = PAGE_DATA.coursesLanding || {};
@@ -334,7 +358,6 @@
       { type: "\u4e00\u9801\u8a8d\u8b58\u7375\u8c79", title: onePage.title || "\u4e00\u9801\u8a8d\u8b58\u7375\u8c79", summary: onePage.intro || "", tags: ["\u4e00\u9801\u8a8d\u8b58\u7375\u8c79", "\u54c1\u724c"], keywords: [onePage.eyebrow, onePage.subtitle].filter(Boolean), body: sectionText(onePage.sections), url: "one-page.html", popularity: 74, freshness: 70, grade: "\u5168\u7ad9", topic: "\u54c1\u724c\u4ecb\u7d39", date: "" },
       { type: "\u5b78\u7fd2\u7cfb\u7d71", title: learning.title || "\u5b78\u7fd2\u7cfb\u7d71", summary: learning.intro || "", tags: ["\u5b78\u7fd2\u7cfb\u7d71", "\u7cfb\u7d71\u5165\u53e3"], keywords: [learning.eyebrow, learning.sectionTitle].filter(Boolean), body: [learning.headline, learning.text, sectionText(learning.cards ? [{ cards: learning.cards }] : []), learning.sectionIntro].filter(Boolean).join(" "), url: "learning-system.html", popularity: 72, freshness: 68, grade: "\u5168\u7ad9", topic: "\u5b78\u7fd2\u7cfb\u7d71", date: "" },
       { type: "\u95dc\u65bc\u7375\u8c79", title: about.title || "\u95dc\u65bc\u7375\u8c79", summary: about.intro || "", tags: ["\u95dc\u65bc\u7375\u8c79", "\u54c1\u724c\u7406\u5ff5"], keywords: [about.eyebrow, about.sectionTitle].filter(Boolean), body: [about.sectionIntro, sectionText([{ cards: about.cards || [] }])].filter(Boolean).join(" "), url: "about.html", popularity: 70, freshness: 66, grade: "\u5168\u7ad9", topic: "\u95dc\u65bc\u7375\u8c79", date: "" },
-      { type: "\u6838\u5fc3\u7279\u8272", title: features.title || "\u6838\u5fc3\u7279\u8272", summary: features.intro || "", tags: ["\u6838\u5fc3\u7279\u8272", "\u6559\u5b78\u7279\u8272"], keywords: [features.eyebrow, features.sectionTitle].filter(Boolean), body: [features.sectionIntro, sectionText([{ cards: features.cards || [] }])].filter(Boolean).join(" "), url: "features.html", popularity: 68, freshness: 64, grade: "\u5168\u7ad9", topic: "\u6838\u5fc3\u7279\u8272", date: "" },
       { type: "\u7375\u8c79\u83c1\u82f1", title: studentsLanding.title || "\u7375\u8c79\u83c1\u82f1", summary: studentsLanding.intro || "", tags: ["\u7375\u8c79\u83c1\u82f1", "\u699c\u55ae"], keywords: [studentsLanding.honorsTitle, studentsLanding.extraTitle].filter(Boolean), body: [studentsLanding.honorsIntro, studentsLanding.extraIntro, sectionText([{ cards: studentsLanding.extraCards || [] }])].filter(Boolean).join(" "), url: "students.html", popularity: 78, freshness: 72, grade: "\u5168\u7ad9", topic: "\u7375\u8c79\u83c1\u82f1", date: "" },
       { type: "\u806f\u7d61\u6211\u5011", title: contact.title || "\u806f\u7d61\u6211\u5011", summary: contact.intro || "", tags: ["\u806f\u7d61\u6211\u5011", "\u5ba2\u670d"], keywords: [contact.lineLabel, contact.fbLabel].filter(Boolean), body: [contact.sectionIntro, sectionText([{ cards: contact.cards || [] }])].filter(Boolean).join(" "), url: "contact.html", popularity: 65, freshness: 62, grade: "\u5168\u7ad9", topic: "\u806f\u7d61\u6211\u5011", date: "" },
       { type: "\u8ab2\u7a0b\u7e3d\u89bd", title: coursesLanding.title || "\u8ab2\u7a0b\u7e3d\u89bd", summary: coursesLanding.intro || "", tags: ["\u8ab2\u7a0b\u7e3d\u89bd", "\u8ab2\u7a0b"], keywords: [coursesLanding.sectionTitle].filter(Boolean), body: [coursesLanding.sectionIntro].filter(Boolean).join(" "), url: "courses.html", popularity: 82, freshness: 76, grade: "\u5168\u7ad9", topic: "\u8ab2\u7a0b\u7e3d\u89bd", date: "" },
@@ -376,6 +399,7 @@
       topic: item.category || "\u8ab2\u7a0b",
       date: item.date || ""
     })),
+    ...aboutSearchItems(),
     ...columnsSearchItems(),
     ...MOMS.map((item) => ({
       type: "\u661f\u5abd\u6b63\u80fd\u91cf",
@@ -776,7 +800,9 @@
   if (shouldHydrateMain) page(picked[2]);
   wrapRichContentImages();
 
-  const targets = document.querySelectorAll(".hero-panel, .card:not(.article-card), .feature-box, .section-heading, .goal-chip");
+  const targets = document.querySelectorAll(
+    ".hero-panel, .card:not(.article-card), .feature-box, .section-heading, .goal-chip, .onepage-definition, .onepage-bullet-card, .onepage-principle, .onepage-path-step"
+  );
   targets.forEach((el) => el.classList.add("reveal"));
   const observer = new IntersectionObserver(
     (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
@@ -802,7 +828,7 @@
   if (dataEl) {
     const searchConfig = PAGE_DATA.search || {};
     const liveItems = typeof searchData === "function" ? searchData() : JSON.parse(dataEl.textContent);
-    const items = liveItems.map((item) => {
+    const indexSearchItem = (item) => {
       const title = String(item.title || "");
       const tagsText = (item.tags || []).join(" ");
       const keywordsText = (item.keywords || []).join(" ");
@@ -840,7 +866,8 @@
           typeNorm: normalize(item.type || "")
         }
       };
-    });
+    };
+    let items = liveItems.map(indexSearchItem);
 
     const input = document.getElementById("site-search-input");
     const type = document.getElementById("filter-type");
@@ -992,6 +1019,51 @@
 
     [input, type, grade, sort].forEach((el) => el.addEventListener("input", render));
     render();
+
+    const hydrateOnePageSearchIndex = async () => {
+      try {
+        const response = await fetch("one-page.html", { credentials: "same-origin" });
+        if (!response.ok) return;
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const main = doc.querySelector("main.page");
+        if (!main) return;
+
+        const headingTexts = [...main.querySelectorAll("h1, h2, h3")]
+          .map((node) => node.textContent.trim())
+          .filter(Boolean);
+        const paragraphTexts = [...main.querySelectorAll("p, li")]
+          .map((node) => node.textContent.replace(/\s+/g, " ").trim())
+          .filter(Boolean);
+        const heroTitle = doc.querySelector("main.page h1")?.textContent.trim() || "一頁認識獵豹";
+        const heroLead =
+          doc.querySelector(".onepage-hero__lead")?.textContent.replace(/\s+/g, " ").trim() ||
+          doc.querySelector('meta[name="description"]')?.getAttribute("content") ||
+          "";
+        const onePageItem = {
+          type: "一頁認識獵豹",
+          title: heroTitle,
+          summary: heroLead,
+          tags: ["一頁認識獵豹", "品牌介紹"],
+          keywords: ["獵豹", "數學", "資優", "競賽", "長線培養"].concat(headingTexts.slice(0, 12)),
+          body: paragraphTexts.join(" "),
+          url: "one-page.html",
+          popularity: 74,
+          freshness: 70,
+          grade: "全站",
+          topic: "品牌介紹",
+          date: ""
+        };
+
+        items = items.filter((item) => item.url !== "one-page.html");
+        items.unshift(indexSearchItem(onePageItem));
+        render();
+      } catch (error) {
+        console.warn("Failed to hydrate one-page search index", error);
+      }
+    };
+
+    hydrateOnePageSearchIndex();
   }
 })();
-

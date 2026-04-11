@@ -3,11 +3,16 @@ window.__ABOUT_DATA__ = {
     {
       "page": "about.html",
       "title": "關於獵豹",
-      "intro": "集中整理品牌介紹、創辦與經營團隊、師資顧問團隊，讓家長先看懂獵豹是誰、由誰帶領、核心教學團隊有什麼背景。",
+      "intro": "集中整理品牌介紹、創辦與經營團隊、師資顧問團隊，以及原本獨立的獵豹特色、課程體系、學習方法、競爭核心與全球視野內容，讓家長在同一頁完整看懂獵豹。",
       "slugs": [
         "about-intro",
         "about-founders",
-        "about-advisors"
+        "about-advisors",
+        "feature-curriculum",
+        "feature-course-strengths",
+        "feature-learning-method",
+        "feature-core-edge",
+        "feature-global-vision"
       ]
     },
     {
