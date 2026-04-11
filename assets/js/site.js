@@ -771,7 +771,7 @@
 
   const picked = (routes[PAGE()] || routes["index.html"])();
   const main = document.querySelector("main.page");
-  const shouldHydrateMain = !main || !main.children.length || PAGE() === "index.html";
+  const shouldHydrateMain = !main || !main.children.length;
   applyChrome(picked[0], picked[1]);
   if (shouldHydrateMain) page(picked[2]);
   wrapRichContentImages();
@@ -994,5 +994,4 @@
     render();
   }
 })();
-
 
