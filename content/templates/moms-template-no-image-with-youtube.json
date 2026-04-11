@@ -1,0 +1,34 @@
+{
+  "slug": "mom-power-xxx",
+  "title": "請替換成星媽力量標題",
+  "date": "2026-04-11",
+  "category": "家長觀點",
+  "categorySlug": "",
+  "bucket": "星媽力量",
+  "summary": "請替換成列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "",
+  "imageUrl": "",
+  "imageName": "",
+  "tags": [
+    "星媽力量",
+    "家長觀點"
+  ],
+  "keywords": [
+    "家長",
+    "教育"
+  ],
+  "keep": "保留",
+  "targetPage": "mom-power.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-38 is-title1-48 is-title-bold\">請替換成星媽力量標題</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成影片前的家長觀點文字。</span></p><p class=\"normal-txt\"><span style=\"font-size:18px;color:#666666;\">【多影片用法】若有多段分享影片，直接重複下方 YouTube 區塊即可。</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><div class=\"embed-responsive embed-responsive-16by9\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/your-video-id-1?rel=0\" width=\"100%\"></iframe></div></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><div class=\"embed-responsive embed-responsive-16by9\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/your-video-id-2?rel=0\" width=\"100%\"></iframe></div></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成影片下方補充內容。</span></p></div></div></div>",
+  "notes": "",
+  "migrationPage": "",
+  "listDescription": "",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "coverLabel": "星媽力量",
+  "popularity": 90,
+  "freshness": 90
+}

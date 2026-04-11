@@ -1,0 +1,31 @@
+{
+  "slug": "article-xxx",
+  "title": "請替換成文章專欄標題",
+  "date": "2026-04-11",
+  "category": "獵豹談教育",
+  "categorySlug": "education-talk",
+  "bucket": "文章專欄",
+  "summary": "請替換成列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "pic/columns/your-cover-image.jpg",
+  "imageUrl": "pic/columns/your-cover-image.jpg",
+  "imageName": "your-cover-image.jpg",
+  "tags": [
+    "文章專欄",
+    "獵豹談教育"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-38 is-title1-48 is-title-bold\">請替換成文章專欄標題</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成開場文字。</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/columns/your-body-image-1.jpg\" alt=\"請替換成圖片說明\" /></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><div class=\"embed-responsive embed-responsive-16by9\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/your-video-id?rel=0\" width=\"100%\"></iframe></div></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成圖片或影片後的補充文字。</span></p></div></div></div>",
+  "notes": "版本：單一圖片+單一YouTube",
+  "migrationPage": "",
+  "listDescription": "",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "coverLabel": "",
+  "popularity": 84,
+  "freshness": 80
+}

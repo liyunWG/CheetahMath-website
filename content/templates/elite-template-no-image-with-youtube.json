@@ -1,0 +1,31 @@
+{
+  "slug": "cheetah-elite-xxx",
+  "title": "請替換成獵豹菁英標題",
+  "date": "2026-04-11",
+  "category": "競賽榮耀",
+  "categorySlug": "",
+  "bucket": "獵豹菁英",
+  "summary": "請替換成列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "pic/elite/your-cover-image.jpg",
+  "imageUrl": "pic/elite/your-cover-image.jpg",
+  "imageName": "your-cover-image.jpg",
+  "tags": [
+    "獵豹菁英",
+    "競賽榮耀"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "students.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-38 is-title1-48 is-title-bold\">請替換成獵豹菁英標題</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成學生表現或故事前言。</span></p><p class=\"normal-txt\"><span style=\"font-size:18px;color:#666666;\">【多影片用法】若有多段訪談或成果影片，直接重複下方 YouTube 區塊即可。</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><div class=\"embed-responsive embed-responsive-16by9\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/your-video-id-1?rel=0\" width=\"100%\"></iframe></div></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><div class=\"embed-responsive embed-responsive-16by9\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"315\" src=\"https://www.youtube.com/embed/your-video-id-2?rel=0\" width=\"100%\"></iframe></div></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成影片下方補充內容。</span></p></div></div></div>",
+  "notes": "",
+  "migrationPage": "",
+  "listDescription": "",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "coverLabel": "",
+  "popularity": 84,
+  "freshness": 80
+}

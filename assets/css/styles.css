@@ -289,3 +289,100 @@ p,li{color:var(--muted);line-height:1.84}
   .article-body table,.elite-body table,.about-body table{font-size:14px}
   .article-meta-grid{grid-template-columns:1fr}
 }
+.section--soft{background:linear-gradient(180deg,rgba(247,241,231,.92),rgba(255,252,246,.86))}
+.section--ink{background:linear-gradient(180deg,#1b1711,#261f16);color:#f7efe1}
+.section--ink .section-heading p{color:rgba(247,239,225,.76)}
+.section--ink h2{color:#fff6e4}
+.section--ink .card,.section--ink .onepage-principle{background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.95));border-color:rgba(185,147,72,.24)}
+.section--ink .card h3,.section--ink .card strong,.section--ink .onepage-principle strong{color:var(--navy)}
+.section--ink .card p,.section--ink .onepage-principle p{color:var(--text)}
+.page-onepage .page{padding-bottom:110px}
+.onepage-hero{padding-top:44px}
+.onepage-hero__grid,.onepage-definition,.onepage-cta{display:grid;gap:22px}
+.onepage-hero__copy,.onepage-hero__panel{min-width:0}
+.onepage-hero__lead{font-size:18px;max-width:720px}
+.onepage-hero__signals{display:grid;gap:14px;margin-top:24px}
+.onepage-mini-card,.onepage-stat-card,.onepage-quote,.onepage-principle,.onepage-path-step,.onepage-bullet-card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+.onepage-mini-card,.onepage-definition,.onepage-path-step,.onepage-bullet-card{background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.95))}
+.onepage-mini-card{padding:18px 20px}
+.onepage-mini-card strong,.onepage-bullet-card strong,.onepage-stat-card strong{display:block;margin-bottom:8px;color:var(--navy);font-size:18px;line-height:1.3}
+.onepage-mini-card span,.onepage-bullet-card span,.onepage-stat-card span{display:block;color:var(--muted);line-height:1.75}
+.onepage-hero__panel{display:grid}
+.onepage-stat-stack{display:grid;gap:16px;height:100%}
+.onepage-stat-card{padding:22px 24px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,249,237,.95))}
+.onepage-stat-card--gold{background:linear-gradient(135deg,rgba(255,248,221,.98),rgba(244,230,189,.96))}
+.onepage-stat-card p{margin-top:10px}
+.onepage-quote{padding:22px 24px;background:linear-gradient(135deg,#17305d,#122548);border-color:transparent}
+.onepage-quote p{color:rgba(255,255,255,.9);font-size:18px;line-height:1.8}
+.onepage-definition{padding:26px;border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow)}
+.onepage-surface-card{padding:26px 28px;border-radius:24px;border:1px solid rgba(185,147,72,.2);background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,248,239,.95));box-shadow:0 18px 36px rgba(18,37,72,.08)}
+.onepage-definition__main{display:grid;gap:14px}
+.onepage-definition__main p:last-child{margin-bottom:0}
+.onepage-definition__points{display:grid;gap:14px}
+.onepage-bullet-card{padding:18px 20px}
+.onepage-bullet-card,.onepage-path-step,.onepage-principle{min-height:100%}
+.onepage-feature-grid .card,.onepage-story-card,.onepage-article-grid .card{height:100%}
+.onepage-principles{display:grid;gap:18px}
+.onepage-principle{padding:24px;border:1px solid rgba(185,147,72,.22);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,249,240,.94));box-shadow:0 18px 32px rgba(18,37,72,.08)}
+.onepage-principle strong{display:block;margin-bottom:12px;font-size:22px;line-height:1.45}
+.onepage-path__intro{max-width:760px}
+.onepage-video-grid{align-items:stretch}
+.onepage-video-embed{position:relative;width:100%;margin-top:16px;border-radius:20px;overflow:hidden;background:#111;aspect-ratio:16/9;box-shadow:var(--shadow)}
+.onepage-video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.onepage-path{display:grid;gap:18px;position:relative}
+.onepage-path-step{display:grid;gap:10px;padding:24px 24px 22px;border:1px solid rgba(185,147,72,.2);background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,248,239,.95));box-shadow:0 18px 36px rgba(18,37,72,.08)}
+.onepage-path-step__index{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;margin-bottom:16px;border-radius:16px;background:linear-gradient(135deg,#fff4ce,#f3db9e);color:#76531a;font-weight:900;font-size:16px;box-shadow:0 10px 22px rgba(185,147,72,.18)}
+.onepage-path-step p{margin-bottom:10px}
+.onepage-path-step small{display:block;color:var(--gold);font-size:13px;font-weight:800;letter-spacing:.05em}
+.onepage-story-card__media,.onepage-article-grid__media{display:block;margin:-24px -24px 18px;border-radius:22px 22px 18px 18px;overflow:hidden;background:#fff}
+.onepage-story-card__media img,.onepage-article-grid__media img{width:100%;aspect-ratio:16/10;object-fit:cover}
+.onepage-story-card .card-link,.onepage-article-grid .card-link{margin-top:auto}
+.onepage-story-card,.onepage-article-grid .card{display:flex;flex-direction:column}
+.onepage-story-grid,.onepage-article-grid{align-items:stretch}
+.onepage-cta{align-items:center}
+.onepage-cta__actions{display:grid;gap:12px}
+.home-onepage-entry{align-items:center}
+.page-home .home-onepage-entry .button{min-width:220px}
+.onepage-faq-section{padding:96px 0 104px;background:linear-gradient(180deg,#f8f6f1,#f4f0e7)}
+.faq-shell{display:grid;gap:28px}
+.faq-heading{text-align:center}
+.faq-heading p{max-width:760px;margin:0 auto}
+.faq-heading__line{width:84px;height:2px;margin:18px auto 0;border-radius:999px;background:linear-gradient(90deg,rgba(198,164,98,0),rgba(198,164,98,.92),rgba(198,164,98,0))}
+.faq-list{display:grid;gap:16px;max-width:960px;margin:0 auto}
+.faq-item{border:1px solid rgba(198,164,98,.22);border-radius:22px;background:rgba(255,255,255,.96);box-shadow:0 16px 34px rgba(18,37,72,.06);transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease,background-color .3s ease}
+.faq-item:hover{transform:translateY(-2px);border-color:rgba(198,164,98,.34);box-shadow:0 20px 38px rgba(18,37,72,.08)}
+.faq-item.is-open{border-color:rgba(198,164,98,.48);background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,250,242,.97));box-shadow:0 22px 42px rgba(18,37,72,.1),0 0 0 1px rgba(216,185,121,.1)}
+.faq-question{width:100%;padding:24px 28px;background:transparent;border:0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;font:inherit;font-size:20px;font-weight:700;line-height:1.5;color:var(--ink)}
+.faq-question span:first-child{flex:1}
+.faq-answer{max-height:0;opacity:0;overflow:hidden;transform:translateY(-4px);transition:max-height .32s ease,opacity .28s ease,transform .28s ease}
+.faq-item.is-open .faq-answer{opacity:1;transform:translateY(0)}
+.faq-answer-inner{padding:0 28px 28px;font-size:16px;line-height:1.9;color:rgba(32,29,23,.82)}
+.faq-answer-inner p{margin:0 0 12px}
+.faq-answer-inner p:last-child{margin-bottom:0}
+.faq-icon{position:relative;flex:0 0 20px;width:20px;height:20px;color:#8b6a2b;transition:transform .28s ease,color .28s ease}
+.faq-icon::before,.faq-icon::after{content:"";position:absolute;top:50%;left:50%;width:16px;height:2px;border-radius:999px;background:currentColor;transform:translate(-50%,-50%)}
+.faq-icon::after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq-item.is-open .faq-icon{transform:rotate(45deg);color:#a67a2d}
+.section--ink .onepage-surface-card{background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(255,248,239,.95));border-color:rgba(185,147,72,.22)}
+.section--ink .onepage-surface-card p{color:var(--text)}
+.section--soft .onepage-definition,.section--soft .onepage-path-step{border-color:rgba(185,147,72,.18)}
+@media (min-width:720px){
+  .onepage-hero__grid,.onepage-definition,.onepage-cta{grid-template-columns:1.08fr .92fr}
+  .onepage-hero__signals,.onepage-definition__points,.onepage-principles{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .onepage-path{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:980px){
+  .onepage-path{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:719px){
+  .onepage-hero{padding-top:28px}
+  .onepage-hero__lead{font-size:16px}
+  .onepage-story-card__media,.onepage-article-grid__media{margin:-18px -18px 16px}
+  .onepage-principle strong{font-size:20px}
+  .onepage-surface-card,.onepage-principle,.onepage-path-step{padding:22px 20px}
+  .onepage-faq-section{padding:84px 0 92px}
+  .faq-shell{gap:22px}
+  .faq-question{padding:20px 18px;font-size:17px;line-height:1.55}
+  .faq-answer-inner{padding:0 18px 22px;font-size:15px;line-height:1.85}
+  .faq-item{border-radius:20px}
+}

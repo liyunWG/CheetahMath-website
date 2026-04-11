@@ -1,0 +1,31 @@
+{
+  "slug": "cheetah-elite-xxx",
+  "title": "請替換成獵豹菁英標題",
+  "date": "2026-04-11",
+  "category": "競賽榮耀",
+  "categorySlug": "",
+  "bucket": "獵豹菁英",
+  "summary": "請替換成列表摘要。",
+  "excerpt": "",
+  "sourceUrl": "",
+  "coverImage": "pic/elite/your-cover-image.jpg",
+  "imageUrl": "pic/elite/your-cover-image.jpg",
+  "imageName": "your-cover-image.jpg",
+  "tags": [
+    "獵豹菁英",
+    "競賽榮耀"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "students.html",
+  "bodyHtml": "<div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-38 is-title1-48 is-title-bold\">請替換成獵豹菁英標題</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成開場文字。</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/elite/your-body-image-1.jpg\" alt=\"請替換成圖片說明\" /></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><p class=\"normal-txt\"><span style=\"font-size:24px;\">請替換成圖片下方的補充文字。</span></p></div></div></div>",
+  "notes": "版本：只有單一圖片",
+  "migrationPage": "",
+  "listDescription": "",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "coverLabel": "",
+  "popularity": 84,
+  "freshness": 80
+}
