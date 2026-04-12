@@ -110,7 +110,11 @@
 
   const card = (item, link, tone, pink) =>
       `<article class="card${pink ? " card--mom" : ""}">${
-        item.cover ? cover(item.cover, tone) : ""
+        item.coverImage
+          ? `<a class="elite-card__cover" href="${link || "#"}"><img src="${item.coverImage}" alt="${item.title}"></a>`
+          : item.cover
+            ? cover(item.cover, tone)
+            : ""
       }${meta(item.date, item.category, pink)}<h3>${item.title}</h3><p>${
         item.summary || item.text || ""
       }</p>${tags(item.tags, pink, 4)}${
@@ -435,9 +439,11 @@
   const buildHome = () => {
     const home = PAGE_DATA.home || {};
     const landing = home.landing || {};
+    const featuredCards = Array.isArray(home.featuredArticles?.cards) ? home.featuredArticles.cards : [];
     const featured = pickBySlugs(getColumnItems().filter(keepItem), home.featuredArticles?.slugs, 3);
     const homeNews = pickBySlugs(NEWS, home.news?.slugs, 3);
     const homeElite = pickBySlugs(ELITE, home.students?.slugs, 3);
+    const momCards = Array.isArray(home.moms?.cards) ? home.moms.cards : [];
     const homeMoms = pickBySlugs(MOMS, home.moms?.slugs, 3);
     const search = home.search || {};
     const learning = home.learningSystem || {};
@@ -462,7 +468,11 @@
     )}${section(
       home.featuredArticles ? home.featuredArticles.title : "",
       home.featuredArticles ? home.featuredArticles.intro : "",
-      `<div class="grid grid--3 elite-grid">${featured.map((item) => columnCard(item)).join("")}</div>`
+      `<div class="grid grid--3">${
+        featuredCards.length
+          ? featuredCards.map((item) => card(item, item.href, item.tone || "navy", false)).join("")
+          : featured.map((item) => columnCard(item)).join("")
+      }</div>`
     )}${section(
       search.title || "",
       search.intro || "",
@@ -486,7 +496,11 @@
     )}${section(
       home.moms ? home.moms.title : "",
       home.moms ? home.moms.intro : "",
-      `<div class="grid grid--3">${homeMoms.map((item) => card(item, momUrl(item.slug), "pink", true)).join("")}</div>`,
+      `<div class="grid grid--3">${
+        momCards.length
+          ? momCards.map((item) => card(item, item.href || "star-mom.html", "pink", true)).join("")
+          : homeMoms.map((item) => card(item, momUrl(item.slug), "pink", true)).join("")
+      }</div>`,
       "section--mom"
     )}${section(
       learning.title || "",
@@ -795,7 +809,7 @@
 
   const picked = (routes[PAGE()] || routes["index.html"])();
   const main = document.querySelector("main.page");
-  const shouldHydrateMain = !main || !main.children.length;
+  const shouldHydrateMain = PAGE() !== "index.html" && (!main || !main.children.length);
   applyChrome(picked[0], picked[1]);
   if (shouldHydrateMain) page(picked[2]);
   wrapRichContentImages();
