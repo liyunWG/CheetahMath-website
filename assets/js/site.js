@@ -1,4 +1,5 @@
 (async function () {
+  const HELPER_SCRIPTS = ["assets/js/article-format.js"];
   const DATA_SCRIPTS = [
     "assets/data/site-shell-data.js",
     "assets/data/site-page-data.js",
@@ -41,8 +42,16 @@
     }
   }
 
-  await ensureData();
+  async function ensureHelpers() {
+    for (const src of HELPER_SCRIPTS) {
+      await loadScript(src);
+    }
+  }
 
+  await ensureData();
+  await ensureHelpers();
+
+  const ARTICLE = window.__ARTICLE_FORMAT__ || {};
   const SHELL = window.__SITE_SHELL__ || {};
   const PAGE_DATA = window.__SITE_PAGE_DATA__ || {};
   const SITE = SHELL.site || {};
@@ -81,6 +90,11 @@
 
   const toSlugMap = (items) =>
     new Map((items || []).filter((item) => item && item.slug).map((item) => [String(item.slug), item]));
+
+  const sortByDateDesc = (items) =>
+    [...(Array.isArray(items) ? items : [])].sort(
+      (a, b) => (Date.parse(b?.date || "") || 0) - (Date.parse(a?.date || "") || 0)
+    );
 
   const pickBySlugs = (items, slugs, fallbackCount) => {
     const list = Array.isArray(items) ? items : [];
@@ -170,6 +184,81 @@
 
   const section = (title, intro, content, cls) =>
     `<section class="section ${cls || ""}"><div class="container"><div class="section-heading"><h2>${title}</h2><p>${intro}</p></div>${content}</div></section>`;
+
+  const renderHomeColumnCard = (item) =>
+    ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item,
+          url: articleUrl(item.slug),
+          coverImage: item.coverImage || item.cover || "",
+          fallbackLabel: item.category || "文章專欄",
+          fallbackTone: "navy",
+          previewMetaFields: ["date", "category", "bucket"],
+          linkLabel: "閱讀全文"
+        })
+      : columnCard(item);
+
+  const renderHomeNewsCard = (item) =>
+    ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item,
+          url: item.slug ? newsStoryUrl(item.slug) : "news-story.html",
+          coverImage: item.coverImage,
+          fallbackLabel: item.cover || item.category || "最新消息",
+          fallbackTone: "gold",
+          previewMetaFields: ["date", "category", "bucket"],
+          linkLabel: "閱讀全文"
+        })
+      : newsCard(item);
+
+  const renderHomeEliteCard = (item) =>
+    ARTICLE.renderPreviewCard
+      ? ARTICLE.renderPreviewCard({
+          item,
+          url: eliteStoryUrl(item.slug),
+          coverImage: item.cover,
+          fallbackLabel: item.category || "獵豹菁英",
+          fallbackTone: "gold",
+          previewMetaFields: ["date", "category", "bucket"],
+          linkLabel: "閱讀全文"
+        })
+      : eliteCard(item);
+
+  const renderHomeMomCard = (item) => card(item, momUrl(item.slug), "pink", true);
+
+  const HOME_SECTION_INDEX = {
+    featured: 1,
+    news: 3,
+    students: 4,
+    moms: 5
+  };
+
+  const findHomeSectionByKey = (key) => {
+    const index = HOME_SECTION_INDEX[key];
+    if (typeof index !== "number") return null;
+    return [...document.querySelectorAll("main.page .section")][index] || null;
+  };
+
+  const syncHomeSectionCards = (key, cardsHtml) => {
+    const sectionNode = findHomeSectionByKey(key);
+    const gridNode = sectionNode?.querySelector(".grid");
+    if (!gridNode) return;
+    gridNode.classList.add("elite-grid");
+    gridNode.innerHTML = cardsHtml;
+  };
+
+  const syncHomeConfiguredCards = () => {
+    if (PAGE() !== "index.html") return;
+    const home = PAGE_DATA.home || {};
+    const featured = pickBySlugs(sortByDateDesc(getColumnItems().filter(keepItem)), home.featuredArticles?.slugs, 3);
+    const homeNews = pickBySlugs(sortByDateDesc(NEWS), home.news?.slugs, 3);
+    const homeElite = pickBySlugs(sortByDateDesc(ELITE), home.students?.slugs, 3);
+    const homeMoms = pickBySlugs(sortByDateDesc(MOMS), home.moms?.slugs, 3);
+    syncHomeSectionCards("featured", featured.map((item) => renderHomeColumnCard(item)).join(""));
+    syncHomeSectionCards("news", homeNews.map((item) => renderHomeNewsCard(item)).join(""));
+    syncHomeSectionCards("students", homeElite.map((item) => renderHomeEliteCard(item)).join(""));
+    syncHomeSectionCards("moms", homeMoms.map((item) => renderHomeMomCard(item)).join(""));
+  };
 
   const buttonLink = (button) => {
     const target = button.newTab ? ` target="_blank" rel="noreferrer"` : "";
@@ -440,11 +529,11 @@
     const home = PAGE_DATA.home || {};
     const landing = home.landing || {};
     const featuredCards = Array.isArray(home.featuredArticles?.cards) ? home.featuredArticles.cards : [];
-    const featured = pickBySlugs(getColumnItems().filter(keepItem), home.featuredArticles?.slugs, 3);
-    const homeNews = pickBySlugs(NEWS, home.news?.slugs, 3);
-    const homeElite = pickBySlugs(ELITE, home.students?.slugs, 3);
+    const featured = pickBySlugs(sortByDateDesc(getColumnItems().filter(keepItem)), home.featuredArticles?.slugs, 3);
+    const homeNews = pickBySlugs(sortByDateDesc(NEWS), home.news?.slugs, 3);
+    const homeElite = pickBySlugs(sortByDateDesc(ELITE), home.students?.slugs, 3);
     const momCards = Array.isArray(home.moms?.cards) ? home.moms.cards : [];
-    const homeMoms = pickBySlugs(MOMS, home.moms?.slugs, 3);
+    const homeMoms = pickBySlugs(sortByDateDesc(MOMS), home.moms?.slugs, 3);
     const search = home.search || {};
     const learning = home.learningSystem || {};
     const tiles = Array.isArray(learning.tiles) ? learning.tiles : [];
@@ -812,6 +901,7 @@
   const shouldHydrateMain = PAGE() !== "index.html" && (!main || !main.children.length);
   applyChrome(picked[0], picked[1]);
   if (shouldHydrateMain) page(picked[2]);
+  syncHomeConfiguredCards();
   wrapRichContentImages();
 
   const targets = document.querySelectorAll(

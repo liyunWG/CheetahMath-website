@@ -143,23 +143,45 @@
     );
   }
 
+  function toSlugMap(items) {
+    return new Map(
+      (items || [])
+        .filter(function (item) {
+          return item && item.slug;
+        })
+        .map(function (item) {
+          return [String(item.slug), item];
+        })
+    );
+  }
+
+  function pickBySlugs(items, slugs, fallbackCount) {
+    const list = Array.isArray(items) ? items : [];
+    const normalized = Array.isArray(slugs)
+      ? slugs
+          .map(function (item) {
+            return String(item || "").trim();
+          })
+          .filter(Boolean)
+      : [];
+    if (!normalized.length) return list.slice(0, fallbackCount);
+    const bySlug = toSlugMap(list);
+    return normalized
+      .map(function (slug) {
+        return bySlug.get(slug);
+      })
+      .filter(Boolean);
+  }
+
   function renderHomeElite(data) {
     const section = getHomeEliteSection();
     if (!section) return;
-
-    section.innerHTML =
-      '<div class="container">' +
-      '<div class="section-heading">' +
-      "<h2>獵豹菁英</h2>" +
-      "<p>精選最新三篇成果，完整內容可進入獵豹菁英列表查看。</p>" +
-      "</div>" +
-      '<div class="grid grid--3 elite-grid">' +
-      data.slice(0, 3).map(renderEliteCard).join("") +
-      "</div>" +
-      '<div class="page-nav elite-home-nav">' +
-      '<a class="button button--primary" href="students.html">查看全部獵豹菁英</a>' +
-      "</div>" +
-      "</div>";
+    const grid = qs(".grid", section);
+    if (!grid) return;
+    const homeConfig = (window.__SITE_PAGE_DATA__ || {}).home || {};
+    const items = pickBySlugs(data, homeConfig.students && homeConfig.students.slugs, 3);
+    grid.classList.add("elite-grid");
+    grid.innerHTML = items.map(renderEliteCard).join("");
   }
 
   function renderStudentsPage(data) {
