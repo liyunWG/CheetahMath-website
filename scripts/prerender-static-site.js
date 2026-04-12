@@ -355,6 +355,14 @@ async function main() {
   const rootPages = buildRootPageList();
   const tasks = [];
 
+  tasks.push({
+    outputPath: "index.html",
+    sourceUrl: `http://${HOST}:${PORT}/index.html`,
+    stripScripts: false,
+    budgetMs: 3500,
+    seo: { url: `${PROD_BASE}/index.html` },
+  });
+
   for (const page of rootPages) {
     tasks.push({
       outputPath: page,
