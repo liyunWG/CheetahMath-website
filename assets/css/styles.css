@@ -150,6 +150,8 @@ p,li{color:var(--muted);line-height:1.84}
 .article-body,.elite-body,.about-body,.about-story-main{min-width:0}
 .article-body :where(img,video,svg,canvas),.elite-body :where(img,video,svg,canvas),.about-body :where(img,video,svg,canvas){max-width:100%;height:auto}
 .article-body :where(a),.elite-body :where(a),.about-body :where(a){overflow-wrap:anywhere;word-break:break-word}
+.article-body :where(p,div,span,font,strong,em,b,i,u,li,blockquote),.elite-body :where(p,div,span,font,strong,em,b,i,u,li,blockquote),.about-body :where(p,div,span,font,strong,em,b,i,u,li,blockquote){min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+.article-body :where([style*="white-space:nowrap"],[style*="white-space: nowrap"]),.elite-body :where([style*="white-space:nowrap"],[style*="white-space: nowrap"]),.about-body :where([style*="white-space:nowrap"],[style*="white-space: nowrap"]){white-space:normal!important}
 .article-body :where(table),.elite-body :where(table),.about-body :where(table){display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .article-body :where(td,th),.elite-body :where(td,th),.about-body :where(td,th){white-space:normal}
 .article-body :where(iframe),.elite-body :where(iframe),.about-body :where(iframe){display:block;max-width:100%;width:100%!important;border:0}
@@ -281,6 +283,7 @@ p,li{color:var(--muted);line-height:1.84}
   .article-body :where(h2),.elite-body :where(h2),.about-body :where(h2){font-size:clamp(24px,7vw,30px)!important;line-height:1.25}
   .article-body :where(h3,h4),.elite-body :where(h3,h4),.about-body :where(h3,h4){font-size:clamp(20px,6vw,24px)!important;line-height:1.3}
   .article-body [style*="font-size"],.elite-body [style*="font-size"],.about-body [style*="font-size"]{font-size:inherit!important}
+  .article-body :where(p,div,span,font,strong,em,b,i,u,li,blockquote),.elite-body :where(p,div,span,font,strong,em,b,i,u,li,blockquote),.about-body :where(p,div,span,font,strong,em,b,i,u,li,blockquote){white-space:normal!important}
   .article-body img[style*="width"],.elite-body img[style*="width"],.about-body img[style*="width"]{width:100%!important}
   .article-body img[style*="height"],.elite-body img[style*="height"],.about-body img[style*="height"]{height:auto!important}
   .article-body .remote-row,.elite-body .remote-row,.about-body .remote-row{grid-template-columns:minmax(0,1fr)!important}
