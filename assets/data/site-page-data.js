@@ -119,7 +119,7 @@ window.__SITE_PAGE_DATA__ = {
     subtitle: "課程總覽",
     eyebrow: "課程總覽",
     title: "課程不是平鋪直敘地從淺到深，而是對應不同階段、目標與能力結構。",
-    intro: "新網站的課程分類依照你指定的最新架構整理，已移除 Sci 與 Scratch。",
+    intro: "課程分類依最新架構整理，對應不同階段與目標。",
     buttons: [
       { href: "contact.html", label: "預約選課諮詢", style: "primary" },
       { href: "learning-system.html", label: "看學習系統", style: "secondary" }
