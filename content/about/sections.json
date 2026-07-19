@@ -1,0 +1,26 @@
+﻿{
+  "sections": [
+    {
+      "page": "about.html",
+      "title": "關於獵豹",
+      "intro": "集中整理品牌介紹、創辦與經營團隊、師資顧問團隊，讓家長先看懂獵豹是誰、由誰帶領、核心教學團隊有什麼背景。",
+      "slugs": [
+        "about-intro",
+        "about-founders",
+        "about-advisors"
+      ]
+    },
+    {
+      "page": "features.html",
+      "title": "獵豹特色",
+      "intro": "整理課程體系、課程特色、學習方法、競爭核心與全球視野，保留品牌主張，同時依你的要求裁掉不需要的舊課程段落。",
+      "slugs": [
+        "feature-curriculum",
+        "feature-course-strengths",
+        "feature-learning-method",
+        "feature-core-edge",
+        "feature-global-vision"
+      ]
+    }
+  ]
+}

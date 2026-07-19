@@ -1,34 +1,94 @@
-// 日常編輯「關於獵豹」內容的同步腳本：
-// 1. 直接編輯 assets/data/about-data.json（profiles / intro / summary 等欄位）
-// 2. 執行 node scripts/sync-about-data.js
-// 它會把 JSON 內容同步到網頁實際讀取的 assets/data/about-data.js。
-// （scripts/curate-about-profiles.js 是「從舊站原始文字重建」用，會覆蓋手動修改，平常不要跑）
+// 「關於獵豹」與「獵豹特色」內容同步腳本。
+//
+// 編輯方式：
+//   1. 到 content/about/ 修改對應檔案（一頁一檔）：
+//        about-intro.json     獵豹簡介（intro：lead 品牌介紹 / pillars 課程卡片 / vision 願景）
+//        about-founders.json  創辦與經營團隊（profiles 陣列，一人一個區塊）
+//        about-advisors.json  師資顧問團隊（profiles 陣列，一人一個區塊）
+//        feature-*.json       獵豹特色各頁（draftBody 純文字，僅供全站搜尋索引）
+//        sections.json        分頁的標題、導言與顯示順序
+//   2. 執行「更新資料.bat」（或 node scripts/sync-about-data.js）
+//      會組裝成網頁實際讀取的 assets/data/about-data.js。
+//
+// 老師 profile 格式：
+//   { "role": "教師/教研顧問", "name": "大維老師",
+//     "paragraphs": ["一段一個字串"], "bullets": ["條列項目"],
+//     "image": "pic/about/about-advisors-03.jpg" }
+//   新增老師＝複製一個區塊；順序＝網頁顯示順序；照片放 pic/about/（建議方形、600px 內）。
 const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const jsonPath = path.join(root, 'assets', 'data', 'about-data.json');
+const contentDir = path.join(root, 'content', 'about');
 const jsPath = path.join(root, 'assets', 'data', 'about-data.js');
 
-let data;
-try {
-  data = JSON.parse(fs.readFileSync(jsonPath, 'utf8').replace(/^﻿/, ''));
-} catch (error) {
-  console.error('about-data.json 格式錯誤，請檢查 JSON 語法（常見：多逗號、少引號）：');
-  console.error(error.message);
-  process.exit(1);
-}
-
-// 基本檢查：照片路徑是否存在
-let missing = 0;
-for (const item of data.items || []) {
-  for (const profile of item.profiles || []) {
-    if (profile.image && !fs.existsSync(path.join(root, profile.image))) {
-      console.warn('找不到照片檔案：' + profile.image + '（' + profile.name + '）');
-      missing += 1;
-    }
+function readJson(file) {
+  const raw = fs.readFileSync(file, 'utf8').replace(/^﻿/, '');
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error('JSON 格式錯誤：' + path.relative(root, file));
+    console.error('  ' + error.message + '（常見原因：多逗號、少引號、少括號）');
+    process.exit(1);
   }
 }
 
-fs.writeFileSync(jsPath, 'window.__ABOUT_DATA__ = ' + JSON.stringify(data, null, 2) + ';\n', 'utf8');
-console.log('已同步 about-data.json -> about-data.js' + (missing ? '（含 ' + missing + ' 張缺少的照片，請補檔案）' : ''));
+// 從結構化欄位組出全站搜尋用的純文字
+function searchText(item) {
+  const parts = [];
+  if (item.intro) {
+    const intro = item.intro;
+    if (intro.lead) parts.push(intro.lead.title, ...(intro.lead.paragraphs || []));
+    for (const pillar of intro.pillars || []) {
+      parts.push(pillar.title, pillar.desc, ...(pillar.bullets || []));
+    }
+    if (intro.vision) parts.push(intro.vision.title, ...(intro.vision.paragraphs || []));
+  }
+  for (const profile of item.profiles || []) {
+    parts.push(profile.role, profile.name, ...(profile.paragraphs || []), ...(profile.bullets || []));
+  }
+  if (item.draftBody) parts.push(item.draftBody);
+  return parts.filter(Boolean).join('\n');
+}
+
+const sectionsFile = path.join(contentDir, 'sections.json');
+if (!fs.existsSync(sectionsFile)) {
+  console.error('找不到 ' + path.relative(root, sectionsFile));
+  process.exit(1);
+}
+const sections = readJson(sectionsFile).sections || [];
+
+let missingPhotos = 0;
+const items = [];
+for (const section of sections) {
+  for (const slug of section.slugs || []) {
+    const file = path.join(contentDir, slug + '.json');
+    if (!fs.existsSync(file)) {
+      console.error('sections.json 列了 "' + slug + '"，但找不到 content/about/' + slug + '.json');
+      process.exit(1);
+    }
+    const item = readJson(file);
+    item.slug = item.slug || slug;
+    const text = searchText(item);
+    item.draftBody = item.draftBody || text;
+    item.bodyText = text;
+    for (const profile of item.profiles || []) {
+      if (profile.image && !fs.existsSync(path.join(root, profile.image))) {
+        console.warn('找不到照片檔案：' + profile.image + '（' + profile.name + '）');
+        missingPhotos += 1;
+      }
+    }
+    items.push(item);
+  }
+}
+
+const payload = { sections, items };
+fs.writeFileSync(
+  jsPath,
+  '// 此檔由 scripts/sync-about-data.js 自動產生，請勿直接編輯。\n' +
+  '// 要修改內容請編輯 content/about/*.json，再執行「更新資料.bat」。\n' +
+  'window.__ABOUT_DATA__ = ' + JSON.stringify(payload, null, 2) + ';\n',
+  'utf8'
+);
+console.log('已同步 content/about/*.json -> assets/data/about-data.js（' + items.length + ' 頁）' +
+  (missingPhotos ? '，注意：有 ' + missingPhotos + ' 張照片找不到檔案' : ''));
