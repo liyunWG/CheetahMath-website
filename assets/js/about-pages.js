@@ -63,29 +63,6 @@
     }).join('') + '</ul>';
   }
 
-  function profileCount(item) {
-    return (item && Array.isArray(item.profiles)) ? item.profiles.length : 0;
-  }
-
-  function buildQuickFacts(items) {
-    const founders = profileCount(items.find(function (item) { return item.slug === 'about-founders'; }));
-    const advisors = profileCount(items.find(function (item) { return item.slug === 'about-advisors'; }));
-    const facts = [{ label: '主題分頁', value: String(items.length) }];
-    if (founders) facts.push({ label: '創辦與經營團隊', value: founders + ' 位' });
-    if (advisors) facts.push({ label: '師資顧問', value: advisors + ' 位' });
-    return facts;
-  }
-
-  function renderFacts(items) {
-    return (
-      '<div class="goal-chip-row about-chip-row">' +
-      buildQuickFacts(items).map(function (fact) {
-        return '<div class="goal-chip"><span>' + escapeHtml(fact.value) + '</span><small>' + escapeHtml(fact.label) + '</small></div>';
-      }).join('') +
-      '</div>'
-    );
-  }
-
   function renderTabs(items, activeSlug) {
     return (
       '<div class="about-tabs" role="tablist">' +
@@ -261,7 +238,6 @@
       '<span class="eyebrow">' + escapeHtml(sectionModel.title) + '</span>' +
       '<h1>' + escapeHtml(sectionModel.title) + '</h1>' +
       '<p>' + escapeHtml(sectionModel.intro || '') + '</p>' +
-      renderFacts(sectionItems) +
       '</div>' +
       '</section>' +
       '<section class="section">' +
