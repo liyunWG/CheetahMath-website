@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   function qs(selector, root) {
     return (root || document).querySelector(selector);
   }
@@ -46,47 +46,34 @@
     };
   }
 
-  function normalizeLines(text) {
-    return String(text || '')
-      .replace(/\r/g, '')
-      .split('\n')
-      .map(function (line) {
-        return line.replace(/\s+/g, ' ').trim();
-      })
-      .filter(Boolean);
+  const TAB_CAPTIONS = {
+    'about-intro': '品牌與課程版圖',
+    'about-founders': '創辦人與經營者',
+    'about-advisors': '教師與教研顧問'
+  };
+
+  function paragraphHtml(text) {
+    return '<p>' + escapeHtml(text) + '</p>';
   }
 
-  function unique(values) {
-    return Array.from(new Set((values || []).filter(Boolean)));
+  function bulletsHtml(bullets) {
+    if (!bullets || !bullets.length) return '';
+    return '<ul class="list">' + bullets.map(function (bullet) {
+      return '<li>' + escapeHtml(bullet) + '</li>';
+    }).join('') + '</ul>';
   }
 
-  function getImages(item) {
-    return unique((String(item.bodyHtml || '').match(/pic\/about\/[^"')\s>]+/g) || []));
+  function profileCount(item) {
+    return (item && Array.isArray(item.profiles)) ? item.profiles.length : 0;
   }
 
   function buildQuickFacts(items) {
-    return [
-      { label: '頁面數', value: String(items.length) },
-      { label: '內容模組', value: String(items.reduce(function (sum, item) { return sum + Math.max(1, parseStructuredSections(item).length); }, 0)) },
-      { label: '更新方式', value: 'Excel 原稿 + 網站轉版' }
-    ];
-  }
-
-  function renderSelector(items, activeSlug) {
-    return (
-      '<div class="about-selector">' +
-      items.map(function (item) {
-        return (
-          '<button type="button" class="about-selector__button' +
-          (item.slug === activeSlug ? ' is-active' : '') +
-          '" data-about-slug="' + escapeHtml(item.slug) + '">' +
-          '<strong>' + escapeHtml(item.title) + '</strong>' +
-          '<span>' + escapeHtml(item.summary || '') + '</span>' +
-          '</button>'
-        );
-      }).join('') +
-      '</div>'
-    );
+    const founders = profileCount(items.find(function (item) { return item.slug === 'about-founders'; }));
+    const advisors = profileCount(items.find(function (item) { return item.slug === 'about-advisors'; }));
+    const facts = [{ label: '主題分頁', value: String(items.length) }];
+    if (founders) facts.push({ label: '創辦與經營團隊', value: founders + ' 位' });
+    if (advisors) facts.push({ label: '師資顧問', value: advisors + ' 位' });
+    return facts;
   }
 
   function renderFacts(items) {
@@ -99,180 +86,153 @@
     );
   }
 
-  function paragraphHtml(text) {
-    return '<p>' + escapeHtml(text) + '</p>';
-  }
-
-  function parseStructuredSections(item) {
-    const lines = normalizeLines(item.draftBody);
-    const sections = [];
-    let current = null;
-
-    function pushCurrent() {
-      if (!current) return;
-      current.paragraphs = current.paragraphs.filter(Boolean);
-      current.bullets = current.bullets.filter(Boolean);
-      if (current.title || current.paragraphs.length || current.bullets.length) {
-        sections.push(current);
-      }
-    }
-
-    lines.forEach(function (line) {
-      const headingMatch = line.match(/^【(.+?)】\s*(.*)$/);
-      const isNamedSection = /^(國內升學|國際升學|資優與競賽|STEM教育|獵豹師資團隊|數理科學的重要性|升學與職場的競爭力|全球視野下的K12菁英教育)$/.test(line);
-      const isSeriesHeading = /^(PK|J|FJ|S|FS|FA|FU|GGB)系列/.test(line);
-      if (headingMatch) {
-        pushCurrent();
-        current = { title: headingMatch[1], subtitle: headingMatch[2], paragraphs: [], bullets: [] };
-        return;
-      }
-      if (isNamedSection || isSeriesHeading) {
-        pushCurrent();
-        current = { title: line, subtitle: '', paragraphs: [], bullets: [] };
-        return;
-      }
-      if (!current) {
-        current = { title: item.title, subtitle: '', paragraphs: [], bullets: [] };
-      }
-      if (/^(\( ?[ⅰⅱⅲⅳⅴⅵⅶⅷⅸx]+ ?\)|\d+[.）]|[•●■])/.test(line)) {
-        current.bullets.push(line.replace(/^[•●■]\s*/, ''));
-      } else {
-        current.paragraphs.push(line);
-      }
-    });
-
-    pushCurrent();
-    return sections;
-  }
-
-  function parseTeamProfiles(item) {
-    const lines = normalizeLines(item.draftBody);
-    const images = getImages(item);
-    const profiles = [];
-    let i = 0;
-    let imageIndex = 0;
-
-    function isRoleLine(line) {
-      return /(共同創辦人|教研|教師|顧問|總監|系統研發|教材開發|規劃|委員|負責團隊)/.test(line) && !/老師$/.test(line);
-    }
-
-    while (i < lines.length) {
-      if (!isRoleLine(lines[i])) {
-        i += 1;
-        continue;
-      }
-      const role = lines[i];
-      const name = lines[i + 1] || '';
-      if (!/老師|團隊|Leon|Kevin|Jackie|Tim|Wayne/.test(name)) {
-        i += 1;
-        continue;
-      }
-      i += 2;
-      const bio = [];
-      while (i < lines.length && !isRoleLine(lines[i])) {
-        bio.push(lines[i]);
-        i += 1;
-      }
-      profiles.push({
-        role: role,
-        name: name,
-        bio: bio,
-        image: images[imageIndex] || ''
-      });
-      imageIndex += 1;
-    }
-
-    return profiles;
-  }
-
-  function renderProfiles(item, featuredCount) {
-    const profiles = parseTeamProfiles(item);
-    if (!profiles.length) return '';
-    const featured = profiles.slice(0, featuredCount);
-    const grid = profiles.slice(featuredCount);
+  function renderTabs(items, activeSlug) {
     return (
-      (featured.length ? '<div class="about-team-featured">' + featured.map(renderProfileCard).join('') + '</div>' : '') +
-      (grid.length ? '<div class="about-team-grid">' + grid.map(renderProfileCard).join('') + '</div>' : '')
+      '<div class="about-tabs" role="tablist">' +
+      items.map(function (item) {
+        return (
+          '<button type="button" role="tab" class="about-tabs__button' +
+          (item.slug === activeSlug ? ' is-active' : '') +
+          '" data-about-slug="' + escapeHtml(item.slug) + '">' +
+          '<strong>' + escapeHtml(item.title) + '</strong>' +
+          '<span>' + escapeHtml(TAB_CAPTIONS[item.slug] || '') + '</span>' +
+          '</button>'
+        );
+      }).join('') +
+      '</div>'
     );
   }
 
-  function renderProfileCard(profile) {
+  function renderHead(item, summaryText) {
     return (
-      '<article class="card about-profile">' +
-      (profile.image ? '<div class="about-profile__media"><img src="' + escapeHtml(profile.image) + '" alt="' + escapeHtml(profile.name) + '"></div>' : '') +
-      '<div class="about-profile__content">' +
-      '<span class="chip chip--muted">' + escapeHtml(profile.role) + '</span>' +
-      '<h3>' + escapeHtml(profile.name) + '</h3>' +
-      profile.bio.map(paragraphHtml).join('') +
-      '</div>' +
-      '</article>'
+      '<div class="article-head about-article-head">' +
+      '<span class="eyebrow">' + escapeHtml(item.section) + '</span>' +
+      '<h1>' + escapeHtml(item.title) + '</h1>' +
+      (summaryText ? '<p class="article-summary">' + escapeHtml(summaryText) + '</p>' : '') +
+      '</div>'
     );
   }
 
   function renderIntro(item) {
-    const images = getImages(item);
-    const sections = parseStructuredSections(item);
-    const lead = sections.shift();
+    const intro = item.intro || {};
+    const lead = intro.lead || {};
+    const vision = intro.vision || {};
+    const pillars = intro.pillars || [];
     return (
-      '<article class="card about-story-main">' +
-      '<div class="article-head about-article-head">' +
-      '<span class="eyebrow">' + escapeHtml(item.section) + '</span>' +
-      '<h1>' + escapeHtml(item.title) + '</h1>' +
-      '<p class="article-summary">' + escapeHtml(item.summary || '') + '</p>' +
+      '<article class="about-story-main">' +
+      renderHead(item, '一頁看懂獵豹是誰、在教什麼、往哪裡走。') +
+      '<section class="card about-lead">' +
+      '<div class="about-lead__copy"><h2>' + escapeHtml(lead.title || item.title) + '</h2>' +
+      (lead.paragraphs || []).map(paragraphHtml).join('') +
       '</div>' +
-      '<div class="about-overview">' +
-      images.slice(0, 5).map(function (image, index) {
-        return '<div class="about-overview__tile"><img src="' + escapeHtml(image) + '" alt="' + escapeHtml((sections[index] && sections[index].title) || item.title) + '"></div>';
+      (intro.heroImage ? '<div class="about-lead__art"><img src="' + escapeHtml(intro.heroImage) + '" alt="獵豹科教" loading="lazy"></div>' : '') +
+      '</section>' +
+      '<div class="about-pillar-grid">' +
+      pillars.map(function (pillar) {
+        return (
+          '<section class="card about-pillar-card">' +
+          '<h3><span class="about-pillar-card__icon" aria-hidden="true">' + escapeHtml(pillar.icon || '') + '</span>' + escapeHtml(pillar.title) + '</h3>' +
+          (pillar.desc ? '<p>' + escapeHtml(pillar.desc) + '</p>' : '') +
+          bulletsHtml(pillar.bullets) +
+          '</section>'
+        );
       }).join('') +
       '</div>' +
-      (lead ? '<section class="about-copy-block"><h2>' + escapeHtml(lead.title) + '</h2>' + lead.paragraphs.map(paragraphHtml).join('') + '</section>' : '') +
-      '<div class="about-section-grid">' + sections.map(function (section) {
-        return '<section class="card about-section-card"><h3>' + escapeHtml(section.title) + '</h3>' + section.paragraphs.map(paragraphHtml).join('') + (section.bullets.length ? '<ul class="list">' + section.bullets.map(function (bullet) { return '<li>' + escapeHtml(bullet) + '</li>'; }).join('') + '</ul>' : '') + '</section>';
-      }).join('') + '</div>' +
+      (vision.paragraphs && vision.paragraphs.length ?
+        '<section class="about-vision"><h2>' + escapeHtml(vision.title || 'STEM 教育與願景') + '</h2>' +
+        vision.paragraphs.map(paragraphHtml).join('') +
+        '</section>' : '') +
       '</article>'
     );
   }
 
-  function renderStructuredStory(item) {
-    const sections = parseStructuredSections(item);
+  function avatarHtml(profile, size) {
+    if (!profile.image) return '<span class="about-avatar about-avatar--placeholder about-avatar--' + size + '" aria-hidden="true">' + escapeHtml((profile.name || '?').charAt(0)) + '</span>';
+    return '<img class="about-avatar about-avatar--' + size + '" src="' + escapeHtml(profile.image) + '" alt="' + escapeHtml(profile.name) + '" loading="lazy">';
+  }
+
+  function renderFounders(item) {
+    const profiles = item.profiles || [];
     return (
-      '<article class="card about-story-main">' +
-      '<div class="article-head about-article-head">' +
-      '<span class="eyebrow">' + escapeHtml(item.section) + '</span>' +
-      '<h1>' + escapeHtml(item.title) + '</h1>' +
-      '<p class="article-summary">' + escapeHtml(item.summary || '') + '</p>' +
-      '</div>' +
-      '<div class="about-section-stack">' + sections.map(function (section) {
-        return '<section class="about-copy-block"><h2>' + escapeHtml(section.title) + (section.subtitle ? '<small>' + escapeHtml(section.subtitle) + '</small>' : '') + '</h2>' + section.paragraphs.map(paragraphHtml).join('') + (section.bullets.length ? '<ul class="list">' + section.bullets.map(function (bullet) { return '<li>' + escapeHtml(bullet) + '</li>'; }).join('') + '</ul>' : '') + '</section>';
+      '<article class="about-story-main">' +
+      renderHead(item, '獵豹由深耕數理資優與升學教育的教育者，以及具產業與數位學習經驗的經營者共同創辦。') +
+      profiles.map(function (profile) {
+        return (
+          '<section class="card about-founder-card">' +
+          '<div class="about-founder-card__media">' + avatarHtml(profile, 'lg') + '</div>' +
+          '<div class="about-founder-card__content">' +
+          '<span class="chip chip--muted">' + escapeHtml(profile.role) + '</span>' +
+          '<h3>' + escapeHtml(profile.name) + '</h3>' +
+          (profile.paragraphs || []).map(paragraphHtml).join('') +
+          bulletsHtml(profile.bullets) +
+          '</div>' +
+          '</section>'
+        );
       }).join('') +
       '</article>'
     );
   }
 
-  function renderCurriculum(item) {
-    const sections = parseStructuredSections(item);
-    const hero = sections.shift();
+  function isLongBio(profile) {
+    const text = (profile.paragraphs || []).join('') + (profile.bullets || []).join('');
+    return text.length > 130;
+  }
+
+  function renderAdvisors(item) {
+    const profiles = item.profiles || [];
+    return (
+      '<article class="about-story-main">' +
+      renderHead(item, '共 ' + profiles.length + ' 位教師與教研顧問，橫跨資優教育、數學競賽、國際課程與程式設計領域。') +
+      '<div class="about-team-grid">' +
+      profiles.map(function (profile) {
+        const collapsible = isLongBio(profile);
+        return (
+          '<section class="card about-teacher-card">' +
+          '<header class="about-teacher-card__head">' +
+          avatarHtml(profile, 'sm') +
+          '<div class="about-teacher-card__id">' +
+          '<h3>' + escapeHtml(profile.name) + '</h3>' +
+          '<span class="chip chip--muted">' + escapeHtml(profile.role) + '</span>' +
+          '</div>' +
+          '</header>' +
+          '<div class="about-bio' + (collapsible ? ' is-collapsed' : '') + '">' +
+          (profile.paragraphs || []).map(paragraphHtml).join('') +
+          bulletsHtml(profile.bullets) +
+          '</div>' +
+          (collapsible ? '<button type="button" class="about-bio-toggle" aria-expanded="false">展開完整介紹</button>' : '') +
+          '</section>'
+        );
+      }).join('') +
+      '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderStructuredFallback(item) {
     return (
       '<article class="card about-story-main">' +
-      '<div class="article-head about-article-head">' +
-      '<span class="eyebrow">' + escapeHtml(item.section) + '</span>' +
-      '<h1>' + escapeHtml(item.title) + '</h1>' +
-      '<p class="article-summary">' + escapeHtml(item.summary || '') + '</p>' +
-      '</div>' +
-      (hero ? '<section class="about-copy-block"><h2>' + escapeHtml(hero.title) + '</h2>' + hero.paragraphs.map(paragraphHtml).join('') + '</section>' : '') +
-      '<div class="about-course-grid">' + sections.map(function (section) {
-        return '<section class="card about-course-card"><h3>' + escapeHtml(section.title) + '</h3>' + section.paragraphs.map(paragraphHtml).join('') + (section.bullets.length ? '<ul class="list">' + section.bullets.map(function (bullet) { return '<li>' + escapeHtml(bullet) + '</li>'; }).join('') + '</ul>' : '') + '</section>';
-      }).join('') + '</div>' +
+      renderHead(item, item.summary || '') +
+      '<div class="about-body">' + (item.bodyHtml || '') + '</div>' +
       '</article>'
     );
   }
 
   function renderBody(item) {
-    if (item.slug === 'about-intro') return renderIntro(item);
-    if (item.slug === 'about-founders') return '<article class="about-story-main">' + renderProfiles(item, 2) + '</article>';
-    if (item.slug === 'about-advisors') return '<article class="about-story-main">' + renderProfiles(item, 2) + '</article>';
-    if (item.slug === 'feature-curriculum') return renderCurriculum(item);
-    return renderStructuredStory(item);
+    if (item.slug === 'about-intro' && item.intro) return renderIntro(item);
+    if (item.slug === 'about-founders' && item.profiles) return renderFounders(item);
+    if (item.slug === 'about-advisors' && item.profiles) return renderAdvisors(item);
+    return renderStructuredFallback(item);
+  }
+
+  function bindBioToggles(root) {
+    qsa('.about-bio-toggle', root).forEach(function (button) {
+      button.addEventListener('click', function () {
+        const bio = button.previousElementSibling;
+        const collapsed = bio.classList.toggle('is-collapsed');
+        button.textContent = collapsed ? '展開完整介紹' : '收合介紹';
+        button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      });
+    });
   }
 
   function renderPage(model) {
@@ -306,43 +266,29 @@
       '</section>' +
       '<section class="section">' +
       '<div class="container">' +
-      '<div class="elite-toolbar about-toolbar">' +
-      '<label class="elite-toolbar__field">' +
-      '<span>切換頁面</span>' +
-      '<select id="about-select">' +
-      sectionItems.map(function (item) {
-        return '<option value="' + escapeHtml(item.slug) + '"' + (item.slug === activeSlug ? ' selected' : '') + '>' + escapeHtml(item.title) + '</option>';
-      }).join('') +
-      '</select>' +
-      '</label>' +
-      '</div>' +
-      renderSelector(sectionItems, activeSlug) +
+      renderTabs(sectionItems, activeSlug) +
       '<div id="about-detail"></div>' +
       '</div>' +
       '</section>';
 
     const detail = qs('#about-detail');
-    const select = qs('#about-select');
 
-    function draw(slug) {
+    function draw(slug, skipScroll) {
       const item = sectionItems.find(function (entry) { return entry.slug === slug; }) || sectionItems[0];
       if (!item) return;
       detail.innerHTML = renderBody(item);
-      qsa('.about-selector__button').forEach(function (button) {
+      bindBioToggles(detail);
+      qsa('.about-tabs__button').forEach(function (button) {
         button.classList.toggle('is-active', button.getAttribute('data-about-slug') === item.slug);
       });
-      if (select) select.value = item.slug;
       const url = new URL(location.href);
       url.searchParams.set('slug', item.slug);
       history.replaceState({}, '', url);
       updateMeta(item.title + '｜' + sectionModel.title + '｜獵豹科教', item.summary || sectionModel.intro || '');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    if (select) {
-      select.addEventListener('change', function () {
-        draw(select.value);
-      });
+      if (!skipScroll) {
+        const tabs = qs('.about-tabs');
+        if (tabs) tabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     qsa('[data-about-slug]').forEach(function (button) {
@@ -351,7 +297,7 @@
       });
     });
 
-    draw(activeSlug);
+    draw(activeSlug, true);
   }
 
   document.addEventListener('DOMContentLoaded', function () {
