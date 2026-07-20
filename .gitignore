@@ -5,3 +5,9 @@ backup-before-redesign/
 .edge-headless-private/
 .edge-headless-search/
 tmp/
+_manual-backups/
+**/_backups/
+20260720已下載的FB文章統計excel/
+motion-graphics/
+$dest/
+*.xlsx

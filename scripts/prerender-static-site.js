@@ -343,12 +343,14 @@ function buildGenericArticleMain(article) {
 async function main() {
   ensureDir(EDGE_PROFILE);
 
-  const siteJsPath = path.join(ROOT, "assets", "js", "site.js");
-  const siteJs = readUtf8(siteJsPath);
-  const site = evaluateLiteral(siteJs, "SITE");
-  const nav = evaluateLiteral(siteJs, "NAV");
-  const articles = evaluateLiteral(siteJs, "ARTICLES");
-  const moms = evaluateLiteral(siteJs, "MOMS");
+  // site.js 重構後，SITE/NAV 移至 site-shell-data.js，MOMS 移至 moms-data.js。
+  const shell = loadAssignedGlobal(path.join(ROOT, "assets", "data", "site-shell-data.js"), "__SITE_SHELL__");
+  const site = shell.site;
+  const nav = shell.nav;
+  // 舊版 ARTICLES（article-gifted-path.html 等靜態文章）已無資料來源，
+  // 既有 HTML 檔保留原樣，不再由此腳本重新產生。
+  const articles = [];
+  const moms = loadAssignedGlobal(path.join(ROOT, "assets", "data", "moms-data.js"), "__MOMS_DATA__");
   const columnsData = loadAssignedGlobal(path.join(ROOT, "assets", "data", "columns-data.js"), "__COLUMNS_DATA__");
   const eliteData = loadAssignedGlobal(path.join(ROOT, "assets", "data", "elite-data.js"), "__ELITE_DATA__");
 

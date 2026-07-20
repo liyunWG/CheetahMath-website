@@ -9,14 +9,18 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo [2/2] Re-rendering static pages...
-node scripts\prerender-static-site.js
+echo [2/2] Syncing about-data...
+node scripts\sync-about-data.js
 if errorlevel 1 (
   echo.
-  echo Prerender failed. Check the error message above.
+  echo About-data sync failed. Check the error message above.
   pause
   exit /b 1
 )
+echo.
+echo NOTE: static page prerender (scripts\prerender-static-site.js) is DISABLED
+echo       because its output does not match the current curated page layout.
+echo       Dynamic pages (elite-story.html?slug=... etc.) update automatically.
 echo.
 echo Rebuild complete.
 pause
