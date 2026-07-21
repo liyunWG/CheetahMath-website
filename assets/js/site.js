@@ -243,6 +243,8 @@
     const sectionNode = findHomeSectionByKey(key);
     const gridNode = sectionNode?.querySelector(".grid");
     if (!gridNode) return;
+    // 資料檔尚未載入時保留原本靜態卡片，避免整區被清空
+    if (!cardsHtml) return;
     gridNode.classList.add("elite-grid");
     gridNode.innerHTML = cardsHtml;
   };

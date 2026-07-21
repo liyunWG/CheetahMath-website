@@ -158,11 +158,18 @@ p,li{color:var(--muted);line-height:1.84}
 .article-body :where(.column,.full,.half,.third,.two-third,.fifth,.two-fourth),.elite-body :where(.column,.full,.half,.third,.two-third,.fifth,.two-fourth),.about-body :where(.column,.full,.half,.third,.two-third,.fifth,.two-fourth){min-width:0}
 .article-body .embed-responsive,.elite-body .embed-responsive,.about-body .embed-responsive{position:relative;width:100%;aspect-ratio:16/9}
 .article-body .embed-responsive iframe,.elite-body .embed-responsive iframe,.about-body .embed-responsive iframe{position:absolute;inset:0;width:100%!important;height:100%!important}
-.elite-grid{align-items:start}
-.elite-card{display:grid;gap:14px}
-.elite-card__cover{display:block;overflow:hidden;border-radius:18px;border:1px solid rgba(185,147,72,.22);background:#fff}
-.elite-card__cover img{aspect-ratio:4 / 3;object-fit:cover;transition:transform .3s ease}
+.elite-grid{align-items:stretch}
+.elite-card{display:flex;flex-direction:column;gap:14px;height:100%}
+.elite-card__cover{display:block;overflow:hidden;border-radius:18px;border:1px solid rgba(185,147,72,.22);background:#fff;aspect-ratio:4 / 3}
+.elite-card__cover img{width:100%;height:100%;aspect-ratio:4 / 3;object-fit:cover;transition:transform .3s ease}
+.elite-card__cover .cover-art{height:100%!important;min-height:0;margin:0}
 .elite-card:hover .elite-card__cover img{transform:scale(1.04)}
+/* 讓每張卡片等高：標題／摘要固定行數，連結貼齊底部 */
+.elite-card > h3{margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;min-height:2.7em}
+.elite-card > p{margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;min-height:4.4em}
+.elite-card > .card__meta-row{min-height:1.6em}
+.elite-card > .tag-row{margin-top:2px}
+.elite-card > .card-link{margin-top:auto}
 .elite-toolbar{display:grid;gap:14px;margin-bottom:18px;padding:20px 22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.95));box-shadow:var(--shadow)}
 .elite-toolbar__field{display:grid;gap:8px}
 .elite-toolbar__field span,.elite-summary-bar span{font-size:13px;font-weight:900;color:var(--navy);letter-spacing:.04em}

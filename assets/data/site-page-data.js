@@ -34,9 +34,7 @@ window.__SITE_PAGE_DATA__ = {
     news: {
       title: "最新消息",
       intro: "可用 slugs 指定首頁要放哪些最新消息；若留空就顯示最新三篇。",
-      slugs: [
-        "science-camp-2018019432484065"
-      ]
+      slugs: []
     },
     students: {
       title: "獵豹菁英",

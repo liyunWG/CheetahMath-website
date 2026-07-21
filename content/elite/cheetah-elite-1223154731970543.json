@@ -1,0 +1,34 @@
+﻿{
+  "slug": "cheetah-elite-1223154731970543",
+  "title": "『GGB這個工具幫我了解許多數學題目。』 小四宥羽",
+  "date": "2023-01-26",
+  "category": "學生成果文章",
+  "categorySlug": "",
+  "bucket": "獵豹菁英",
+  "summary": "（參與多期獵豹數學和GGB，卓越盃全國第六名）　文 朱安強博士　『看上去是幾何問題，實際上是代數的問題』 在日劇《神探伽利略》的改編電影《嫌疑犯 X 的獻身》中，天才數學家與男主講了這句話，男…",
+  "excerpt": "（參與多期獵豹數學和GGB，卓越盃全國第六名）　文 朱安強博士　『看上去是幾何問題，實際上是代數的問題』 在日劇《神探伽利略》的改編電影《嫌疑犯 X 的獻身》中，天才數學家與男主講了這句話，男…",
+  "sourceUrl": "https://www.facebook.com/groups/695697124716309/posts/1223154731970543/",
+  "coverImage": "pic/elite/cheetah-elite-1223154731970543-2.jpg",
+  "imageUrl": "pic/elite/cheetah-elite-1223154731970543-2.jpg",
+  "imageName": "cheetah-elite-1223154731970543-2.jpg",
+  "tags": [
+    "學生成果文章",
+    "GGB",
+    "科學班",
+    "競賽",
+    "2023",
+    "獵豹菁英"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "students.html",
+  "bodyHtml": "<!--fb-gallery--><div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-48 is-title1-48 is-title-bold\">『GGB這個工具幫我了解許多數學題目。』 小四宥羽</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column half\"><p class=\"normal-txt\"><span style=\"font-size:22px;\">（參與多期獵豹數學和GGB，卓越盃全國第六名）</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">文 朱安強博士</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">『看上去是幾何問題，實際上是代數的問題』 在日劇《神探伽利略》的改編電影《嫌疑犯 X 的獻身》中，天才數學家與男主講了這句話，男主意識到多數人很容易被表象給矇騙。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>【表象底層的思維】</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">很多數學競賽難題看上去很難，不是解答看不懂，難以理解。而是考生也常被表像所矇騙，沒辦法跳脫固有思維來解題。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">先從經典小學奧數題 1+3+5+…+99 來談？</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">套個等差公式可算出答案，但就沒意識到有趣的平方關係。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">1+3+5=9=3^2, 1+3+5+7=16=4^2。 若將這些數字轉化為圖，看成層層遞增的正方形方格，就會覺得原來如此。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">就像這道武陵中學科學班 103 的考題</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">『求 √(x^2+4 ) + √( (x-y)^{2}+1 ) + √((y-5)^{2}+9 ) 的最小值問題』</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">表層是個代數題，但通過幾何化就可秒解。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">還有不少空間幾何題，難以想像其關係，一旦採取座標化，用代數就秒解。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>【數形結合思想】</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">這類題通常就被稱為『數形結合思想』</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">套句數學家華羅庚的名言</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>『數缺形時少直觀，形缺數時難入微。』</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">當數形結合之時，就可欣賞其解題之妙與數學之美，。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">這些難以看透表象的題該如何學習。數形轉化能力該如何培養。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">有個方法是大量刷題記憶，畢竟小學奧數題也沒多少題型。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">但這也是最大學學習誤區，培養了記憶力，而不是分析解構問題能力，到高中數學變化多，就招架不了。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>【數形轉化的輔助工具】</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">該如何融合 『幾何Geometry』 與 『代數Algebra』 兩大數學分支的轉化能力呢？</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">我 12 年前，初次接觸『Geogebra 』時，就被這迷上了。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">終於可以將代數函數問題，圖像化視覺化。而當我想要製作些幾何圖形，也可通過代數的方式來與電腦溝通。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">更佩服當時創辦人取名 Geogebra 的巧思。取 『幾何 Geometry』的字首Geo』與『代數 Algebra 』字尾+ gebra 完美表達這軟體的特色。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>【考試又不能用電腦！】</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">宥羽說的『Geogebra這個工具幫我了解許多數學題目』這句話的表象是用Geogebra這個算出答案。那考試不能用電腦，算出答案有何用。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">先讓我們想另一個數學學習誤區『套公式手算答案，但不去理解公式』這又有何用呢？對小考試可能有幫助，但對長期數學能力的幫助反而是有限。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">所以看宥羽這句話，不能看表象，更要追究底層脈絡。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>『用 Geoegebra 算數學，不是拍照解題。』</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">而是大腦要先解構文字與圖形特徵，再將題目告訴給電腦，這時還要轉化為數學語言，使用向量座標幾何變換關係。就光這層訓練，就練習很多拆解問題能力。而作出圖形後，還要拖拉點改變數值，觀察變化，最後才能歸納總結出結論。所以使用 Geogebra 來想問題，就是個高度的頭腦體操訓練。這也是我自己用這軟體這 10 多年的感動，當我想用這圖形探究數學，同時讓我練習更多數形轉化的思維與能力。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\"><strong>【學習歷程與提煉】</strong></span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">最後佩服宥羽爸爸的洞見。別人看到電腦可能覺得是玩樂的工具。但宥羽爸深知，這些工具的使用，其實能帶給他更多思維能力的拓展。當然最後要有成效，最重要的一點就是動手寫作業，動腦想問題。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">最後讓我們一起欣賞宥羽做的 PPT 學習歷程作品集。在他的作品集可看到宥羽也開始接觸 『進位制』、『畢氏定理』、『時分逼近法求根號』、『數列與圖形迭代』、『定弦對定角軌跡』。而要將作品做出來，其思維的訓練其實是遠超乎知道個名詞，還要掌握很多細節，才能將這經典問題通過電腦重現。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">另外，再次佩服宥羽爸的引導，深知小四生在這簡報學習歷程輸出，也是培養高階整合能力的重要一環。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">低手學習在填塞知識，高手則是通過知識來培養能力。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">宥羽同學作品集</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">獵豹 朱安強老師 GGB2,寒假1/28開課,歡迎參加!</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/elite/cheetah-elite-1223154731970543-2.jpg\" alt=\"『GGB這個工具幫我了解許多數學題目。』 小四宥羽\"></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/elite/cheetah-elite-1223154731970543-3.jpg\" alt=\"『GGB這個工具幫我了解許多數學題目。』 小四宥羽\"></div></div></div>",
+  "notes": "2026-07-20 由 FB 社團貼文（序 468）匯入",
+  "migrationPage": "fb-group-import-20260720",
+  "listDescription": "（參與多期獵豹數學和GGB，卓越盃全國第六名）　文 朱安強博士　『看上去是幾何問題，實際上是代數的問題』 在日劇《神探伽利略》的改編電影《嫌疑犯 X 的獻身》中，天才數學家與男主講了這句話，男…",
+  "popularity": 0,
+  "freshness": 0,
+  "detailImages": [
+    "pic/elite/cheetah-elite-1223154731970543-3.jpg"
+  ]
+}
