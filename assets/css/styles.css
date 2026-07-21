@@ -270,19 +270,24 @@ p,li{color:var(--muted);line-height:1.84}
 .about-founder-card__content{display:grid;gap:10px;justify-items:center}
 .about-founder-card__content h3{margin:0;color:var(--navy);font-size:22px}
 .about-founder-card__content p{color:var(--text);text-align:left;line-height:1.9;margin:0}
+/* 卡片高度靠標頭等高＋簡介固定高度做到一致，不用 stretch，
+   這樣展開某一張時旁邊那張不會被拉長成一大片空白 */
 .about-team-grid{display:grid;gap:18px;align-items:start}
-.about-teacher-card{display:grid;gap:14px;align-content:start}
-.about-teacher-card__head{display:flex;gap:16px;align-items:center}
+.about-teacher-card{display:grid;grid-template-rows:auto auto auto;gap:14px;align-content:start}
+.about-teacher-card__head{display:flex;gap:16px;align-items:center;min-height:84px}
 .about-teacher-card__id{display:grid;gap:6px;justify-items:start}
 .about-teacher-card__id h3{margin:0;color:var(--navy);font-size:19px}
 .about-bio{position:relative;display:grid;gap:8px}
 .about-bio p{margin:0;color:var(--text);font-size:15px;line-height:1.85}
 .about-bio .list{margin:0;display:grid;gap:6px}
 .about-bio .list li{color:var(--text);font-size:15px;line-height:1.75}
-.about-bio.is-collapsed{max-height:112px;overflow:hidden}
-.about-bio.is-collapsed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(180deg,rgba(255,250,242,0),rgba(255,250,242,.96))}
-.about-bio-toggle{justify-self:start;border:0;background:none;color:var(--gold);font-weight:800;cursor:pointer;padding:0;font-size:14px}
+/* 收合時固定高度（不是 max-height），字少的老師也一樣高，卡片才會等高等寬 */
+.about-bio.is-collapsed{height:140px;overflow:hidden}
+.about-bio.is-collapsed.is-clipped::after{content:"";position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(180deg,rgba(255,250,242,0),rgba(255,250,242,.96))}
+.about-bio-toggle{justify-self:start;border:0;background:none;color:var(--gold);font-weight:800;cursor:pointer;padding:0;font-size:14px;line-height:1.5}
 .about-bio-toggle:hover{text-decoration:underline}
+/* 內容沒被截斷的卡片不需要展開鈕，但要留住它的高度 */
+.about-bio-toggle.is-hidden{visibility:hidden;pointer-events:none}
 .about-story-main .list{margin-top:6px}
 @media (min-width:720px){
   .about-lead{grid-template-columns:minmax(0,1fr) auto}

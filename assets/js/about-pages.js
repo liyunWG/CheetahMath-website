@@ -150,19 +150,15 @@
     );
   }
 
-  function isLongBio(profile) {
-    const text = (profile.paragraphs || []).join('') + (profile.bullets || []).join('');
-    return text.length > 130;
-  }
-
   function renderAdvisors(item) {
     const profiles = item.profiles || [];
+    // 每張卡片一律用同樣的高度：簡介先固定高度收合，展開鈕一律輸出（不需要時
+    // 只隱藏、保留位置），實際哪幾位需要收合由 syncBioToggles 依真實高度判斷。
     return (
       '<article class="about-story-main">' +
       renderHead(item, '共 ' + profiles.length + ' 位教師與教研顧問，橫跨資優教育、數學競賽、國際課程與程式設計領域。') +
       '<div class="about-team-grid">' +
       profiles.map(function (profile) {
-        const collapsible = isLongBio(profile);
         return (
           '<section class="card about-teacher-card">' +
           '<header class="about-teacher-card__head">' +
@@ -172,11 +168,11 @@
           '<span class="chip chip--muted">' + escapeHtml(profile.role) + '</span>' +
           '</div>' +
           '</header>' +
-          '<div class="about-bio' + (collapsible ? ' is-collapsed' : '') + '">' +
+          '<div class="about-bio is-collapsed">' +
           (profile.paragraphs || []).map(paragraphHtml).join('') +
           bulletsHtml(profile.bullets) +
           '</div>' +
-          (collapsible ? '<button type="button" class="about-bio-toggle" aria-expanded="false">展開完整介紹</button>' : '') +
+          '<button type="button" class="about-bio-toggle" aria-expanded="false">展開完整介紹</button>' +
           '</section>'
         );
       }).join('') +
@@ -201,15 +197,69 @@
     return renderStructuredFallback(item);
   }
 
+  // 欄數會隨視窗寬度改變，同一段文字可能這個寬度塞得下、換個寬度塞不下，
+  // 所以用實際排版後的高度判斷，而不是用字數猜。
+  function syncBioToggles(root) {
+    // 名字或職稱較長時標頭會多一行，卡片就會比別人高；先量出最高的標頭，
+    // 再讓所有標頭都用這個高度，卡片才會完全等高。
+    qsa('.about-team-grid', root).forEach(function (grid) {
+      const heads = qsa('.about-teacher-card__head', grid);
+      if (!heads.length) return;
+      heads.forEach(function (head) { head.style.minHeight = ''; });
+      const tallest = heads.reduce(function (max, head) {
+        return Math.max(max, head.getBoundingClientRect().height);
+      }, 0);
+      heads.forEach(function (head) { head.style.minHeight = Math.ceil(tallest) + 'px'; });
+    });
+    qsa('.about-teacher-card', root).forEach(function (card) {
+      const bio = qs('.about-bio', card);
+      const button = qs('.about-bio-toggle', card);
+      if (!bio || !button) return;
+      if (!bio.classList.contains('is-collapsed')) return;
+      const overflows = bio.scrollHeight > bio.clientHeight + 1;
+      bio.classList.toggle('is-clipped', overflows);
+      button.classList.toggle('is-hidden', !overflows);
+      button.disabled = !overflows;
+    });
+  }
+
   function bindBioToggles(root) {
     qsa('.about-bio-toggle', root).forEach(function (button) {
       button.addEventListener('click', function () {
         const bio = button.previousElementSibling;
         const collapsed = bio.classList.toggle('is-collapsed');
+        bio.classList.toggle('is-clipped', collapsed);
         button.textContent = collapsed ? '展開完整介紹' : '收合介紹';
         button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
       });
     });
+    syncBioToggles(root);
+    // 字體載入前後行高會變，載入完成要再量一次，否則會多出用不到的展開鈕
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { syncBioToggles(root); });
+    }
+    // 卡片寬度變了（改變視窗大小、換欄數）就要重算。window resize 涵蓋一般情況，
+    // ResizeObserver 再補上格線自己變寬（例如捲軸出現）的情形；只在寬度真的改變
+    // 時重算，避免自己改高度又觸發自己。
+    if (!bindBioToggles.resizeBound) {
+      bindBioToggles.resizeBound = true;
+      let timer = null;
+      window.addEventListener('resize', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { syncBioToggles(document); }, 150);
+      });
+    }
+    if (typeof ResizeObserver === 'function') {
+      qsa('.about-team-grid', root).forEach(function (grid) {
+        let lastWidth = grid.getBoundingClientRect().width;
+        new ResizeObserver(function () {
+          const width = grid.getBoundingClientRect().width;
+          if (Math.abs(width - lastWidth) < 1) return;
+          lastWidth = width;
+          syncBioToggles(root);
+        }).observe(grid);
+      });
+    }
   }
 
   function renderPage(model) {
