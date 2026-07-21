@@ -5,9 +5,11 @@
 ## 現在做到哪
 
 - 單圖那批（49 篇）**已完成並 commit**（`a050029`），共 47 張換成高解析。
-- 現在在做**多圖那批**：`scripts/todo-multi.json`（78 篇）。已處理 15 篇；**待辦改看 `scripts/todo-multi-remaining.json`（47 篇，已去除跨分類複本）**，結果記在 `scripts/multi-results.md`。
-- 已完成：education-talk-71、about-cheetah-167/170、amc-series-45/85/87（共換 27 張）。
-- 確認無解：about-cheetah-161（貼文與內文無關）、166（FB 較小）、amc-series-156（不符）、168（連結不含 PID，待人工）。
+- **多圖那批 `scripts/todo-multi-remaining.json`（47 篇）已全部跑完**，唯一剩下的是
+  `science-talk-241/242/243/244` —— 這 4 篇沒有 FB 網址，**要問使用者要**。
+- 逐篇結果一律看 `scripts/multi-results.md`（每篇都有一列）。
+  另有 `cheetah-elite-22/31/38` 共用的 post id `1290753188544030` 經實測是錯的，
+  抓到的 7 張與內文完全對不上，**需使用者提供正確 FB 網址**。
 
 ## 進度怎麼查（不要憑記憶，一律重算）
 
@@ -32,14 +34,18 @@ print('剩下',len(rest),'篇'); [print(' ',x['slug'],x['pid'],x['n_body']) for 
    用 **Claude in Chrome**（`mcp__claude-in-chrome__*`），不是內建瀏覽器（沒 FB 登入）。
 2. 每篇：navigate 貼文 → 等 3 秒 → 取 photo 連結（**要過濾別社團的**）→ 導向檢視器 →
    翻頁收集（**等 `img.src` 變化**，用 `fbid` 判斷繞回頭）→ 一次導向 grab server 送回。
-3. **多圖一律用「逐張」抓，不要用檢視器翻頁**（翻頁會翻進別篇貼文的相簿，實測 education-talk-71
-   翻到 `set=pcb.1350686019962814`）。定版做法，每張都跑一輪：
-   - navigate 貼文頁 → **等 6 秒**（等 5 秒會抓到還沒渲染完的側欄連結，實測 about-cheetah-166 因此
-     整篇抓錯相簿）
-   - 取 `a[href*="/photo"]` 中**href 必須含本篇 PID** 的，取第 i 個，`location.href=` 導過去
-   - 進檢視器後**先驗 `location.href` 仍含 PID**，不含就回報 `WRONGALBUM` 不要抓
-   - 送圖用 grab server 的 `idx=` 指定編號：`http://localhost:8790/grab?name={slug}&idx={n}&u={encoded}`
-   - 一個 browser_batch 可以塞 2-3 張的來回，不用一張一次
+3. **定版做法（2026-07-22 改良，快很多）**：可以用檢視器翻頁，但**每翻一張都要驗 PID**，
+   一篇 = 一個 4 步 browser_batch，兩篇可以塞同一個 batch：
+   - `navigate` 貼文頁
+   - JS：等 6 秒 →（等 5 秒會抓到還沒渲染完的側欄連結，實測 about-cheetah-166 因此整篇抓錯相簿）
+     取 `a[href*="/photo"]` 中 **href 必須含本篇 PID** 的；一張都沒有就回 `NOPHOTO`（＝這則貼文
+     沒有相片附件，或相片連結是別篇的，例如反覆出現的 `set=pcb.1350686019962814`）；
+     有就 `location.href = a[0].href`
+   - JS：等 4 秒 → 若 `location.href` 不含 PID 或找不到 `media-vc-image` 就回 `BAD`；
+     否則 for 迴圈翻頁收集，**每一圈都重驗 `location.href` 仍含 PID**（不含就 break），
+     用 `fbid` 判斷繞回頭，等 `img.src` 變化才算換頁成功。結果存 `window.__urls`
+   - JS：`location.href='http://localhost:8790/grab?name={slug}&'+urls.map(...)` 一次送回
+   —— 有了「每圈驗 PID」這道防線，翻頁不會再翻進別篇相簿，不需要再一張一張抓。
 4. **探針策略（省時間的關鍵）**：每篇**先只抓第 1 張**，然後跑
    `python scripts/probe-hires-match.py {slug}`，兩個條件都過才抓整篇：
    - `MATCH`（best diff ≤ 15）才是本文出處。`NOMATCH`（diff > 100）代表這則貼文
@@ -59,10 +65,15 @@ python scripts/distribute-fb-images-inplace.py --apply    # 實際寫入
 ```
 
 - 就地覆蓋、不改檔名、只在「比原檔大」時才換，原檔備份到 `pic-lowres-backup/`（**不要刪**）。
-- **張數不符的一律跳過**，寫進 `scripts/todo-count-mismatch.json`。
-  這種要用感知雜湊逐張比對確認對應（16x16 灰階 hash，diff ≤ 5 才算命中），
-  確認後把 staging 檔改名成對應的 `{slug}-{n}.jpg`、刪掉多餘的，再重跑一次 --apply。
+- **distribute 是「依序」對應的，FB 相簿順序常與內文不同，分配前一定要先跑對齊**：
+  ```bash
+  python scripts/align-staging.py {slug}            # 看對應結果
+  python scripts/align-staging.py {slug} --apply    # 依感知雜湊改名成內文順序
+  ```
+  它會把 staging 改名成內文順序、刪掉多餘的；內文有而相簿沒有的位置**補上原檔本身當佔位**，
+  這樣張數就吻合，distribute 會判定 not larger 自動略過，安全。
   **絕對不要依位置硬對**，會貼錯圖。
+- 張數不符又沒對齊的會被跳過並寫進 `scripts/todo-count-mismatch.json`。
 
 ## 已知待處理 / 卡住的
 
