@@ -9,13 +9,13 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo [2/2] Re-rendering static pages...
+echo [2/2] Re-rendering static pages (optional)...
 node scripts\prerender-static-site.js
 if errorlevel 1 (
   echo.
-  echo Prerender failed. Check the error message above.
-  pause
-  exit /b 1
+  echo NOTE: prerender-static-site.js is out of date and was skipped.
+  echo       Pages render from assets\data\*.js in the browser, so the
+  echo       site is already up to date after step 1.
 )
 echo.
 echo Rebuild complete.

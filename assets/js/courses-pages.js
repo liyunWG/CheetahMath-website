@@ -45,12 +45,26 @@
     return item && item.file ? item.file : courseArticleUrl(item && item.slug);
   }
 
+  function isOnsiteCourse(item) {
+    var s = String((item && item.slug) || "");
+    var c = String((item && item.category) || "");
+    return /onsite/i.test(s) || c.indexOf("實體") >= 0;
+  }
+  function courseYear(item) {
+    var m = String((item && item.date) || "").match(/\d{4}/);
+    return m ? Number(m[0]) : 0;
+  }
   function loadCoursesData() {
     return (window.__COURSES_DATA__ || [])
       .filter(function (item) {
         return String(item.keep || "保留").trim() !== "不保留";
       })
       .sort(function (a, b) {
+        // 先依年份新到舊；同一年份把「實體課」排在線上課程之後；再依日期新到舊
+        var ya = courseYear(a), yb = courseYear(b);
+        if (ya !== yb) return yb - ya;
+        var oa = isOnsiteCourse(a) ? 1 : 0, ob = isOnsiteCourse(b) ? 1 : 0;
+        if (oa !== ob) return oa - ob;
         return (Date.parse(b.date || "") || 0) - (Date.parse(a.date || "") || 0);
       });
   }

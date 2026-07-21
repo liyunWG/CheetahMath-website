@@ -1,0 +1,39 @@
+﻿{
+  "slug": "cheetah-perspective-760929984859689",
+  "title": "學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。",
+  "date": "2021-02-26",
+  "category": "獵豹視角",
+  "categorySlug": "cheetah-perspective",
+  "bucket": "文章專欄",
+  "summary": "大家可看這五科的級分分佈圖看可否看出有哪些特徵。　數學今年頂標只有 11 級分（滿級15)，其實能考到頂標已經相當於 88% 以上。前 12% 的人占了前 5 級分 ，後 88% 佔了 10 …",
+  "excerpt": "大家可看這五科的級分分佈圖看可否看出有哪些特徵。　數學今年頂標只有 11 級分（滿級15)，其實能考到頂標已經相當於 88% 以上。前 12% 的人占了前 5 級分 ，後 88% 佔了 10 …",
+  "sourceUrl": "https://www.facebook.com/groups/695697124716309/posts/760929984859689/",
+  "coverImage": "pic/columns/cheetah-perspective-760929984859689-thumb.jpg",
+  "detailImages": [
+    "pic/columns/cheetah-perspective-760929984859689-2.jpg",
+    "pic/columns/cheetah-perspective-760929984859689-3.jpg",
+    "pic/columns/cheetah-perspective-760929984859689-4.jpg",
+    "pic/columns/cheetah-perspective-760929984859689-5.jpg"
+  ],
+  "imageUrl": "pic/columns/cheetah-perspective-760929984859689-thumb.jpg",
+  "imageName": "cheetah-perspective-760929984859689-thumb.jpg",
+  "coverLabel": "",
+  "tags": [
+    "獵豹視角",
+    "學測",
+    "2021",
+    "文章專欄"
+  ],
+  "keywords": [],
+  "keep": "保留",
+  "targetPage": "columns.html",
+  "bodyHtml": "<!--fb-gallery--><div class=\"is-container-in\"><div class=\"remote-row clearfix\"><div class=\"column full\"><h1 class=\"size-48 is-title1-48 is-title-bold\">學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。</h1></div></div><div class=\"remote-row clearfix\"><div class=\"column half\"><p class=\"normal-txt\"><span style=\"font-size:22px;\">大家可看這五科的級分分佈圖看可否看出有哪些特徵。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">數學今年頂標只有 11 級分（滿級15)，其實能考到頂標已經相當於 88% 以上。前 12% 的人占了前 5 級分 ，後 88% 佔了 10 級分，</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">這表示數學很優秀與很頂尖的差距還能拉開到 5 個級分。</span></p><p class=\"normal-txt\"><span style=\"font-size:22px;\">而 11 級分換算成原始分數只有 60.3 。相當於近 8成5 的考生原始學測數學成績是不及格的。有些說法覺得全國的統一考試不該考如此難，讓頂尖人才直接在二階筆試再來鑑別出差異。</span></p></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/columns/cheetah-perspective-760929984859689-1.jpg\" alt=\"學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。\"></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/columns/cheetah-perspective-760929984859689-2.jpg\" alt=\"學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。\"></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/columns/cheetah-perspective-760929984859689-3.jpg\" alt=\"學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。\"></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/columns/cheetah-perspective-760929984859689-4.jpg\" alt=\"學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。\"></div></div><div class=\"remote-row clearfix\"><div class=\"column full\"><img src=\"pic/columns/cheetah-perspective-760929984859689-5.jpg\" alt=\"學測成績剛出爐，我用 Python 將 20 年五科的數據繪製些圖表。\"></div></div></div>",
+  "notes": "2026-07-20 由 FB 社團貼文（序 82）匯入；清理：多圖貼文，張數可能低估",
+  "migrationPage": "fb-group-import-20260720",
+  "listDescription": "大家可看這五科的級分分佈圖看可否看出有哪些特徵。　數學今年頂標只有 11 級分（滿級15)，其實能考到頂標已經相當於 88% 以上。前 12% 的人占了前 5 級分 ，後 88% 佔了 10 …",
+  "legacyId": 0,
+  "legacyCategoryId": 0,
+  "legacyCategoryUrl": "",
+  "popularity": 0,
+  "freshness": 0
+}
