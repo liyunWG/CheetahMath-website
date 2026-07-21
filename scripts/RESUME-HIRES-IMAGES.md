@@ -5,7 +5,7 @@
 ## 現在做到哪
 
 - 單圖那批（49 篇）**已完成並 commit**（`a050029`），共 47 張換成高解析。
-- 現在在做**多圖那批**：`scripts/todo-multi.json`（78 篇）。已處理 13 篇（60 篇待跑，下一篇 cheetah-perspective-146），結果記在 `scripts/multi-results.md`。
+- 現在在做**多圖那批**：`scripts/todo-multi.json`（78 篇）。已處理 15 篇；**待辦改看 `scripts/todo-multi-remaining.json`（47 篇，已去除跨分類複本）**，結果記在 `scripts/multi-results.md`。
 - 已完成：education-talk-71、about-cheetah-167/170、amc-series-45/85/87（共換 27 張）。
 - 確認無解：about-cheetah-161（貼文與內文無關）、166（FB 較小）、amc-series-156（不符）、168（連結不含 PID，待人工）。
 

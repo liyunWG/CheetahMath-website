@@ -20,3 +20,13 @@
 
 注意：進度用 `scripts/multi-results.md` 這張表判斷，**不要只看 tmp/fbimg-hires 有沒有檔案**
 ——抓到一半的文章（只有 -1.jpg）也會出現在 staging，會被誤判成已完成。
+| cheetah-perspective-146 | NOMATCH (best diff=120) |
+| cheetah-perspective-176 | DONE 5張全換 530/536->1452 |
+
+## 重要：很多 slug 是同一篇文章的跨分類複本
+
+它們在 lowres-worklist 裡的 images[] 完全相同，換一篇等於全部換好。
+已據此把待辦從 55 篇縮成 47 篇，清單見 `scripts/todo-multi-remaining.json`
+（每筆的 `same_as` 欄位列出跟它共用同一組圖檔的其他 slug）。
+
+自動標記完成（與已處理文章圖檔相同）：cheetah-salon-100/110/120/139/44/70/86、science-talk-177
