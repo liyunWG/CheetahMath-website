@@ -30,3 +30,6 @@
 （每筆的 `same_as` 欄位列出跟它共用同一組圖檔的其他 slug）。
 
 自動標記完成（與已處理文章圖檔相同）：cheetah-salon-100/110/120/139/44/70/86、science-talk-177
+| cheetah-perspective-194 | DONE 5張全換 536->~868 |
+| cheetah-perspective-196 (=education-talk-197) | MATCH但FB只有390px < 536 無法換 |
+| cheetah-perspective-199 (=education-talk-200) | MATCH但FB只有380px < 530 無法換 |
