@@ -9,7 +9,7 @@
 import os, io, http.server, socketserver, urllib.request, ssl, json
 from urllib.parse import urlparse, parse_qs
 
-STAGE = r'C:\Users\liyun\AppData\Local\Temp\claude\E--20260323-LiyunWG-Cheetah-website--claude-worktrees-fb-posts-category-adjustment-4ea8dd\61582335-5611-41b3-af17-ce10f22170ee\scratchpad\fbimg-hires'
+STAGE = os.environ.get('FBIMG_STAGE') or r'C:\Users\liyun\AppData\Local\Temp\claude\E--20260323-LiyunWG-Cheetah-website--claude-worktrees-fb-posts-category-adjustment-4ea8dd\61582335-5611-41b3-af17-ce10f22170ee\scratchpad\fbimg-hires'
 os.makedirs(STAGE, exist_ok=True)
 PORT = 8790
 FULL_CAP = 2048   # 原圖上限（FB 通常最大 ~2048）
