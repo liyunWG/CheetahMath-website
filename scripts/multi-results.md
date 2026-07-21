@@ -12,3 +12,11 @@
 | amc-series-45 | DONE 6張中5張換 536->1484 |
 | amc-series-85 | DONE 14張中5張換 536->1586 |
 | amc-series-87 | DONE 9張中5張換 536->1452 |
+| cheetah-perspective-101 | DONE 3張全換 536->2048 |
+| cheetah-perspective-111 | DONE 4張全換 536->1448 |
+| cheetah-perspective-140 | DONE 14張中5張換 536->1908/1166, 378->~620 |
+
+## 下一篇從 cheetah-perspective-146 開始（見 scripts/todo-multi.json 順序）
+
+注意：進度用 `scripts/multi-results.md` 這張表判斷，**不要只看 tmp/fbimg-hires 有沒有檔案**
+——抓到一半的文章（只有 -1.jpg）也會出現在 staging，會被誤判成已完成。

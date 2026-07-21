@@ -5,7 +5,7 @@
 ## 現在做到哪
 
 - 單圖那批（49 篇）**已完成並 commit**（`a050029`），共 47 張換成高解析。
-- 現在在做**多圖那批**：`scripts/todo-multi.json`（78 篇）。已處理 10 篇，結果記在 `scripts/multi-results.md`。
+- 現在在做**多圖那批**：`scripts/todo-multi.json`（78 篇）。已處理 13 篇（60 篇待跑，下一篇 cheetah-perspective-146），結果記在 `scripts/multi-results.md`。
 - 已完成：education-talk-71、about-cheetah-167/170、amc-series-45/85/87（共換 27 張）。
 - 確認無解：about-cheetah-161（貼文與內文無關）、166（FB 較小）、amc-series-156（不符）、168（連結不含 PID，待人工）。
 
@@ -40,11 +40,13 @@ print('剩下',len(rest),'篇'); [print(' ',x['slug'],x['pid'],x['n_body']) for 
    - 進檢視器後**先驗 `location.href` 仍含 PID**，不含就回報 `WRONGALBUM` 不要抓
    - 送圖用 grab server 的 `idx=` 指定編號：`http://localhost:8790/grab?name={slug}&idx={n}&u={encoded}`
    - 一個 browser_batch 可以塞 2-3 張的來回，不用一張一次
-4. **抓完先用 `tmp/probe.py {slug}` 做感知雜湊比對**再決定要不要繼續抓：
-   `MATCH` 才是本文出處；`NOMATCH`（best diff > 100）代表這則貼文根本不是這篇文章的圖，
-   直接砍掉 staging、記下來回報使用者，不要浪費時間抓完整本相簿。
-   實測 about-cheetah-161 就是這種（貼文 2 張與內文 10 張完全無關）。
-4. **每批（約 5 篇）做一次 md5 重複檢查**，有重複就是撞到 FB 沒真的換頁，砍掉重抓：
+4. **探針策略（省時間的關鍵）**：每篇**先只抓第 1 張**，然後跑
+   `python scripts/probe-hires-match.py {slug}`，兩個條件都過才抓整篇：
+   - `MATCH`（best diff ≤ 15）才是本文出處。`NOMATCH`（diff > 100）代表這則貼文
+     根本不是這篇的圖，砍掉 staging、記進 `scripts/multi-results.md`，別抓整本相簿。
+   - 第 1 張的寬度要**大於**內文圖寬度。這批舊貼文常見 FB 只有 460-490px，
+     比站上 530/536px 還小（about-cheetah-166 就是），抓了也換不了。
+5. **每批（約 5 篇）做一次 md5 重複檢查**，有重複就是撞到 FB 沒真的換頁，砍掉重抓：
    ```bash
    python -c "import hashlib,glob,os;h={};[h.setdefault(hashlib.md5(open(f,'rb').read()).hexdigest(),[]).append(os.path.basename(f)) for f in glob.glob('tmp/fbimg-hires/*.jpg') if not f.endswith('.thumb.jpg')];print([v for v in h.values() if len(v)>1] or 'none')"
    ```
