@@ -82,6 +82,30 @@ for (const section of sections) {
   }
 }
 
+// feature-* 等頁面沒有結構化欄位（intro/profiles），前端只能靠 bodyHtml 顯示，
+// 而 bodyHtml 只存在於既有的 about-data.js（content/about/*.json 沒有這個欄位），
+// 所以重新產生時要把舊檔的 bodyHtml 帶回來，否則那幾頁會變成空白。
+const previousHtml = {};
+if (fs.existsSync(jsPath)) {
+  const previousRaw = fs.readFileSync(jsPath, 'utf8');
+  const start = previousRaw.indexOf('window.__ABOUT_DATA__ = ');
+  if (start !== -1) {
+    const json = previousRaw.slice(start + 'window.__ABOUT_DATA__ = '.length).replace(/;\s*$/, '');
+    try {
+      for (const item of (JSON.parse(json).items || [])) {
+        if (item.slug && item.bodyHtml) previousHtml[item.slug] = item.bodyHtml;
+      }
+    } catch (error) {
+      console.warn('舊的 about-data.js 無法解析，bodyHtml 不會沿用：' + error.message);
+    }
+  }
+}
+for (const item of items) {
+  if (!item.intro && !(item.profiles || []).length && previousHtml[item.slug]) {
+    item.bodyHtml = previousHtml[item.slug];
+  }
+}
+
 const payload = { sections, items };
 fs.writeFileSync(
   jsPath,
