@@ -1,0 +1,300 @@
+[
+ {
+  "slug": "cheetah-perspective-181",
+  "pid": "790015251951162",
+  "n_body": 4,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-perspective-194",
+  "pid": "876483436637676",
+  "n_body": 5,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-perspective-196",
+  "pid": "858437278442292",
+  "n_body": 2,
+  "same_as": [
+   "education-talk-197"
+  ]
+ },
+ {
+  "slug": "cheetah-perspective-199",
+  "pid": "852634839022536",
+  "n_body": 5,
+  "same_as": [
+   "education-talk-200"
+  ]
+ },
+ {
+  "slug": "cheetah-perspective-203",
+  "pid": "849238922695461",
+  "n_body": 4,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-perspective-47",
+  "pid": "719551552330866",
+  "n_body": 10,
+  "same_as": [
+   "cheetah-salon-46"
+  ]
+ },
+ {
+  "slug": "cheetah-salon-102",
+  "pid": "928858798066806",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-122",
+  "pid": "974195790199773",
+  "n_body": 2,
+  "same_as": [
+   "education-talk-123"
+  ]
+ },
+ {
+  "slug": "cheetah-salon-124",
+  "pid": "985647649054587",
+  "n_body": 3,
+  "same_as": [
+   "cheetah-salon-125"
+  ]
+ },
+ {
+  "slug": "cheetah-salon-127",
+  "pid": "1042804673338884",
+  "n_body": 8,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-34",
+  "pid": "1267980884154594",
+  "n_body": 8,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-43",
+  "pid": "709403040012384",
+  "n_body": 6,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-59",
+  "pid": "737828967169791",
+  "n_body": 2,
+  "same_as": [
+   "education-talk-60"
+  ]
+ },
+ {
+  "slug": "cheetah-salon-67",
+  "pid": "793276181625069",
+  "n_body": 2,
+  "same_as": [
+   "education-talk-68"
+  ]
+ },
+ {
+  "slug": "cheetah-salon-82",
+  "pid": "881829459436407",
+  "n_body": 8,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-83",
+  "pid": "884549535831066",
+  "n_body": 7,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-84",
+  "pid": "887799052172781",
+  "n_body": 13,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-88",
+  "pid": "895050171447669",
+  "n_body": 3,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-salon-98",
+  "pid": "923310021955017",
+  "n_body": 5,
+  "same_as": []
+ },
+ {
+  "slug": "education-talk-154",
+  "pid": "783088389310515",
+  "n_body": 4,
+  "same_as": []
+ },
+ {
+  "slug": "education-talk-232",
+  "pid": "704750637144291",
+  "n_body": 2,
+  "same_as": [
+   "science-talk-231"
+  ]
+ },
+ {
+  "slug": "education-talk-878480896437930",
+  "pid": "878480896437930",
+  "n_body": 3,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-217",
+  "pid": "784352895850731",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-227",
+  "pid": "854739712145382",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-230",
+  "pid": "719668148985873",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-233",
+  "pid": "897596884526331",
+  "n_body": 3,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-234",
+  "pid": "1244585556494127",
+  "n_body": 7,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-238",
+  "pid": "1228557841430232",
+  "n_body": 8,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-95",
+  "pid": "921950185424334",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-118",
+  "pid": "1045454166407268",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-12",
+  "pid": "1077804813172203",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-132",
+  "pid": "1709863663299645",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-22",
+  "pid": "1290753188544030",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-29",
+  "pid": "1308826286736720",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-31",
+  "pid": "1290753188544030",
+  "n_body": 6,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-35",
+  "pid": "1317009142585101",
+  "n_body": 4,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-38",
+  "pid": "1290753188544030",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-48",
+  "pid": "739581950327826",
+  "n_body": 3,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-54",
+  "pid": "783088389310515",
+  "n_body": 4,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-59",
+  "pid": "879761302976556",
+  "n_body": 6,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-64",
+  "pid": "947043826248303",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "cheetah-elite-76",
+  "pid": "784352895850731",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "lecture-2082540069365334",
+  "pid": "2082540069365334",
+  "n_body": 2,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-241",
+  "pid": null,
+  "n_body": 5,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-242",
+  "pid": null,
+  "n_body": 7,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-243",
+  "pid": null,
+  "n_body": 4,
+  "same_as": []
+ },
+ {
+  "slug": "science-talk-244",
+  "pid": null,
+  "n_body": 4,
+  "same_as": []
+ }
+]
