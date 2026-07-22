@@ -5,11 +5,10 @@
 ## 現在做到哪
 
 - 單圖那批（49 篇）**已完成並 commit**（`a050029`），共 47 張換成高解析。
-- **多圖那批 `scripts/todo-multi-remaining.json`（47 篇）已全部跑完**，唯一剩下的是
-  `science-talk-241/242/243/244` —— 這 4 篇沒有 FB 網址，**要問使用者要**。
+- **多圖那批 `scripts/todo-multi-remaining.json`（47 篇）已全部處理完，沒有待辦了。**
+  `science-talk-241/242/243/244` 使用者已指示不用再調整；
+  `cheetah-elite-22/31/38` 使用者已補正確網址並完成。
 - 逐篇結果一律看 `scripts/multi-results.md`（每篇都有一列）。
-  另有 `cheetah-elite-22/31/38` 共用的 post id `1290753188544030` 經實測是錯的，
-  抓到的 7 張與內文完全對不上，**需使用者提供正確 FB 網址**。
 
 ## 進度怎麼查（不要憑記憶，一律重算）
 
@@ -30,7 +29,11 @@ print('剩下',len(rest),'篇'); [print(' ',x['slug'],x['pid'],x['n_body']) for 
 
 抓圖流程完全照 `scripts/FB-IMAGE-DOWNLOAD-METHOD.md`（含裡面所有陷阱），重點：
 
-1. 前置：`python scripts/fb-image-grab-server.py`（8790 port，可能已在跑，先 curl 測）；
+1. 前置：`FBIMG_STAGE=<worktree>/tmp/fbimg-hires python scripts/fb-image-grab-server.py`
+   （8790 port，可能已在跑，先 curl `/ping` 測）。**`FBIMG_STAGE` 一定要設**，
+   否則預設會寫到別的 worktree 的 scratchpad，看起來像「抓了卻沒檔案」。
+   用 Bash tool 起 server 要用 `run_in_background` + `dangerouslyDisableSandbox`，
+   否則指令結束時 server 會跟著死掉；
    用 **Claude in Chrome**（`mcp__claude-in-chrome__*`），不是內建瀏覽器（沒 FB 登入）。
 2. 每篇：navigate 貼文 → 等 3 秒 → 取 photo 連結（**要過濾別社團的**）→ 導向檢視器 →
    翻頁收集（**等 `img.src` 變化**，用 `fbid` 判斷繞回頭）→ 一次導向 grab server 送回。
