@@ -11,3 +11,9 @@ _manual-backups/
 motion-graphics/
 $dest/
 *.xlsx
+
+# 內部文件（非觀眾瀏覽內容）
+網站維護指南.md
+
+# 圖片原始素材（網站實際使用的是縮圖版，放在 pic/ 下對應檔名）
+pic/columns/如何訓練資優生解題/
