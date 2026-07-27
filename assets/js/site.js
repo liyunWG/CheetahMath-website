@@ -1100,6 +1100,8 @@
 
     const weaveColumnElite = (list) => list;
 
+    let lastResultCount = 0;
+
     const render = () => {
       const q = input.value.trim();
       let list = items
@@ -1108,6 +1110,7 @@
         .map((item) => ({ ...item, rank: rankItem(item, q) }))
         .filter((item) => !q || item.rank.matched)
         .sort((a, b) => (sort.value === "latest" ? compareLatest(a, b) : sort.value === "popular" ? comparePopular(a, b) : compareBest(a, b)));
+      lastResultCount = list.length;
       box.innerHTML = list.length
         ? list
             .map(
@@ -1129,6 +1132,46 @@
 
     [input, type, grade, sort].forEach((el) => el.addEventListener("input", render));
     render();
+
+    // --- 站內搜尋關鍵字記錄（送到 Google Apps Script / Google Sheet）---
+    // 停止輸入約 1.5 秒才記一次；過濾空字串與連續重複；記錄時間、關鍵字、結果筆數、裝置。
+    const SEARCH_LOG_ENDPOINT =
+      "https://script.google.com/macros/s/AKfycbxN5YYKXIXFSIvK-PFxduBXywQkKbzJOSs2gbvrlwbd8Wnri2m1CfPCZug3znl0HE-L/exec";
+    const searchDeviceLabel = () => {
+      const ua = navigator.userAgent || "";
+      if (/iPad|Tablet|PlayBook|Silk|Android(?!.*Mobile)/i.test(ua)) return "平板";
+      if (/Mobi|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)) return "手機";
+      return "電腦";
+    };
+    const sendSearchLog = (q, count) => {
+      if (!SEARCH_LOG_ENDPOINT || !q) return;
+      const url =
+        SEARCH_LOG_ENDPOINT +
+        "?" +
+        new URLSearchParams({ q, count: String(count), device: searchDeviceLabel() }).toString();
+      try {
+        if (navigator.sendBeacon) navigator.sendBeacon(url);
+        else fetch(url, { method: "GET", mode: "no-cors", keepalive: true });
+      } catch (err) {
+        /* 記錄失敗不影響搜尋功能 */
+      }
+    };
+    let searchLogTimer = null;
+    let lastLoggedQuery = "";
+    input.addEventListener("input", () => {
+      clearTimeout(searchLogTimer);
+      searchLogTimer = setTimeout(() => {
+        const q = input.value.trim();
+        if (!q || q === lastLoggedQuery) return; // 過濾空字串與連續重複
+        lastLoggedQuery = q;
+        sendSearchLog(q, lastResultCount);
+      }, 1500);
+    });
+    // 由首頁快速搜尋帶 ?q= 進來的完整關鍵字也記一次（並避免與後續輸入重複記錄）
+    if (initialQuery && initialQuery.trim()) {
+      lastLoggedQuery = initialQuery.trim();
+      sendSearchLog(lastLoggedQuery, lastResultCount);
+    }
 
     const hydrateOnePageSearchIndex = async () => {
       try {
