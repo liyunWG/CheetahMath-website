@@ -113,11 +113,13 @@
         .filter(function (x) {
           return (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(x.haystack, q) : x.haystack.indexOf(q) >= 0)) && (!category || x.item.category === category);
         });
+      var ranked = matched;
       if (q && window.__cheetahSearchScore) {
+        var floor = window.__cheetahSearchFloor ? window.__cheetahSearchFloor(q) : 0;
         matched.forEach(function (x) { x.score = window.__cheetahSearchScore(x.haystack, x.item.title, q); });
-        matched.sort(function (a, b) { return b.score - a.score; });
+        ranked = matched.filter(function (x) { return x.score >= floor; }).sort(function (a, b) { return b.score - a.score; });
       }
-      var filtered = matched.map(function (x) { return x.item; });
+      var filtered = ranked.map(function (x) { return x.item; });
 
       countNode.textContent = String(filtered.length);
       resultsNode.innerHTML = filtered.length

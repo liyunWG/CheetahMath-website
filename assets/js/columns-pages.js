@@ -237,13 +237,21 @@
           );
         });
       if (q && window.__cheetahSearchScore) {
-        // 完整命中排前、部分命中排後；同分維持原順序（既有排序原則）
+        // 評分後：砍掉低於門檻的弱尾巴；再依分數排序（完整命中排前、部分命中排後；同分維持原順序）
+        var floor = window.__cheetahSearchFloor ? window.__cheetahSearchFloor(q) : 0;
         matched.forEach(function (x) {
           x.score = window.__cheetahSearchScore(x.haystack, x.item.title, q);
         });
-        matched.sort(function (a, b) {
-          return b.score - a.score;
-        });
+        return matched
+          .filter(function (x) {
+            return x.score >= floor;
+          })
+          .sort(function (a, b) {
+            return b.score - a.score;
+          })
+          .map(function (x) {
+            return x.item;
+          });
       }
       return matched.map(function (x) {
         return x.item;

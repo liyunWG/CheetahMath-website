@@ -978,16 +978,52 @@
     else searchLogTimer = setTimeout(fire, 1500);
   };
 
+  // === 站內搜尋：同義詞（簡稱↔全稱）對照 ===
+  // 每組互為同義；查詢提到組內任一詞，文章含同組任一詞即可互通（雙向）。可自行增修。
+  const searchSynonyms = [
+    ["私中", "私立中學", "私立國中", "私校"],
+    ["公中", "公立中學", "公立國中"],
+    ["科學班", "高中科學班"],
+    ["數資班", "數理資優班", "高中數資班", "數資"],
+    ["資優班", "資賦優異班"],
+    ["資優鑑定", "資賦優異鑑定", "數理資優鑑定", "資優生鑑定"],
+    ["建中", "建國中學"],
+    ["北一女", "北一女中"],
+    ["附中", "師大附中"],
+    ["中一中", "台中一中", "臺中一中"],
+    ["雄中", "高雄中學"],
+    ["南一中", "台南一中", "臺南一中"],
+    ["學測", "大學學測"],
+    ["會考", "教育會考", "國中會考"],
+    ["特招", "特色招生"],
+    ["amc", "美國數學競賽"],
+    ["aime", "美國數學邀請賽"],
+    ["imo", "國際數學奧林匹亞", "國際數學奧林匹克", "國際數學奧林匹克競賽"],
+    ["egmo", "歐洲女子數學奧林匹亞", "歐洲女子數學奧林匹克"]
+  ].map((g) => g.map((w) => w.toLowerCase()));
+
+  // 針對查詢 q（已小寫），回傳「應一併接受的同義替代詞」：q 提到某組成員時，回傳該組其他成員。
+  const searchSynonymAlts = (q) => {
+    const out = [];
+    for (let i = 0; i < searchSynonyms.length; i++) {
+      const g = searchSynonyms[i];
+      if (g.some((m) => q.indexOf(m) >= 0)) {
+        g.forEach((m) => {
+          if (q.indexOf(m) < 0 && out.indexOf(m) < 0) out.push(m);
+        });
+      }
+    }
+    return out;
+  };
+
   // === 站內搜尋文字比對（各分頁搜尋框共用）===
   // 比 indexOf 更寬鬆：整串命中優先；否則以空白分詞，每個詞都要命中——含中日韓文的詞可用相鄰
-  // 2-gram 放寬（例：查「考私中」可命中含「私中」的文章），純英數詞則須完整命中（避免亂放寬）。
+  // 2-gram 放寬（例：查「考私中」可命中含「私中」的文章），純英數詞則須完整命中（避免亂放寬）；
+  // 最後再以同義詞補一層（例：查「私立中學」也命中只寫「私中」的文章）。
   const searchCjkRe = /[㐀-鿿豈-﫿぀-ヿ가-힯]/;
-  window.__cheetahTextMatch = (haystack, query) => {
-    const h = String(haystack || "").toLowerCase();
-    const q = String(query || "").trim().toLowerCase();
-    if (!q) return true;
-    if (h.indexOf(q) >= 0) return true;
-    return q
+  const baseTextMatch = (h, q) =>
+    h.indexOf(q) >= 0 ||
+    q
       .split(/\s+/)
       .filter(Boolean)
       .every((w) => {
@@ -998,6 +1034,13 @@
         }
         return false;
       });
+  window.__cheetahTextMatch = (haystack, query) => {
+    const h = String(haystack || "").toLowerCase();
+    const q = String(query || "").trim().toLowerCase();
+    if (!q) return true;
+    if (baseTextMatch(h, q)) return true;
+    // 同義詞：查詢提到某組成員，文章含同組其他成員也算命中
+    return searchSynonymAlts(q).some((alt) => h.indexOf(alt) >= 0);
   };
 
   // === 站內搜尋相關性評分（分頁搜尋用來「完整命中排前、部分命中排後」）===
@@ -1032,7 +1075,18 @@
         const tFrac = searchLongestHit(t, w) / w.length; // 標題命中比例
         total += tFrac >= 1 ? 120 : 60 * tFrac * tFrac; // 標題命中額外加權
       });
+    searchSynonymAlts(q).forEach((alt) => {
+      if (h.indexOf(alt) >= 0) total += 100; // 同義詞內文命中：視為完整命中
+      if (t.indexOf(alt) >= 0) total += 120; // 同義詞標題命中：再加權
+    });
     return total;
+  };
+
+  // 最低分數門檻：砍掉「幾乎不相關」的弱尾巴（每個查詢詞約需 12 分）。完整命中≥100、同義詞命中≥100，
+  // 遠高於門檻；只會濾掉「長查詢只命中其中一小段」這類（例：查 7 字句子只中到其中 2 字）。
+  window.__cheetahSearchFloor = (query) => {
+    const n = String(query || "").trim().split(/\s+/).filter(Boolean).length;
+    return n * 12;
   };
 
   const dataEl = document.getElementById("search-data");
@@ -1175,8 +1229,22 @@
       });
       if (tokens.length && matchedTokens === tokens.length) score += 220 + tokens.length * 18;
       else if (tokens.length > 1 && matchedTokens > 0) score -= Math.max(0, (tokens.length - matchedTokens) * 120);
-      const matched = bucket < Infinity || score > 0;
-      return { matched, bucket: bucket < Infinity ? bucket : 6, score: matched ? score + item.popularity * 0.12 + item.freshness * 0.08 : 0 };
+      let matched = bucket < Infinity || score > 0;
+      let outBucket = bucket < Infinity ? bucket : 6;
+      let outScore = matched ? score + item.popularity * 0.12 + item.freshness * 0.08 : 0;
+      // 複合詞／同義詞補強：既有邏輯沒命中時，用 2-gram／同義詞比對補一層（例：考私中→私中、
+      // 私立中學→私中），排在所有精確結果之後（bucket 8），並套用最低分數門檻濾掉弱尾巴。
+      if (!matched && window.__cheetahSearchScore) {
+        const hay = [data.titleNorm, data.tagsNorm, data.keywordsNorm, data.summaryNorm, data.bodyNorm].join(" ");
+        const partial = window.__cheetahSearchScore(hay, data.titleNorm, q);
+        const floor = window.__cheetahSearchFloor ? window.__cheetahSearchFloor(q) : 0;
+        if (partial > 0 && partial >= floor) {
+          matched = true;
+          outBucket = 8;
+          outScore = partial + item.popularity * 0.12 + item.freshness * 0.08;
+        }
+      }
+      return { matched, bucket: outBucket, score: outScore };
     };
 
     const compareBest = (a, b) => {
