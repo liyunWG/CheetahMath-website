@@ -101,14 +101,23 @@
     function draw() {
       var q = (searchInput.value || "").trim().toLowerCase();
       var category = categorySelect.value;
-      var filtered = data.filter(function (item) {
-        var haystack = [item.title, item.summary, item.bodyText, item.category]
-          .concat(item.tags || [])
-          .concat(item.keywords || [])
-          .join(" ")
-          .toLowerCase();
-        return (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0)) && (!category || item.category === category);
-      });
+      var matched = data
+        .map(function (item) {
+          var haystack = [item.title, item.summary, item.bodyText, item.category]
+            .concat(item.tags || [])
+            .concat(item.keywords || [])
+            .join(" ")
+            .toLowerCase();
+          return { item: item, haystack: haystack };
+        })
+        .filter(function (x) {
+          return (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(x.haystack, q) : x.haystack.indexOf(q) >= 0)) && (!category || x.item.category === category);
+        });
+      if (q && window.__cheetahSearchScore) {
+        matched.forEach(function (x) { x.score = window.__cheetahSearchScore(x.haystack, x.item.title, q); });
+        matched.sort(function (a, b) { return b.score - a.score; });
+      }
+      var filtered = matched.map(function (x) { return x.item; });
 
       countNode.textContent = String(filtered.length);
       resultsNode.innerHTML = filtered.length

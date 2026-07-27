@@ -1000,6 +1000,41 @@
       });
   };
 
+  // === 站內搜尋相關性評分（分頁搜尋用來「完整命中排前、部分命中排後」）===
+  // 對每個查詢詞，取其在內容/標題中「最長連續命中片段」的長度，換算命中比例；完整命中滿分，
+  // 部分命中以比例平方降權（讓 100% 精確明顯排前）；標題命中再額外加權。回傳分數供排序，不影響是否命中。
+  const searchLongestHit = (text, w) => {
+    if (!text || !w) return 0;
+    let best = 0;
+    for (let i = 0; i < w.length; i++) {
+      for (let len = w.length - i; len > best; len--) {
+        if (text.indexOf(w.slice(i, i + len)) >= 0) {
+          best = len;
+          break;
+        }
+      }
+    }
+    return best;
+  };
+  window.__cheetahSearchScore = (haystack, title, query) => {
+    const h = String(haystack || "").toLowerCase();
+    const t = String(title || "").toLowerCase();
+    const q = String(query || "").trim().toLowerCase();
+    if (!q) return 0;
+    let total = 0;
+    q.split(/\s+/)
+      .filter(Boolean)
+      .forEach((w) => {
+        const inAll = searchLongestHit(h, w);
+        if (inAll <= 0) return;
+        const frac = inAll / w.length; // 內容命中比例
+        total += frac >= 1 ? 100 : 100 * frac * frac; // 完整命中滿分；部分命中平方降權
+        const tFrac = searchLongestHit(t, w) / w.length; // 標題命中比例
+        total += tFrac >= 1 ? 120 : 60 * tFrac * tFrac; // 標題命中額外加權
+      });
+    return total;
+  };
+
   const dataEl = document.getElementById("search-data");
   if (dataEl) {
     const searchConfig = PAGE_DATA.search || {};

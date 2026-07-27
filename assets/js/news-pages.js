@@ -64,10 +64,19 @@
     const searchInput = qs('#news-search'); const countNode = qs('#news-count'); const resultsNode = qs('#news-results'); const pagerNode = qs('#news-pager-wrap');
     function getFilteredItems() {
       const q = (searchInput.value || '').trim().toLowerCase();
-      return data.filter(function (item) {
-        const haystack = [item.title, item.summary, item.excerpt, item.bodyText].concat(item.tags || []).concat(item.keywords || []).join(' ').toLowerCase();
-        return !q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0);
-      });
+      const matched = data
+        .map(function (item) {
+          const haystack = [item.title, item.summary, item.excerpt, item.bodyText].concat(item.tags || []).concat(item.keywords || []).join(' ').toLowerCase();
+          return { item: item, haystack: haystack };
+        })
+        .filter(function (x) {
+          return !q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(x.haystack, q) : x.haystack.indexOf(q) >= 0);
+        });
+      if (q && window.__cheetahSearchScore) {
+        matched.forEach(function (x) { x.score = window.__cheetahSearchScore(x.haystack, x.item.title, q); });
+        matched.sort(function (a, b) { return b.score - a.score; });
+      }
+      return matched.map(function (x) { return x.item; });
     }
     function draw() {
       const filtered = getFilteredItems(); const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize)); if (currentPage > totalPages) currentPage = 1;

@@ -254,18 +254,32 @@
       const yearValue = yearSelect.value;
       const categoryValue = categorySelect.value;
 
-      return data.filter(function (item) {
-        const haystack = [item.title, item.summary, item.excerpt, item.bodyText]
-          .concat(item.tags || [])
-          .join(" ")
-          .toLowerCase();
-        const itemYear = (item.date || "").slice(0, 4);
-
-        return (
-          (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0)) &&
-          (!yearValue || itemYear === yearValue) &&
-          (!categoryValue || item.category === categoryValue)
-        );
+      const matched = data
+        .map(function (item) {
+          const haystack = [item.title, item.summary, item.excerpt, item.bodyText]
+            .concat(item.tags || [])
+            .join(" ")
+            .toLowerCase();
+          return { item: item, haystack: haystack };
+        })
+        .filter(function (x) {
+          const itemYear = (x.item.date || "").slice(0, 4);
+          return (
+            (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(x.haystack, q) : x.haystack.indexOf(q) >= 0)) &&
+            (!yearValue || itemYear === yearValue) &&
+            (!categoryValue || x.item.category === categoryValue)
+          );
+        });
+      if (q && window.__cheetahSearchScore) {
+        matched.forEach(function (x) {
+          x.score = window.__cheetahSearchScore(x.haystack, x.item.title, q);
+        });
+        matched.sort(function (a, b) {
+          return b.score - a.score;
+        });
+      }
+      return matched.map(function (x) {
+        return x.item;
       });
     }
 
