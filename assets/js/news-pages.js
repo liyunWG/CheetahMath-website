@@ -66,7 +66,7 @@
       const q = (searchInput.value || '').trim().toLowerCase();
       return data.filter(function (item) {
         const haystack = [item.title, item.summary, item.excerpt, item.bodyText].concat(item.tags || []).concat(item.keywords || []).join(' ').toLowerCase();
-        return !q || haystack.indexOf(q) >= 0;
+        return !q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0);
       });
     }
     function draw() {

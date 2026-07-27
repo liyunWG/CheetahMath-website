@@ -107,7 +107,7 @@
           .concat(item.keywords || [])
           .join(" ")
           .toLowerCase();
-        return (!q || haystack.indexOf(q) >= 0) && (!category || item.category === category);
+        return (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0)) && (!category || item.category === category);
       });
 
       countNode.textContent = String(filtered.length);

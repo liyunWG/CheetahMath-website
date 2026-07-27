@@ -262,7 +262,7 @@
         const itemYear = (item.date || "").slice(0, 4);
 
         return (
-          (!q || haystack.indexOf(q) >= 0) &&
+          (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0)) &&
           (!yearValue || itemYear === yearValue) &&
           (!categoryValue || item.category === categoryValue)
         );

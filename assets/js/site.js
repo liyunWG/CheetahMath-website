@@ -978,6 +978,28 @@
     else searchLogTimer = setTimeout(fire, 1500);
   };
 
+  // === 站內搜尋文字比對（各分頁搜尋框共用）===
+  // 比 indexOf 更寬鬆：整串命中優先；否則以空白分詞，每個詞都要命中——含中日韓文的詞可用相鄰
+  // 2-gram 放寬（例：查「考私中」可命中含「私中」的文章），純英數詞則須完整命中（避免亂放寬）。
+  const searchCjkRe = /[㐀-鿿豈-﫿぀-ヿ가-힯]/;
+  window.__cheetahTextMatch = (haystack, query) => {
+    const h = String(haystack || "").toLowerCase();
+    const q = String(query || "").trim().toLowerCase();
+    if (!q) return true;
+    if (h.indexOf(q) >= 0) return true;
+    return q
+      .split(/\s+/)
+      .filter(Boolean)
+      .every((w) => {
+        if (h.indexOf(w) >= 0) return true;
+        if (w.length < 2 || !searchCjkRe.test(w)) return false;
+        for (let i = 0; i < w.length - 1; i++) {
+          if (h.indexOf(w.slice(i, i + 2)) >= 0) return true;
+        }
+        return false;
+      });
+  };
+
   const dataEl = document.getElementById("search-data");
   if (dataEl) {
     const searchConfig = PAGE_DATA.search || {};

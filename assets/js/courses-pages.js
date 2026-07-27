@@ -173,7 +173,7 @@
           .join(" ")
           .toLowerCase();
 
-        return (!q || haystack.indexOf(q) >= 0) && (!categoryValue || item.category === categoryValue);
+        return (!q || (window.__cheetahTextMatch ? window.__cheetahTextMatch(haystack, q) : haystack.indexOf(q) >= 0)) && (!categoryValue || item.category === categoryValue);
       });
     }
 
