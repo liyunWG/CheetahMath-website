@@ -1,3 +1,7 @@
+node_modules/
+package-lock.json
+scratch-test.js
+
 migration-data/
 backup-before-redesign/
 .edge-headless/

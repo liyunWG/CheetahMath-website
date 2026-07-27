@@ -1,0 +1,13 @@
+{
+  "name": "cheetah-math-website-tools",
+  "version": "1.0.0",
+  "description": "獵豹科教官網的建置/維護腳本（prerender、sitemap 等），不影響前端網站本身",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "seo": "node scripts/prerender-seo.js && node scripts/build-sitemap.js"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

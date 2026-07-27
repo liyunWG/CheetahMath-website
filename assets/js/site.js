@@ -281,7 +281,11 @@
     }</div></section>${body.sections.join("")}`;
 
   function applyChrome(title, subtitle) {
-    document.title = title;
+    // 預先渲染（prerender）的靜態頁會在 <body data-page-title> 標記正確標題，
+    // 避免此處用路由通用標題覆蓋掉單篇文章／菁英／課程的標題（SEO 用）。
+    const prerenderedTitle =
+      document.body && document.body.getAttribute("data-page-title");
+    document.title = prerenderedTitle || title;
     document.querySelectorAll(".brand__title").forEach((el) => {
       el.innerHTML = `<img src="pic/logo.png" alt="${SITE.brand || "獵豹科教"} logo">`;
     });

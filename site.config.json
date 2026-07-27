@@ -1,0 +1,4 @@
+{
+  "//": "網站正式網址。換網域時只改這一行，然後重跑 npm run seo（或 更新資料.bat）即可全站更新 canonical / og:url / sitemap。結尾不要加斜線。",
+  "origin": "https://cheetah-math-website.vercel.app"
+}
