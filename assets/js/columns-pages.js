@@ -273,6 +273,11 @@
       });
     });
 
+    // 記錄本頁搜尋關鍵字到 Google Sheet（停止輸入約 1.5 秒後記一次）
+    searchInput.addEventListener("input", function () {
+      if (window.__cheetahLogSearch) window.__cheetahLogSearch(searchInput.value, getFilteredItems().length, "文章專欄");
+    });
+
     updateMeta("文章專欄｜獵豹科教", "文章專欄整理 AMC 系列、關於獵豹、獵豹視角、獵豹談教育、獵豹談科普與獵豹私塾等內容。");
     draw();
   }

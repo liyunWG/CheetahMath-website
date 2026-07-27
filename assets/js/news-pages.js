@@ -78,6 +78,8 @@
       qsa('[data-page]', pagerNode).forEach(function (button) { button.addEventListener('click', function () { currentPage = Number(button.getAttribute('data-page')); draw(); window.scrollTo({ top: 0, behavior: 'smooth' }); }); });
     }
     searchInput.addEventListener('input', function () { currentPage = 1; draw(); });
+    // 記錄本頁搜尋關鍵字到 Google Sheet（停止輸入約 1.5 秒後記一次）
+    searchInput.addEventListener('input', function () { if (window.__cheetahLogSearch) window.__cheetahLogSearch(searchInput.value, getFilteredItems().length, '最新消息'); });
     updateMeta('最新消息｜獵豹科教', '獵豹最新消息頁面，整理科學班、數資班、直播講座與重要活動公告。');
     draw();
   }

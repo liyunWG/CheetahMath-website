@@ -211,6 +211,11 @@
       });
     });
 
+    // 記錄本頁搜尋關鍵字到 Google Sheet（停止輸入約 1.5 秒後記一次）
+    searchInput.addEventListener("input", function () {
+      if (window.__cheetahLogSearch) window.__cheetahLogSearch(searchInput.value, getFilteredItems().length, "課程總覽");
+    });
+
     draw();
   }
 

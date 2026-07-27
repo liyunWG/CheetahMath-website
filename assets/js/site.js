@@ -934,6 +934,50 @@
     setInterval(() => show((current + 1) % slides.length), 4500);
   }
 
+  // === 站內搜尋關鍵字記錄（送到 Google Apps Script → Google Sheet；非 GA4）===
+  // 各頁搜尋框都可呼叫：window.__cheetahLogSearch(關鍵字, 結果筆數, 頁面標籤[, 立即記錄])
+  // 設計：停止輸入約 1.5 秒才記一次（immediate=true 則立即）；過濾空字串與「同關鍵字＋同頁面」連續重複。
+  const SEARCH_LOG_ENDPOINT =
+    "https://script.google.com/macros/s/AKfycbxN5YYKXIXFSIvK-PFxduBXywQkKbzJOSs2gbvrlwbd8Wnri2m1CfPCZug3znl0HE-L/exec";
+  const searchDeviceLabel = () => {
+    const ua = navigator.userAgent || "";
+    if (/iPad|Tablet|PlayBook|Silk|Android(?!.*Mobile)/i.test(ua)) return "平板";
+    if (/Mobi|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)) return "手機";
+    return "電腦";
+  };
+  const postSearchLog = (q, count, page) => {
+    const url =
+      SEARCH_LOG_ENDPOINT +
+      "?" +
+      new URLSearchParams({
+        q,
+        count: count == null ? "" : String(count),
+        device: searchDeviceLabel(),
+        page: page || ""
+      }).toString();
+    try {
+      if (navigator.sendBeacon) navigator.sendBeacon(url);
+      else fetch(url, { method: "GET", mode: "no-cors", keepalive: true });
+    } catch (err) {
+      /* 記錄失敗不影響搜尋功能 */
+    }
+  };
+  let searchLogTimer = null;
+  let lastLoggedSearchKey = "";
+  window.__cheetahLogSearch = (query, count, page, immediate) => {
+    const q = String(query || "").trim();
+    clearTimeout(searchLogTimer);
+    const fire = () => {
+      if (!q) return; // 過濾空字串
+      const key = q + "" + (page || "");
+      if (key === lastLoggedSearchKey) return; // 過濾「同關鍵字＋同頁面」連續重複
+      lastLoggedSearchKey = key;
+      postSearchLog(q, count, page);
+    };
+    if (immediate) fire();
+    else searchLogTimer = setTimeout(fire, 1500);
+  };
+
   const dataEl = document.getElementById("search-data");
   if (dataEl) {
     const searchConfig = PAGE_DATA.search || {};
@@ -1133,44 +1177,12 @@
     [input, type, grade, sort].forEach((el) => el.addEventListener("input", render));
     render();
 
-    // --- 站內搜尋關鍵字記錄（送到 Google Apps Script / Google Sheet）---
-    // 停止輸入約 1.5 秒才記一次；過濾空字串與連續重複；記錄時間、關鍵字、結果筆數、裝置。
-    const SEARCH_LOG_ENDPOINT =
-      "https://script.google.com/macros/s/AKfycbxN5YYKXIXFSIvK-PFxduBXywQkKbzJOSs2gbvrlwbd8Wnri2m1CfPCZug3znl0HE-L/exec";
-    const searchDeviceLabel = () => {
-      const ua = navigator.userAgent || "";
-      if (/iPad|Tablet|PlayBook|Silk|Android(?!.*Mobile)/i.test(ua)) return "平板";
-      if (/Mobi|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)) return "手機";
-      return "電腦";
-    };
-    const sendSearchLog = (q, count) => {
-      if (!SEARCH_LOG_ENDPOINT || !q) return;
-      const url =
-        SEARCH_LOG_ENDPOINT +
-        "?" +
-        new URLSearchParams({ q, count: String(count), device: searchDeviceLabel() }).toString();
-      try {
-        if (navigator.sendBeacon) navigator.sendBeacon(url);
-        else fetch(url, { method: "GET", mode: "no-cors", keepalive: true });
-      } catch (err) {
-        /* 記錄失敗不影響搜尋功能 */
-      }
-    };
-    let searchLogTimer = null;
-    let lastLoggedQuery = "";
-    input.addEventListener("input", () => {
-      clearTimeout(searchLogTimer);
-      searchLogTimer = setTimeout(() => {
-        const q = input.value.trim();
-        if (!q || q === lastLoggedQuery) return; // 過濾空字串與連續重複
-        lastLoggedQuery = q;
-        sendSearchLog(q, lastResultCount);
-      }, 1500);
-    });
-    // 由首頁快速搜尋帶 ?q= 進來的完整關鍵字也記一次（並避免與後續輸入重複記錄）
+    // --- 站內搜尋關鍵字記錄：呼叫全域 window.__cheetahLogSearch（定義見檔案上方）---
+    // 停止輸入約 1.5 秒才記一次；過濾空字串與連續重複；記錄 時間/關鍵字/結果筆數/裝置/頁面。
+    input.addEventListener("input", () => window.__cheetahLogSearch(input.value, lastResultCount, "全站搜尋"));
+    // 由首頁快速搜尋帶 ?q= 進來的完整關鍵字也立即記一次
     if (initialQuery && initialQuery.trim()) {
-      lastLoggedQuery = initialQuery.trim();
-      sendSearchLog(lastLoggedQuery, lastResultCount);
+      window.__cheetahLogSearch(initialQuery, lastResultCount, "全站搜尋", true);
     }
 
     const hydrateOnePageSearchIndex = async () => {
