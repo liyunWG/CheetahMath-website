@@ -40,9 +40,9 @@ window.__SITE_PAGE_DATA__ = {
       title: "獵豹菁英",
       intro: "可用 slugs 指定首頁要放哪些獵豹菁英文章；若留空就顯示最新三篇。",
       slugs: [
-        "cheetah-elite-133",
-        "cheetah-elite-132",
-        "cheetah-elite-117"
+        "cheetah-elite-2116686209284053",
+        "cheetah-elite-2047181969567811",
+        "cheetah-elite-1928829028069773"
       ]
     },
     moms: {
