@@ -115,9 +115,11 @@ p,li{color:var(--muted);line-height:1.84}
 .article-summary{font-size:18px;color:var(--text)}
 .side-link{display:block;padding:12px 0;color:var(--navy);font-weight:800;border-bottom:1px solid rgba(18,37,72,.1)}
 .search-layout{grid-template-columns:minmax(0,1fr);align-items:start}
-.search-panel{display:grid;gap:14px;position:sticky;top:92px}
+.search-panel{display:grid;gap:14px}
 .search-label,.filter-group span{font-size:13px;font-weight:900;color:var(--navy);letter-spacing:.04em}
 .search-input,.search-panel select{width:100%;min-height:48px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);font:inherit;background:#fff}
+/* 全站搜尋（含首頁快速搜尋）的搜尋框加高為兩倍；不影響各分頁搜尋框與篩選下拉 */
+#home-search-input,#site-search-input{min-height:96px}
 .search-results{display:grid;gap:16px}
 .search-card__head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
 .search-result__type{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:900;background:linear-gradient(135deg,#f4e5bc,#ffffff);color:var(--gold)}
@@ -215,6 +217,8 @@ p,li{color:var(--muted);line-height:1.84}
   .page-hero__grid{grid-template-columns:1.05fr .95fr}
   .grid--3,.goal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .search-layout{grid-template-columns:300px minmax(0,1fr)}
+  /* 只有桌機雙欄版面才讓搜尋面板 sticky；手機單欄時 sticky 會浮出蓋到結果，故不套用 */
+  .search-panel{position:sticky;top:92px}
 }
 @media (max-width:979px){
   .topbar__inner{flex-wrap:wrap;align-items:center}

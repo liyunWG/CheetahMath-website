@@ -1034,10 +1034,28 @@
         }
         return false;
       });
+  // === 站內搜尋：已停止合作／需完全隱藏的黑名單關鍵字 ===
+  // 使用者查詢只要「單獨存在或包含」以下任一詞，全部搜尋（分頁＋全站）結果一律歸零，
+  // 避免讓人誤以為仍有合作。英文不分大小寫。
+  const searchBlockTerms = [
+    "寰宇", "硯吉", "青易", "劉璿", "鎮麟", "耿立",
+    "炳富", "陳炳富", "李小吉", "李硯吉", "宗嶽", "scratch"
+  ].map((w) => w.toLowerCase());
+  // 「GM」特例：單獨的英文詞 gm（GM、GM班教競賽…）要封鎖；但含 gm 的較長英文詞（EGMO、GMAT…）放行，
+  // 讓 EGMO 相關文章仍可搜尋。作法：取查詢中每一段連續英文字母，只有整段正好等於 gm 才算命中。
+  const searchBlocked = (query) => {
+    const q = String(query || "").toLowerCase();
+    if (!q) return false;
+    if (searchBlockTerms.some((term) => q.indexOf(term) >= 0)) return true;
+    return (q.match(/[a-z]+/g) || []).some((run) => run === "gm");
+  };
+  window.__cheetahSearchBlocked = searchBlocked;
+
   window.__cheetahTextMatch = (haystack, query) => {
     const h = String(haystack || "").toLowerCase();
     const q = String(query || "").trim().toLowerCase();
     if (!q) return true;
+    if (searchBlocked(q)) return false; // 黑名單：直接不命中
     if (baseTextMatch(h, q)) return true;
     // 同義詞：查詢提到某組成員，文章含同組其他成員也算命中
     return searchSynonymAlts(q).some((alt) => h.indexOf(alt) >= 0);
@@ -1045,7 +1063,7 @@
 
   // === 站內搜尋相關性評分（分頁搜尋用來「完整命中排前、部分命中排後」）===
   // 對每個查詢詞，取其在內容/標題中「最長連續命中片段」的長度，換算命中比例；完整命中滿分，
-  // 部分命中以比例平方降權（讓 100% 精確明顯排前）；標題命中再額外加權。回傳分數供排序，不影響是否命中。
+  // 部分命中以比例立方降權（讓 100% 精確明顯排前，弱片段命中大幅降分）；標題命中再額外加權。回傳分數供排序。
   const searchLongestHit = (text, w) => {
     if (!text || !w) return 0;
     let best = 0;
@@ -1064,6 +1082,7 @@
     const t = String(title || "").toLowerCase();
     const q = String(query || "").trim().toLowerCase();
     if (!q) return 0;
+    if (searchBlocked(q)) return 0; // 黑名單：零分（配合門檻＝不呈現）
     let total = 0;
     q.split(/\s+/)
       .filter(Boolean)
@@ -1071,9 +1090,9 @@
         const inAll = searchLongestHit(h, w);
         if (inAll <= 0) return;
         const frac = inAll / w.length; // 內容命中比例
-        total += frac >= 1 ? 100 : 100 * frac * frac; // 完整命中滿分；部分命中平方降權
+        total += frac >= 1 ? 100 : 100 * frac * frac * frac; // 完整命中滿分；部分命中立方降權（更精確）
         const tFrac = searchLongestHit(t, w) / w.length; // 標題命中比例
-        total += tFrac >= 1 ? 120 : 60 * tFrac * tFrac; // 標題命中額外加權
+        total += tFrac >= 1 ? 120 : 60 * tFrac * tFrac * tFrac; // 標題命中額外加權
       });
     searchSynonymAlts(q).forEach((alt) => {
       if (h.indexOf(alt) >= 0) total += 100; // 同義詞內文命中：視為完整命中
@@ -1082,11 +1101,12 @@
     return total;
   };
 
-  // 最低分數門檻：砍掉「幾乎不相關」的弱尾巴（每個查詢詞約需 12 分）。完整命中≥100、同義詞命中≥100，
-  // 遠高於門檻；只會濾掉「長查詢只命中其中一小段」這類（例：查 7 字句子只中到其中 2 字）。
+  // 最低分數門檻：砍掉「幾乎不相關」的弱尾巴，讓結果更精確、筆數更少（每個查詢詞約需 22 分）。
+  // 完整命中≥100、同義詞命中≥100，遠高於門檻；部分命中須佔查詢詞約 6 成以上才留下
+  // （例：查「考私中」仍可命中「私中」；但查「數學競賽」不會只因含「數學」就被帶出）。
   window.__cheetahSearchFloor = (query) => {
     const n = String(query || "").trim().split(/\s+/).filter(Boolean).length;
-    return n * 12;
+    return n * 22;
   };
 
   const dataEl = document.getElementById("search-data");
@@ -1273,7 +1293,9 @@
 
     const render = () => {
       const q = input.value.trim();
-      let list = items
+      // 黑名單關鍵字：整份結果直接歸零（全站搜尋主路徑靠子字串比對，不經 __cheetahSearchScore，需在此攔截）
+      const blocked = q && window.__cheetahSearchBlocked && window.__cheetahSearchBlocked(q);
+      let list = blocked ? [] : items
         .filter((item) => !type.value || item.type === type.value)
         .filter((item) => !grade.value || item.grade.includes(grade.value))
         .map((item) => ({ ...item, rank: rankItem(item, q) }))
