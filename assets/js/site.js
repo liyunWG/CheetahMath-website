@@ -62,6 +62,10 @@
   const ELITE = Array.isArray(window.__ELITE_DATA__) ? window.__ELITE_DATA__ : [];
   const COURSES = Array.isArray(window.__COURSES_DATA__) ? window.__COURSES_DATA__ : [];
   const MOMS = Array.isArray(window.__MOMS_DATA__) ? window.__MOMS_DATA__ : [];
+  const YT = window.__YOUTUBE_DATA__ || {};
+  const YT_BY_ID = new Map(
+    [...(Array.isArray(YT.videos) ? YT.videos : []), ...(Array.isArray(YT.shorts) ? YT.shorts : [])].map((v) => [v.id, v])
+  );
   const NEWS = Array.isArray(window.__NEWS_DATA__) ? window.__NEWS_DATA__ : [];
   const STUDENTS = window.__STUDENTS_DATA__ || {};
   const CASES = Array.isArray(STUDENTS.cases) ? STUDENTS.cases : [];
@@ -226,6 +230,14 @@
 
   const renderHomeMomCard = (item) => card(item, momUrl(item.slug), "pink", true);
 
+  // 首頁「獵豹錦囊」影片卡：與其他首頁卡片相同規格（.card elite-card），縮圖＋上傳日期，點擊新分頁開 YouTube。
+  const renderHomeVideoCard = (video) => {
+    const url = video.url || "https://www.youtube.com/watch?v=" + video.id;
+    const thumb = video.thumb || "https://i.ytimg.com/vi/" + video.id + "/hqdefault.jpg";
+    const dateChip = video.date ? `<span class="chip">${video.date}</span>` : "";
+    return `<article class="card elite-card"><a class="elite-card__cover" href="${url}" target="_blank" rel="noreferrer"><img src="${thumb}" alt="${video.title}" loading="lazy"></a><div class="card__meta-row">${dateChip}<span class="chip chip--muted">影片</span></div><h3>${video.title}</h3><a class="card-link" href="${url}" target="_blank" rel="noreferrer">▶ 看影片</a></article>`;
+  };
+
   const HOME_SECTION_INDEX = {
     featured: 1,
     news: 3,
@@ -255,11 +267,17 @@
     const featured = pickBySlugs(sortByDateDesc(getColumnItems().filter(keepItem)), home.featuredArticles?.slugs, 3);
     const homeNews = pickBySlugs(sortByDateDesc(NEWS), home.news?.slugs, 3);
     const homeElite = pickBySlugs(sortByDateDesc(ELITE), home.students?.slugs, 3);
-    const homeMoms = pickBySlugs(sortByDateDesc(MOMS), home.moms?.slugs, 3);
     syncHomeSectionCards("featured", featured.map((item) => renderHomeColumnCard(item)).join(""));
     syncHomeSectionCards("news", homeNews.map((item) => renderHomeNewsCard(item)).join(""));
     syncHomeSectionCards("students", homeElite.map((item) => renderHomeEliteCard(item)).join(""));
-    syncHomeSectionCards("moms", homeMoms.map((item) => renderHomeMomCard(item)).join(""));
+    // 獵豹錦囊：優先用指定的 YouTube 影片（videoIds）；沒設定才退回星媽文章。
+    const homeMomVideos = (home.moms?.videoIds || []).map((id) => YT_BY_ID.get(id)).filter(Boolean);
+    if (homeMomVideos.length) {
+      syncHomeSectionCards("moms", homeMomVideos.map((video) => renderHomeVideoCard(video)).join(""));
+    } else {
+      const homeMoms = pickBySlugs(sortByDateDesc(MOMS), home.moms?.slugs, 3);
+      syncHomeSectionCards("moms", homeMoms.map((item) => renderHomeMomCard(item)).join(""));
+    }
   };
 
   const buttonLink = (button) => {
@@ -461,7 +479,7 @@
       { type: "\u806f\u7d61\u6211\u5011", title: contact.title || "\u806f\u7d61\u6211\u5011", summary: contact.intro || "", tags: ["\u806f\u7d61\u6211\u5011", "\u5ba2\u670d"], keywords: [contact.lineLabel, contact.fbLabel].filter(Boolean), body: [contact.sectionIntro, sectionText([{ cards: contact.cards || [] }])].filter(Boolean).join(" "), url: "contact.html", popularity: 65, freshness: 62, grade: "\u5168\u7ad9", topic: "\u806f\u7d61\u6211\u5011", date: "" },
       { type: "\u8ab2\u7a0b\u7e3d\u89bd", title: coursesLanding.title || "\u8ab2\u7a0b\u7e3d\u89bd", summary: coursesLanding.intro || "", tags: ["\u8ab2\u7a0b\u7e3d\u89bd", "\u8ab2\u7a0b"], keywords: [coursesLanding.sectionTitle].filter(Boolean), body: [coursesLanding.sectionIntro].filter(Boolean).join(" "), url: "courses.html", popularity: 82, freshness: 76, grade: "\u5168\u7ad9", topic: "\u8ab2\u7a0b\u7e3d\u89bd", date: "" },
       { type: "\u6700\u65b0\u6d88\u606f", title: newsLanding.title || "\u6700\u65b0\u6d88\u606f", summary: newsLanding.intro || "", tags: ["\u6700\u65b0\u6d88\u606f", "\u516c\u544a"], keywords: [newsLanding.sectionTitle].filter(Boolean), body: [newsLanding.sectionIntro].filter(Boolean).join(" "), url: "news.html", popularity: 67, freshness: 70, grade: "\u5168\u7ad9", topic: "\u6700\u65b0\u6d88\u606f", date: "" },
-      { type: "\u661f\u5abd\u6b63\u80fd\u91cf", title: momsLanding.title || "\u661f\u5abd\u6b63\u80fd\u91cf", summary: momsLanding.intro || "", tags: ["\u661f\u5abd\u6b63\u80fd\u91cf", "\u5bb6\u9577"], keywords: [momsLanding.sectionTitle].filter(Boolean), body: [momsLanding.sectionIntro].filter(Boolean).join(" "), url: "star-mom.html", popularity: 66, freshness: 64, grade: "\u5bb6\u9577", topic: "\u661f\u5abd\u6b63\u80fd\u91cf", date: "" }
+      { type: "\u7375\u8c79\u9326\u56ca", title: momsLanding.title || "\u7375\u8c79\u9326\u56ca", summary: momsLanding.intro || "", tags: ["\u7375\u8c79\u9326\u56ca", "\u5bb6\u9577"], keywords: [momsLanding.sectionTitle].filter(Boolean), body: [momsLanding.sectionIntro].filter(Boolean).join(" "), url: "star-mom.html", popularity: 66, freshness: 64, grade: "\u5bb6\u9577", topic: "\u7375\u8c79\u9326\u56ca", date: "" }
     ];
   };
 
@@ -501,7 +519,7 @@
     ...aboutSearchItems(),
     ...columnsSearchItems(),
     ...MOMS.map((item) => ({
-      type: "\u661f\u5abd\u6b63\u80fd\u91cf",
+      type: "\u7375\u8c79\u9326\u56ca",
       title: item.title,
       summary: item.summary,
       tags: item.tags,
@@ -820,7 +838,7 @@
     "elite-story.html": () => ["獵豹菁英｜獵豹科教", "獵豹菁英", ""],
     "mom-power.html": () => {
       const item = MOMS.find((entry) => entry.slug === PARAMS().get("slug")) || MOMS[0];
-      return [`${item.title}｜星媽正能量`, "星媽正能量", momPage(item)];
+      return [`${item.title}｜獵豹錦囊`, "獵豹錦囊", momPage(item)];
     }
   };
 
@@ -1171,7 +1189,7 @@
     const squeeze = (value) => normalize(value).replace(/[\s\-_/|,.;:!?"'[\](){}]+/g, "");
     const tokenize = (value) => normalize(value).split(/\s+/).filter(Boolean);
     const goalType = normalize("家長導航");
-    const momType = normalize("星媽正能量");
+    const momType = normalize("獵豹錦囊");
     const columnType = normalize("文章專欄");
     const eliteType = normalize("獵豹菁英");
 

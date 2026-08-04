@@ -5,9 +5,11 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "seo": "node scripts/prerender-seo.js && node scripts/build-sitemap.js"
+    "seo": "node scripts/prerender-seo.js && node scripts/build-sitemap.js",
+    "youtube": "node scripts/build-youtube-data.js"
   },
   "devDependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^29.1.1",
+    "xlsx": "^0.18.5"
   }
 }

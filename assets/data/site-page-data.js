@@ -46,8 +46,9 @@ window.__SITE_PAGE_DATA__ = {
       ]
     },
     moms: {
-      title: "星媽正能量",
-      intro: "可用 slugs 指定首頁要放哪些星媽正能量文章；若留空就顯示最新三篇。",
+      title: "獵豹錦囊",
+      intro: "可用 videoIds 指定首頁要放哪三支 YouTube 影片（對應 youtube-data.js 的 id）；videoIds 留空才會退回顯示星媽文章。",
+      videoIds: ["9niC0kul-4I", "QzJ2NkRauhQ", "3aV2nwv2wuA"],
       slugs: []
     },
     learningSystem: {
@@ -63,13 +64,13 @@ window.__SITE_PAGE_DATA__ = {
   search: {
     eyebrow: "全站搜尋",
     title: "站內可搜尋、每篇文章可加標籤，搜尋時標籤優先、內文其次。",
-    intro: "搜尋結果同時涵蓋文章專欄、課程、家長導航、最新消息、星媽正能量與獵豹菁英。",
+    intro: "搜尋結果同時涵蓋文章專欄、課程、家長導航、最新消息、獵豹錦囊與獵豹菁英。",
     label: "搜尋關鍵字",
     placeholder: "例如：私中、AMC、科學班、EGMO、榜單",
     typeLabel: "內容類型",
     gradeLabel: "年級 / 區塊",
     sortLabel: "排序",
-    typeOptions: ["文章專欄", "課程", "家長導航", "星媽正能量", "最新消息", "獵豹菁英"],
+    typeOptions: ["文章專欄", "課程", "家長導航", "獵豹錦囊", "最新消息", "獵豹菁英"],
     gradeOptions: ["國小", "國中", "高中", "跨學段", "家長", "文章專欄", "獵豹菁英"],
     sortOptions: [
       ["best", "最佳結果"],
@@ -127,9 +128,9 @@ window.__SITE_PAGE_DATA__ = {
     cardLinkLabel: "進入課程頁"
   },
   momsLanding: {
-    seoTitle: "星媽正能量｜獵豹科教",
-    subtitle: "星媽正能量",
-    eyebrow: "星媽正能量",
+    seoTitle: "獵豹錦囊｜獵豹科教",
+    subtitle: "獵豹錦囊",
+    eyebrow: "獵豹錦囊",
     title: "不是給方法而已，也給家長一點喘息、一點被理解的空間。",
     intro: "這區以圖文短篇為主，未來可擴充成更多篇文章、漫畫圖文與分類標籤。",
     heroTags: ["放下過度焦慮", "讓心安定", "陪伴提醒"],
@@ -246,8 +247,8 @@ window.__SITE_PAGE_DATA__ = {
     courseCardLinkLabel: "前往課程頁"
   },
   momDetail: {
-    eyebrow: "星媽正能量",
-    backListLabel: "回星媽分類頁",
+    eyebrow: "獵豹錦囊",
+    backListLabel: "回獵豹錦囊",
     backHomeLabel: "回首頁",
     categoryTitle: "這篇的分類",
     keywordsLabel: "關鍵字："
