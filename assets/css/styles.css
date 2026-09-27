@@ -293,6 +293,9 @@ p,li{color:var(--muted);line-height:1.84}
 .about-faq__q{flex:0 0 28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--gold);color:#fff;font-size:14px;font-weight:900;margin-top:1px}
 .about-faq__answer{padding:0 22px 18px 62px}
 .about-faq__answer p{margin:0;color:var(--text);font-size:16px;line-height:1.9}
+.about-faq__answer p.about-faq__link{margin-top:10px}
+.about-faq__link a{font-weight:800;color:#8b6a2b;text-decoration:underline;text-underline-offset:3px}
+.about-story p.about-story__cta{margin:6px 0 4px}
 @media (max-width:640px){.about-faq{padding:22px 16px}.about-faq__head h2{font-size:22px}.about-faq__item summary{padding:16px;font-size:16px}.about-faq__answer{padding:0 16px 16px}}
 .about-avatar{border-radius:50%;object-fit:cover;object-position:center top;border:3px solid #fff;box-shadow:0 8px 18px rgba(18,37,72,.14);background:linear-gradient(180deg,#f3efe6,#ffffff);flex:0 0 auto}
 .about-avatar--lg{width:150px;height:150px}

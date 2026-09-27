@@ -114,7 +114,10 @@
             return (
               '<details class="about-faq__item" id="faq-' + index + '">' +
               '<summary><span class="about-faq__q" aria-hidden="true">Q</span>' + escapeHtml(entry.q) + '</summary>' +
-              '<div class="about-faq__answer"><p>' + escapeHtml(entry.a) + '</p></div>' +
+              '<div class="about-faq__answer"><p>' + escapeHtml(entry.a) + '</p>' +
+              (entry.link && entry.link.href ?
+                '<p class="about-faq__link"><a href="' + escapeHtml(entry.link.href) + '">' + escapeHtml(entry.link.label || '了解更多') + ' →</a></p>' : '') +
+              '</div>' +
               '</details>'
             );
           }).join('') +
@@ -138,7 +141,9 @@
       (story.sections || []).map(function (section) {
         return (
           '<h3>' + escapeHtml(section.heading) + '</h3>' +
-          (section.paragraphs || []).map(paragraphHtml).join('')
+          (section.paragraphs || []).map(paragraphHtml).join('') +
+          (section.link && section.link.href ?
+            '<p class="about-story__cta"><a class="button button--primary" href="' + escapeHtml(section.link.href) + '">' + escapeHtml(section.link.label || '了解更多') + '</a></p>' : '')
         );
       }).join('') +
       (story.quote ? '<blockquote class="about-story__quote">' + escapeHtml(story.quote) + '</blockquote>' : '') +
