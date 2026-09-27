@@ -71,7 +71,11 @@ if (faqItems.length) {
       return {
         '@type': 'Question',
         name: entry.q,
-        acceptedAnswer: { '@type': 'Answer', text: entry.a }
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: entry.a,
+          ...(entry.link && entry.link.href ? { url: origin + '/' + entry.link.href.replace(/^\/+/, '') } : {})
+        }
       };
     })
   };
