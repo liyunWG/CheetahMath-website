@@ -90,16 +90,40 @@
     );
   }
 
+  function renderStory(story) {
+    if (!story.title) return '';
+    return (
+      '<section class="card about-story">' +
+      '<div class="about-story__head">' +
+      (story.eyebrow ? '<span class="eyebrow">' + escapeHtml(story.eyebrow) + '</span>' : '') +
+      '<h2>' + escapeHtml(story.title) + '</h2>' +
+      (story.subtitle ? '<p class="about-story__subtitle">' + escapeHtml(story.subtitle) + '</p>' : '') +
+      '</div>' +
+      (story.paragraphs || []).map(paragraphHtml).join('') +
+      (story.sections || []).map(function (section) {
+        return (
+          '<h3>' + escapeHtml(section.heading) + '</h3>' +
+          (section.paragraphs || []).map(paragraphHtml).join('')
+        );
+      }).join('') +
+      (story.quote ? '<blockquote class="about-story__quote">' + escapeHtml(story.quote) + '</blockquote>' : '') +
+      (story.closing ? paragraphHtml(story.closing) : '') +
+      '</section>'
+    );
+  }
+
   function renderIntro(item) {
     const intro = item.intro || {};
     const lead = intro.lead || {};
     const vision = intro.vision || {};
     const pillars = intro.pillars || [];
+    const story = intro.story || {};
     return (
       '<article class="about-story-main">' +
       renderHead(item, '一頁看懂獵豹是誰、在教什麼、往哪裡走。') +
       '<section class="card about-lead">' +
       '<div class="about-lead__copy"><h2>' + escapeHtml(lead.title || item.title) + '</h2>' +
+      (intro.positioning ? '<p class="about-lead__positioning">' + escapeHtml(intro.positioning) + '</p>' : '') +
       (lead.paragraphs || []).map(paragraphHtml).join('') +
       '</div>' +
       (intro.heroImage ? '<div class="about-lead__art"><img src="' + escapeHtml(intro.heroImage) + '" alt="獵豹科教" loading="lazy"></div>' : '') +
@@ -119,6 +143,7 @@
         '<section class="about-vision"><h2>' + escapeHtml(vision.title || 'STEM 教育與願景') + '</h2>' +
         vision.paragraphs.map(paragraphHtml).join('') +
         '</section>' : '') +
+      renderStory(story) +
       '</article>'
     );
   }
