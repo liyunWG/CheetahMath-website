@@ -2,7 +2,7 @@
 //
 // 編輯方式：
 //   1. 到 content/about/ 修改對應檔案（一頁一檔）：
-//        about-intro.json     獵豹簡介（intro：lead 品牌介紹 / pillars 課程卡片 / vision 願景）
+//        about-intro.json     獵豹簡介（intro：positioning 定位 / lead 品牌介紹 / pillars 課程卡片 / vision 願景 / story 深度介紹長文）
 //        about-founders.json  創辦與經營團隊（profiles 陣列，一人一個區塊）
 //        about-advisors.json  師資顧問團隊（profiles 陣列，一人一個區塊）
 //        feature-*.json       獵豹特色各頁（draftBody 純文字，僅供全站搜尋索引）
@@ -38,11 +38,17 @@ function searchText(item) {
   const parts = [];
   if (item.intro) {
     const intro = item.intro;
-    if (intro.lead) parts.push(intro.lead.title, ...(intro.lead.paragraphs || []));
+    if (intro.lead) parts.push(intro.lead.title, intro.positioning, ...(intro.lead.paragraphs || []));
     for (const pillar of intro.pillars || []) {
       parts.push(pillar.title, pillar.desc, ...(pillar.bullets || []));
     }
     if (intro.vision) parts.push(intro.vision.title, ...(intro.vision.paragraphs || []));
+    if (intro.story) {
+      const story = intro.story;
+      parts.push(story.title, story.subtitle, ...(story.paragraphs || []));
+      for (const section of story.sections || []) parts.push(section.heading, ...(section.paragraphs || []));
+      parts.push(story.quote, story.closing);
+    }
   }
   for (const profile of item.profiles || []) {
     parts.push(profile.role, profile.name, ...(profile.paragraphs || []), ...(profile.bullets || []));
