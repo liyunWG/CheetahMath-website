@@ -80,13 +80,48 @@
     );
   }
 
-  function renderHead(item, summaryText) {
+  function renderHead(item, summaryText, actionsHtml) {
     return (
       '<div class="article-head about-article-head">' +
       '<span class="eyebrow">' + escapeHtml(item.section) + '</span>' +
       '<h1>' + escapeHtml(item.title) + '</h1>' +
       (summaryText ? '<p class="article-summary">' + escapeHtml(summaryText) + '</p>' : '') +
+      (actionsHtml || '') +
       '</div>'
+    );
+  }
+
+  // 常見問答：用原生 <details>/<summary>，答案永遠寫在 HTML 裡（只是收合），
+  // 不執行 JS 的 AI 爬蟲也讀得到；對應的 FAQPage 結構化資料由
+  // scripts/prerender-about.js 寫進 about.html 的 <head>。
+  function renderFaq(faq) {
+    const groups = (faq && faq.groups) || [];
+    if (!groups.length) return '';
+    let index = 0;
+    return (
+      '<section class="card about-faq" id="about-faq" aria-labelledby="about-faq-title">' +
+      '<div class="about-faq__head">' +
+      '<span class="eyebrow">Q&amp;A</span>' +
+      '<h2 id="about-faq-title">' + escapeHtml(faq.title || '常見問答') + '</h2>' +
+      (faq.intro ? '<p>' + escapeHtml(faq.intro) + '</p>' : '') +
+      '</div>' +
+      groups.map(function (group) {
+        return (
+          '<div class="about-faq__group">' +
+          (group.title ? '<h3>' + escapeHtml(group.title) + '</h3>' : '') +
+          (group.items || []).map(function (entry) {
+            index += 1;
+            return (
+              '<details class="about-faq__item" id="faq-' + index + '">' +
+              '<summary><span class="about-faq__q" aria-hidden="true">Q</span>' + escapeHtml(entry.q) + '</summary>' +
+              '<div class="about-faq__answer"><p>' + escapeHtml(entry.a) + '</p></div>' +
+              '</details>'
+            );
+          }).join('') +
+          '</div>'
+        );
+      }).join('') +
+      '</section>'
     );
   }
 
@@ -120,7 +155,8 @@
     const story = intro.story || {};
     return (
       '<article class="about-story-main">' +
-      renderHead(item, '一頁看懂獵豹是誰、在教什麼、往哪裡走。') +
+      renderHead(item, '一頁看懂獵豹是誰、在教什麼、往哪裡走。',
+        intro.faq ? '<a class="button button--ghost about-faq-jump" href="#about-faq">常見問答 Q&amp;A ↓</a>' : '') +
       '<section class="card about-lead">' +
       '<div class="about-lead__copy"><h2>' + escapeHtml(lead.title || item.title) + '</h2>' +
       (intro.positioning ? '<p class="about-lead__positioning">' + escapeHtml(intro.positioning) + '</p>' : '') +
@@ -144,6 +180,7 @@
         vision.paragraphs.map(paragraphHtml).join('') +
         '</section>' : '') +
       renderStory(story) +
+      renderFaq(intro.faq) +
       '</article>'
     );
   }
@@ -349,6 +386,15 @@
     });
 
     draw(activeSlug, true);
+
+    // 內容是重繪出來的，帶 #about-faq 等錨點進站時要自己捲過去
+    if (location.hash) {
+      const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (target) {
+        if (target.tagName === 'DETAILS') target.open = true;
+        target.scrollIntoView({ block: 'start' });
+      }
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
