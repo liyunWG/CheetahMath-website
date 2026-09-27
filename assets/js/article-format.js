@@ -215,6 +215,7 @@
       bodyHtml +
       "</div>" +
       renderOriginalSource(sourceUrl) +
+      (config.ctaHtml || "") +
       renderMetadata(config.metadataItems || []) +
       "</article>" +
       "</div>" +

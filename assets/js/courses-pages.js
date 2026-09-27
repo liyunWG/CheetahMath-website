@@ -241,6 +241,19 @@
     draw();
   }
 
+  // 每門課程頁底都附「加入獵豹官方LINE」按鈕（另開新分頁）
+  var OFFICIAL_LINE_URL = "https://lin.ee/RsjA0Yd";
+
+  function renderLineCta() {
+    return (
+      '<div class="course-line-cta">' +
+      '<div class="course-line-cta__text"><strong>報名、試上或課程諮詢</strong><span>加入獵豹官方LINE，一對一為您服務（LINE ID：@492bjsgw）</span></div>' +
+      '<a class="course-line-cta__button" href="' + OFFICIAL_LINE_URL + '" target="_blank" rel="noopener noreferrer">' +
+      '<img src="pic/line_icon.png" alt="" aria-hidden="true">加入獵豹官方LINE</a>' +
+      "</div>"
+    );
+  }
+
   function renderCourseArticle(data) {
     var main = qs("main.page");
     if (!main) return;
@@ -283,6 +296,7 @@
       item: item,
       bodyHtml: bodyHtml + detailImagesHtml,
       stripImages: [item.cover],
+      ctaHtml: renderLineCta(),
       metadataItems: [
         { label: "日期", value: item.date },
         { label: "分類", value: item.category },
