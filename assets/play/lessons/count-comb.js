@@ -22,7 +22,9 @@
       if (sel < 0) { sel = i; draw(); return; } if (sel === i) { sel = -1; draw(); return; }
       var k = add(sel, i); if (!k) { P.toast('這兩隊已經比過了'); sel = -1; draw(); return; } sel = -1; draw(); if (o.onEdge) o.onEdge(cnt, k, deg);
     }
-    draw(); return { count: function () { return cnt; }, degs: function () { return deg; }, svg: svg };
+    /* 看詳解：把每兩隊都連起來 */
+    function fillAll() { for (var a = 0; a < n; a++) for (var b = a + 1; b < n; b++) if (!edges[a + '-' + b]) { sel = -1; tap(a); tap(b); } }
+    draw(); return { fillAll: fillAll, count: function () { return cnt; }, degs: function () { return deg; }, svg: svg };
   }
 
   /* 矩形：nv 條直線 × nh 條橫線，點兩條直線與兩條橫線圍出矩形 */
@@ -41,7 +43,9 @@
       if (sel.v.length === 2 && sel.h.length === 2) { var v = sel.v.slice().sort(), hh = sel.h.slice().sort(), key = v.join() + '|' + hh.join(); last = [v[0], v[1], hh[0], hh[1]]; if (!found[key]) { found[key] = 1; nf++; } if (onFound) onFound(nf, key); sel = { v: [], h: [] }; draw(); return; }
       last = null; draw();
     }
-    draw(); return { count: function () { return nf; } };
+    /* 看詳解：示範圍出前 m 個矩形 */
+    function demo(m) { var c = 0, a, b, p, q; for (a = 0; a < nv; a++) for (b = a + 1; b < nv; b++) for (p = 0; p < nh; p++) for (q = p + 1; q < nh; q++) if (c++ < m) { sel = { v: [], h: [] }; pick('v', a); pick('v', b); pick('h', p); pick('h', q); } }
+    draw(); return { demo: demo, count: function () { return nf; } };
   }
 
   var steps = [
@@ -60,6 +64,7 @@
         pill.textContent = '已安排 0 場'; cap.innerHTML = '';
       }
       var stp = P.stepper('球隊數', 3, 6, 5, function (v) { if (gate.on) { stp.set(5, true); return; } n = v; build(); }, function (v) { return v + ' 隊'; });
+      api.solve(function () { gate.on = false; gr.fillAll(); });
       st.append(stp.el, h('div', { class: 'pl-readout' }, pill), cap); build(); api.lock('先做上面的預測');
     },
     /* 2 順序與重複：C(n,k) */
@@ -78,6 +83,7 @@
         if (seen['5,2'] && seen['5,3'] && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-comb', step: 2 }); st.append(P.ruleBox('<b>C(n, k) ＝ n(n−1)…(n−k+1) ÷ k！</b>：先考慮順序，再除掉「同一組被算了 k！次」。<br>C(5,2) ＝ 5×4÷2 ＝ 10；C(5,3) ＝ 5×4×3÷6 ＝ 10。', '組合')); P.toast(api.ctx.p2 === 1 ? '你猜對了！10 種' : '10 種'); api.unlock('先排順序，再除掉重複！'); }
       }
       var sn = P.stepper('書', 3, 5, 5, function (v) { if (gate.on) { sn.set(5, true); return; } n = v; draw(); }, function (v) { return v + ' 本'; }), sk = P.stepper('挑', 2, 3, 2, function (v) { if (gate.on) { sk.set(2, true); return; } k = v; draw(); }, function (v) { return v + ' 本'; });
+      api.solve(function () { gate.on = false; n = 5; sn.set(5, true); k = 2; sk.set(2, true); draw(); k = 3; sk.set(3, true); draw(); });
       st.append(h('div', { class: 'pl-steprow' }, sn.el, sk.el), list, cap); draw(); api.lock('先做上面的預測');
     },
     /* 3 選 3 個坐＝選 2 個空著 */
@@ -91,6 +97,7 @@
         if (sel.length === 3) { var s = sel.slice().sort(), sit = s.map(function (x) { return LET.charAt(x); }).join(''), empty = [0, 1, 2, 3, 4].filter(function (x) { return s.indexOf(x) < 0; }).map(function (x) { return LET.charAt(x); }).join(''); var nw = found.add(sit, sit + '（空 ' + empty + '）'); cap.innerHTML = '坐 <b>' + sit + '</b> ⇄ 空 <b>' + empty + '</b>' + (nw ? '' : '（這組找過了）'); draw(); check(); setTimeout(function () { sel = []; draw(); }, 600); return; }
         cap.textContent = '點 3 個座位'; draw(); }
       function check() { if (found.count >= 6 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-comb', step: 3 }); st.append(P.ruleBox('每一種「坐哪 3 個」，都剛好對應一種「空哪 2 個」：<b>一對一</b>。<br>所以 <b>C(5,3) ＝ C(5,2) ＝ 5×4÷2 ＝ 10</b>。一般：<b>C(n,k) ＝ C(n, n−k)</b>。', '選坐＝選空')); api.unlock('選 3 個坐 ＝ 選 2 個空著！'); } }
+      api.solve(function () { [[0, 1, 2], [0, 1, 3], [0, 1, 4], [0, 2, 3], [0, 2, 4], [0, 3, 4]].forEach(function (c) { sel = []; c.forEach(tog); }); });
       st.append(cap); draw(); api.lock('找出 6 種不同的坐法');
     },
     /* 4 三角形個數 */
@@ -110,13 +117,15 @@
         draw();
       }
       function ask() { if (nf >= 6 && !asked) { asked = true; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '每個三角形＝<b>選 2 條斜線 ＋ 選 1 條橫線</b>。圖中最多共有幾個三角形？' })); P.numBox(qb, { answer: 30, okMsg: '對！斜線選 2 條：C(6,2) ＝ 15；橫線選 1 條：2 種。15 × 2 ＝ 30。', onOk: function () { P.track('aha', { id: 'count-comb', step: 4 }); setTimeout(function () { qb.style.display = 'none'; }, 1500); st.append(P.ruleBox('把「用眼睛找圖形」改成「<b>選線</b>」：三角形 ＝ 2 條斜線＋1 條橫線，<b>C(6,2) × 2 ＝ 30</b>。<br>一般：m 條斜線、k 條橫線，共 <b>k × C(m,2)</b> 個。', '選線')); api.unlock('用選線數三角形！'); }, wrong: function (v) { return v === 15 ? '還要選橫線：L1 或 L2，共 2 種，要連乘。' : '提示：斜線選 2 條有幾種？橫線選 1 條有幾種？連乘。'; } }); } }
+      api.solve(function () { [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]].forEach(function (c) { sel = { s: [], h: null }; pick('s', c[0]); pick('s', c[1]); pick('h', 1); }); });
       st.append(h('div', { class: 'pl-readout' }, pill), cap, q); pill.textContent = '你找到 0 個'; draw(); api.lock('先找出 6 個三角形');
     },
     /* 5 矩形個數 */
     function (st, api) {
       st.append(P.instr('5 條直線、4 條橫線。點<b>兩條直線＋兩條橫線</b>，圍出一個矩形。'));
       var host = PC.stage(st), pill = P.pill('你找到 0 個', 'is-green'), asked = false, q = h('div', {});
-      rectGrid(host, 5, 4, function (nf) { pill.textContent = '你找到 ' + nf + ' 個'; if (nf >= 6 && !asked) { asked = true; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '任選 <b>2 條直線＋2 條橫線</b>，一定恰好圍成 1 個矩形。圖中共有幾個矩形？' })); P.numBox(qb, { answer: 60, okMsg: '對！C(5,2) × C(4,2) ＝ 10 × 6 ＝ 60。', onOk: function () { P.track('aha', { id: 'count-comb', step: 5 }); setTimeout(function () { qb.style.display = 'none'; }, 1500); st.append(P.ruleBox('矩形 ＝ 選 2 條直線 ＋ 選 2 條橫線，<b>C(m,2) × C(n,2)</b>。<br>5 條直線、4 條橫線：10 × 6 ＝ <b>60</b>。', '選線')); api.unlock('矩形也是選線！'); }, wrong: function (v) { return v === 20 ? '是「選 2 條」不是「選 1 條」：直線 C(5,2) 種，橫線 C(4,2) 種。' : '提示：直線選 2 條有幾種？橫線選 2 條有幾種？連乘。'; } }); } });
+      var rg = rectGrid(host, 5, 4, function (nf) { pill.textContent = '你找到 ' + nf + ' 個'; if (nf >= 6 && !asked) { asked = true; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '任選 <b>2 條直線＋2 條橫線</b>，一定恰好圍成 1 個矩形。圖中共有幾個矩形？' })); P.numBox(qb, { answer: 60, okMsg: '對！C(5,2) × C(4,2) ＝ 10 × 6 ＝ 60。', onOk: function () { P.track('aha', { id: 'count-comb', step: 5 }); setTimeout(function () { qb.style.display = 'none'; }, 1500); st.append(P.ruleBox('矩形 ＝ 選 2 條直線 ＋ 選 2 條橫線，<b>C(m,2) × C(n,2)</b>。<br>5 條直線、4 條橫線：10 × 6 ＝ <b>60</b>。', '選線')); api.unlock('矩形也是選線！'); }, wrong: function (v) { return v === 20 ? '是「選 2 條」不是「選 1 條」：直線 C(5,2) 種，橫線 C(4,2) 種。' : '提示：直線選 2 條有幾種？橫線選 2 條有幾種？連乘。'; } }); } });
+      api.solve(function () { rg.demo(6); });
       st.append(h('div', { class: 'pl-readout' }, pill), q); api.lock('先找出 6 個矩形');
     },
     /* 6 兩對情侶：綁塊 */
@@ -131,6 +140,7 @@
       function tog(i) { if (sel.length === 2) sel = []; var k = sel.indexOf(i); if (k >= 0) sel.splice(k, 1); else sel.push(i);
         if (sel.length === 2) { var pat = [0, 1, 2, 3].map(function (u) { return u === sel[0] ? '甲' : u === sel[1] ? '乙' : '空'; }); var s2 = sel.slice().sort().join(''); draw(pat); found.add(s2, [0, 1, 2, 3].map(function (u) { return sel.indexOf(u) >= 0 ? '■' : '□'; }).join('')); ask(); return; } draw(); }
       function ask() { if (found.count >= 6 && !asked) { asked = true; svg.style.maxHeight = '118px'; var qb = h('div', {}); q.append(PC.boxes(q, [{ n: 6, label: '選 2 個位置', cls: 'is-blue' }, { n: 2, label: '哪塊放左', cls: 'is-pink' }, { n: 4, label: '塊內互換 2×2', cls: 'is-green' }]).el, qb); qb.append(h('div', { class: 'pl-q', html: '選位置 C(4,2) ＝ 6 種；哪對在左 2 種；「鬆綁」後每塊內的兩人可互換，2 × 2 ＝ 4 種。共有幾種座位安排？' })); P.numBox(qb, { answer: 48, okMsg: '對！6 × 2 × 4 ＝ 48。', onOk: function () { P.track('aha', { id: 'count-comb', step: 6 }); setTimeout(function () { qb.style.display = 'none'; }, 1500); st.append(P.ruleBox('「必須相鄰」是限制：把相鄰的兩人<b>綁成一塊</b>，限制就消失，變成 4 個單位排隊。<br>步驟：<b>綁</b>（情侶成塊）→ <b>排</b>（C(4,2)×2）→ <b>鬆綁</b>（塊內 2×2）＝ <b>48</b>。', '綁塊')); api.unlock('綁塊再鬆綁！'); }, wrong: function (v) { return v === 12 ? '別忘了「鬆綁」：每對情侶內部的兩人可以互換，要再乘 2 × 2。' : '提示：6 × 2 × 4。'; } }); } }
+      api.solve(function () { [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]].forEach(function (c) { sel = []; tog(c[0]); tog(c[1]); }); });
       st.append(h('div', { class: 'pl-fb' }), q); draw(); api.lock('找出 6 種座位型態');
     },
     /* 7 換個外觀 */

@@ -46,7 +46,7 @@
       }
       var hd = board.handle({ pos: [8, 3], candidates: function () { return board.snapOn ? cand : null; }, valid: inAngle,
         onMove: function (t) { var ok = draw(t); if (ok && !done) { done = true; if (!board.snapOn) hd.set([O[0] + 4, O[1] + 2]); P.track('aha', { id: 'angle-bisector', step: 1 }); st.append(P.ruleBox('把一個角分成<b>兩個相等的角</b>的射線，叫做<b>角平分線</b>。', '名稱')); api.unlock('這條線叫「角平分線」'); } } });
-      draw([8, 3]);
+      draw([8, 3]); api.solve(function () { hd.moveTo([5, 3]); });
       st.append(ro, P.hint('提示：剛好平分的點，每往右 2 格就要往上 1 格。也可以關掉吸附自由拖。'));
       api.lock('先把角平分');
     },
@@ -67,6 +67,7 @@
         pa.textContent = '到下邊 ' + fmt(d1); pb.textContent = '到上邊 ' + fmt(d2);
       }
       var hd = board.handle({ pos: bis[2], candidates: bis, disabled: function () { return gate.on; }, onMove: function (t) { draw(t); var key = t.join(','); if (!seen[key]) { seen[key] = 1; count++; } if (count >= 3 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'angle-bisector', step: 2 }); st.append(P.ruleBox('角平分線上的<b>每一點</b>，到角的<b>兩邊一樣遠</b>。', '性質')); P.toast(api.ctx.p2 === 2 ? '你猜對了！' : '兩個距離永遠一樣'); api.unlock('發現規律了！'); } } });
+      api.solve(function () { gate.on = false; [bis[0], bis[1], bis[3]].forEach(hd.moveTo); });
       draw(bis[2]); st.append(ro, P.hint('虛線＝距離（從 P 垂直走到邊）；平分線上的格點距離剛好是整數。'));
       api.lock('先做上面的預測');
     },
@@ -87,6 +88,7 @@
       function pop2(el) { el.style.transformOrigin = 'center'; el.style.transformBox = 'fill-box'; P.pop(el); }
       function reveal() { if (n >= 4 && !done) { done = true; var e = rayToEdge(board, [2 / Math.sqrt(5), 1 / Math.sqrt(5)]); board.line(O, e, 'pl-line pl-line--green pl-line--dash', trail); P.track('aha', { id: 'angle-bisector', step: 3 }); st.append(P.ruleBox('到角兩邊<b>一樣遠</b>的點，<b>全都在角平分線上</b>。<br>角平分線＝「到兩邊等距的點」排成的線。', '性質')); api.unlock('綠點排成了角平分線！'); } }
       var hd = board.handle({ pos: [5, 5], candidates: function () { return board.snapOn ? cand : null; }, valid: inAngle, onMove: function (t) { draw(t); } });
+      api.solve(function () { [[3, 2], [5, 3], [7, 4], [9, 5]].forEach(hd.moveTo); });
       draw([5, 5]); st.append(ro, P.hint('目標：找到 4 個「一樣遠」的格點，看看它們排成什麼。')); api.lock('找出 4 個綠點');
     },
     /* 4. 為什麼？摺紙 */
@@ -106,7 +108,8 @@
         var fv = function (v) { var a = dot(v, UB), b2 = dot(v, VB); return add(mul(UB, a), mul(VB, b2 * c)); }; board.rightMark(F1f, fv([-1, 0]), fv([0, 1]), 0.4, g); board.dot(Pt, 'pl-dot', g); board.text([Pt[0] + 0.5, Pt[1] + 0.5], 'P', 'pl-text', g);
         if (s >= 0.97 && !done) { done = true; note.className = 'pl-fb is-good'; note.innerHTML = '兩條邊<b>完全重疊</b>，兩條垂直線段也完全重疊，長度一樣。'; P.track('aha', { id: 'angle-bisector', step: 4 }); st.append(P.ruleBox('角平分線是這個角的<b>對稱軸</b>：沿它摺起來，兩邊完全重疊，所以到兩邊的距離一定相等。', '原因')); api.unlock('看懂原因了！'); }
       }
-      draw(0); st.append(P.slider(0, 100, 0, function (v) { draw(v / 100); }), h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤開'), h('span', {}, '摺起來 →')), note); api.lock('把滑桿拉到最右邊');
+      var sl = P.slider(0, 100, 0, function (v) { draw(v / 100); }); api.solve(function () { sl.value = 100; draw(1); });
+      draw(0); st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤開'), h('span', {}, '摺起來 →')), note); api.lock('把滑桿拉到最右邊');
     },
     /* 5. 用用看：三條路的消防站（內心） */
     function (st, api) {
@@ -128,6 +131,7 @@
         pc.className = 'pl-pill' + (ok ? ' is-ok' : ''); pc.textContent = ok ? '✓ 三個一樣遠' : '還不一樣遠'; return ok;
       }
       var hd = board.handle({ pos: [4, 2], candidates: function () { return board.snapOn ? cand : null; }, valid: inside, onMove: function (t) { var ok = draw(t); if (ok && !done) { done = true; var I = [3, 3]; if (!board.snapOn) { hd.set(I); draw(I); } board.circle(I, 2, 'pl-circle', extra, { class: 'pl-circle', style: 'stroke:#1f9d55;stroke-width:3;fill:rgba(31,157,85,.14)' }); V.forEach(function (v) { board.line(v, I, 'pl-line pl-line--green pl-line--dash', extra); }); P.track('aha', { id: 'angle-bisector', step: 5 }); st.append(P.ruleBox('三個角的角平分線<b>交在同一點</b>——<b>內心</b>。它到三邊一樣遠，所以能畫出<b>內切圓</b>。', '性質')); api.unlock('找到內心了！'); } } });
+      api.solve(function () { hd.moveTo([3, 3]); });
       draw([4, 2]); st.append(ro, P.hint('提示：到下邊和左邊一樣遠的格點，在左下角的 45° 線上。')); api.lock('找到到三邊等距的格點');
     },
     /* 6 換個外觀（每一題都有圖） */

@@ -38,7 +38,9 @@
       var tags = h('div', { class: 'ps-pills' }), tp = {}; ['parallel', 'meet', 'skew'].forEach(function (k) { tp[k] = P.pill(RN[k] + ' ？', ''); tags.append(tp[k]); });
       sc.onTap = function (pos) {
         if (gate.on) { P.toast('先做上面的預測'); return; }
-        var i = PS.nearestSeg(sc, pos, EDGES.map(function (e) { return [VERT[e[0]], VERT[e[1]]]; }), 20); if (i < 0) return;
+        var i = PS.nearestSeg(sc, pos, EDGES.map(function (e) { return [VERT[e[0]], VERT[e[1]]]; }), 20); if (i < 0) return; tapEdge(i);
+      };
+      function tapEdge(i) {
         if (sel.length === 2) sel = []; sel.push(i); var map = {}; map[sel[0]] = COL.blue; if (sel[1] !== undefined) map[sel[1]] = COL.pink; paint(sc, map);
         sc.texts = sel.map(function (e, k) { return { p: V3.mid(VERT[EDGES[e][0]], VERT[EDGES[e][1]]), t: ename(e), color: '#fff', bg: k ? COL.pink : COL.blue, size: 13 }; }); sc.invalidate();
         if (sel.length === 2) {
@@ -47,6 +49,7 @@
           if (n >= 3 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-lines', step: 1 }); st.append(P.ruleBox('空間中兩直線有<b>三種</b>關係：<b>平行</b>、<b>相交</b>、<b>歪斜</b>。<br>歪斜＝<b>不平行、也不相交</b>（不在同一個平面上）。這是平面上沒有的！', '性質')); P.toast(api.ctx.p1 === 1 ? '你猜對了！不一定' : '不平行也可能碰不到：歪斜'); api.unlock('發現歪斜了！'); }
         } else { pr.className = 'pl-pill'; pr.textContent = '再點第二條稜'; }
       };
+      api.solve(function () { gate.on = false; [0, 2, 0, 1, 0, 5].forEach(tapEdge); });
       st.append(ro, tags, P.hint('先點一條（藍），再點另一條（粉紅）。找出平行、相交、歪斜各一組。')); sc.invalidate(); api.lock('先做上面的預測');
     },
     /* 2 與一條稜歪斜的有幾條 */
@@ -71,6 +74,7 @@
         }
       }
       sc.onTap = function (pos) { if (gate.on) return; var i = PS.nearestSeg(sc, pos, EDGES.map(function (e) { return [VERT[e[0]], VERT[e[1]]]; }), 20); if (i >= 0) { ref = i; counts(); show(cls); } };
+      api.solve(function () { gate.on = false; pick('parallel'); pick('meet'); pick('skew'); });
       counts(); show(null); st.append(ro, P.hint('粗藍線是 AB。也可以點別的稜，換一條當基準。')); api.lock('先做上面的預測');
     },
     /* 3 線與面 */
@@ -102,6 +106,7 @@
         if (mode === 'e') { var i = PS.nearestSeg(sc, pos, segs, 18); if (i >= 0) { eSel = i; mode = 'f'; seg.set('f', false); draw(); } else if (face && face.id) { fSel = +face.id.slice(1); draw(); } }
         else { var j = PS.nearestSeg(sc, pos, segs, 5); if (j >= 0) { eSel = j; draw(); } else if (face && face.id) { fSel = +face.id.slice(1); draw(); } }
       };
+      api.solve(function () { [[0, 5], [0, 4], [8, 5]].forEach(function (c) { eSel = c[0]; fSel = c[1]; draw(); }); });
       st.append(ro, tags, P.hint('先選稜（藍）→ 自動換成選面（黃）。想換稜，按「選稜」。')); draw(); api.lock('找出三種關係各一組');
     },
     /* 4 面與面 */
@@ -119,6 +124,7 @@
         var qb = h('div', {}); ask.append(qb); qb.append(h('div', { class: 'pl-q', html: '正方體 6 個面，任選 2 個面配成一對，共 15 對。<b>平行</b>的有幾對？' }));
         P.numBox(qb, { answer: 3, before: '平行 ＝', okMsg: '對！上下、前後、左右，共 3 對平行；其餘 12 對都互相垂直。', onOk: function () { P.track('aha', { id: 'solid-lines', step: 4 }); setTimeout(function () { qb.style.display = 'none'; }, 1100); ask.append(P.ruleBox('兩個平面：<b>平行</b>（永遠碰不到）或<b>相交</b>。正方體相鄰的面相交成 <b>90°</b>（互相垂直）。<br>15 對面：<b>3 對平行、12 對垂直</b>。', '性質')); api.unlock('面與面的關係！'); }, wrong: function () { return '提示：每個面只有「對面」和它平行，6 個面共 3 對。'; } });
       }
+      api.solve(function () { sel = [4, 5]; paintF(); if (!ask.firstChild) showAsk(); });
       st.append(ro, ask, P.hint('點完兩個面，還會再點新的一組。試幾組後會出現問題。')); paintF(); api.lock('點幾組面，再回答問題');
     },
     /* 5 換個外觀 */

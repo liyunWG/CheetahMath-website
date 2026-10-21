@@ -67,6 +67,7 @@
         if (n >= 4 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-section', step: 1 }); st.append(P.ruleBox('切一刀，切面可能是<b>三角形、四邊形、五邊形、六邊形</b>，<b>最多 6 邊</b>。<br>因為正方體只有 <b>6 個面</b>，每個面最多被切出一條邊。', '發現')); P.toast(api.ctx.p1 === 2 ? '你猜對了！最多六邊形' : '最多是六邊形'); api.unlock('三到六邊形都找到了！'); }
       }
       var sl = P.slider(0, 200, 100, upd), seg = PS.seg(st, Object.keys(PRE).map(function (k) { return { k: k, t: PRE[k].name }; }), function (k) { cur = k; sl.value = 100; upd(100); }, {});
+      api.solve(function () { gate.on = false; Object.keys(PRE).forEach(function (k) { if (n >= 4) return; cur = k; seg.set(k, false); for (var v = 0; v <= 200 && n < 4; v += 4) { sl.value = v; upd(v); } }); });
       seg.set('tilt', false); st.append(h('div', { class: 'ps-note' }, '拉動滑桿，平面從一邊移到另一邊'), sl, ro, tags); ss.set(PRE.tilt.n, 0); pr.textContent = '先做預測，再拉滑桿'; api.lock('先做上面的預測');
     },
     /* 2 正六邊形 */
@@ -79,6 +80,7 @@
         if (name === '正六邊形' && !done) { done = true; P.track('aha', { id: 'solid-section', step: 2 }); st.append(P.ruleBox('平面<b>通過正方體中心</b>、並且<b>垂直於一條體對角線</b>時，切面是<b>正六邊形</b>（頂點是 6 條稜的中點）。<br>每邊長 ＝ √(0.5² ＋ 0.5²) ＝ √2／2 ≈ 0.71。', '性質')); api.unlock('找到正六邊形了！'); }
       });
       ss.set(n0, (30 / 200 - 0.5) * (r - 0.02)); pr.textContent = '切面：三角形（小的）';
+      api.solve(function () { sl.value = 100; sl.dispatchEvent(new Event('input')); });
       st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 靠近一個角'), h('span', {}, '靠近對面的角 →')), ro, P.hint('接近正中間時會「吸」過去。')); api.lock('調出正六邊形');
     },
     /* 3 切下一個角 */
@@ -98,6 +100,7 @@
       [[-.5, .5, .5], [.5, -.5, .5], [.5, .5, -.5]].forEach(function (p) { ss.sc.dots.push({ p: p, r: 6, color: '#e8590c', ring: true }); }); ss.sc.invalidate();
       var oldSet = ss.set; ss.set = function (n, d) { var pts = oldSet.call(ss, n, d); [[-.5, .5, .5], [.5, -.5, .5], [.5, .5, -.5]].forEach(function (p) { ss.sc.dots.push({ p: p, r: 6, color: '#e8590c', ring: true }); }); ss.sc.invalidate(); return pts; };
       pr.textContent = '切面：' + shapeName(ref);
+      api.solve(function () { sl.value = Math.round((dT / (r - 0.02) + 0.5) * 200); sl.dispatchEvent(new Event('input')); });
       st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 平面在中間'), h('span', {}, '推向那個角 →')), ro, ask, P.hint('接近橘色三點時會「吸」過去。')); api.lock('切下一個角');
     },
     /* 4 換個外觀 */

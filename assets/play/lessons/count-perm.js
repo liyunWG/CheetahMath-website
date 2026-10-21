@@ -18,6 +18,7 @@
         if (seats.length === total) { var key = seats.join(''); found.add(key); setTimeout(function () { seats = []; drawSeats(); check(); }, 700); } }
       function unpick() { seats.pop(); drawSeats(); }
       function check() { if (found.count >= 5 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-perm', step: 1 }); drawSeats(); st.append(P.ruleBox('排 3 個位子：第 1 位 5 種人可選，第 2 位剩 4 人，第 3 位剩 3 人：<b>5 × 4 × 3 ＝ 60</b>。<br>這叫<b>排列</b>：從 n 個選 k 個並排順序，<b>P(n, k) ＝ n × (n−1) × … 共 k 個數</b>相乘。', '排列')); P.toast(api.ctx.p1 === 1 ? '你猜對了！60 種' : '60 種'); api.unlock('60 種！'); } }
+      api.solve(function () { gate.on = false; ['甲乙丙', '甲乙丁', '甲乙戊', '甲丙乙', '甲丙丁'].forEach(function (k) { found.add(k); }); seats = []; check(); });
       st.append(seatRow, pool); drawSeats(); api.lock('先做上面的預測');
     },
     /* 2 三種說法都是 5×4×3 */
@@ -33,6 +34,7 @@
         bx.set(s.boxes.map(function (n, k) { return { n: n, label: s.lab[k], cls: ['is-blue', 'is-pink', 'is-green'][k] }; })); check();
       }, 0);
       function check() { if (Object.keys(visited).length === 3 && !asked) { asked = true; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '三個故事的種數<b>都一樣</b>。是幾種？' })); P.numBox(qb, { answer: 60, okMsg: '對！都是 5 × 4 × 3 ＝ 60。', onOk: function () { P.track('aha', { id: 'count-perm', step: 2 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('三個故事的結構一樣：把 <b>3 個不同的「名額」</b>依序分給 5 個不同的人（或位置），不能重複使用，所以都是 <b>5 × 4 × 3</b>。<br>數的是「誰坐哪一個位子、誰領哪一件獎品」；若只問「選出哪三人」就不一樣了（那是組合）。', '同一種結構')); api.unlock('三種說法，同一個答案！'); } }); } }
+      api.solve(function () { tabs.pick(1); tabs.pick(2); });
       api.lock('三個故事都點一遍');
     },
     /* 3 相鄰：綁成一塊 */
@@ -46,6 +48,7 @@
       }
       btn.addEventListener('click', function () { if (gate.on) { P.toast('先做上面的預測'); return; } bound = !bound; btn.textContent = bound ? '鬆開' : '把甲乙綁成一塊'; swap.style.display = bound ? '' : 'none'; draw(); if (bound && !asked) { asked = true; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '共有 4！ × 2！ ＝ 24 × 2 ＝ ？ 種排法' })); P.numBox(qb, { answer: 48, okMsg: '對！24 × 2 ＝ 48。', onOk: function () { P.track('aha', { id: 'count-perm', step: 3 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('「必須相鄰」是限制：把相鄰的人<b>綁成一塊</b>，當成一個單位排隊（4！），再<b>鬆綁</b>，塊內互換（2！）。<br><b>4！× 2！＝ 48</b>。', '綁塊')); P.toast(api.ctx.p3 === 1 ? '你猜對了！48 種' : '48 種'); api.unlock('綁塊再鬆綁！'); } }); } });
       swap.addEventListener('click', function () { flip = !flip; draw(); });
+      api.solve(function () { gate.on = false; if (!bound) btn.click(); });
       st.append(rowEl, h('div', { class: 'pc-btnrow' }, btn, swap), cap, q); draw(); api.lock('先做上面的預測');
     },
     /* 4 不相鄰：總數扣掉相鄰 */
@@ -69,6 +72,7 @@
       }
       function tog(i) { if (sel.length === 2) sel = []; var k = sel.indexOf(i); if (k >= 0) sel.splice(k, 1); else sel.push(i); draw(); if (sel.length === 2) { var ss = sel.slice().sort(); found.add(ss.join(), '空隙' + (ss[0] + 1) + '、' + (ss[1] + 1)); ask(); } }
       function ask() { if (found.count >= 6 && !asked) { asked = true; svg.style.maxHeight = '100px'; q.append(PC.boxes(q, [{ n: '3！', label: '排丙丁戊' }, { n: 6, label: '選 2 個空隙 C(4,2)', cls: 'is-blue' }, { n: '2！', label: '甲乙對調', cls: 'is-pink' }], { result: '？' }).el); var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '3！ × 6 × 2！ ＝ ？ 種' })); P.numBox(qb, { answer: 72, okMsg: '對！6 × 6 × 2 ＝ 72，和「全部 − 相鄰」一樣。', onOk: function () { P.track('aha', { id: 'count-perm', step: 5 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('<b>插空法</b>：先排「沒限制」的人（3！），再把「不能相鄰」的人放進<b>空隙</b>（C(4,2) × 2！）。<br>兩種方法得到同一個答案 <b>72</b>，可以放心。', '插空')); api.unlock('兩種方法都是 72！'); } }); } }
+      api.solve(function () { [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]].forEach(function (c) { sel = []; tog(c[0]); tog(c[1]); }); });
       st.append(q); draw(); api.lock('找出 6 種空隙選法');
     },
     /* 6 換個外觀 */

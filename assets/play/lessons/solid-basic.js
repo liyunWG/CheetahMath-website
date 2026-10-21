@@ -44,6 +44,7 @@
         refresh();
       };
       var seg = PS.seg(st, [{ k: 'v', t: '● 頂點' }, { k: 'e', t: '╱ 稜' }, { k: 'f', t: '▱ 面' }], function (k) { mode = k; });
+      api.solve(function () { S.V.forEach(function (p, i) { if (!got.v[i]) got.v[i] = cnt('v') + 1; }); S.E.forEach(function (e, i) { if (!got.e[i]) got.e[i] = cnt('e') + 1; }); sc.faces.forEach(function (f, i) { if (!got.f[i]) got.f[i] = cnt('f') + 1; }); refresh(); });
       seg.set('v', false); st.append(ro, P.hint('藍＝頂點、粉紅＝稜、綠＝面。背面的也要數，轉過去再點。')); refresh(); api.lock('頂點、稜、面各數完');
     },
     /* 2 歐拉公式 */
@@ -62,6 +63,7 @@
       }, { cols: 3 });
       seg.set('cube', false); S = PS.solid('cube'); PS.addSolid(sc, S, { alpha: 0.4 });
       pc.textContent = '頂點 V ＝ 8'; pe2.textContent = '稜 E ＝ 12'; pf.textContent = '面 F ＝ 6'; pr.textContent = 'V − E + F ＝ 2'; pr.className = 'pl-pill is-ok';
+      api.solve(function () { gate.on = false; items.forEach(function (it) { seg.set(it[0]); }); });
       st.append(ro); api.lock('先做上面的預測');
     },
     /* 3 用歐拉公式算 */
@@ -98,6 +100,7 @@
       var segM = PS.seg(st, [{ k: 3, t: '正三角形<br>60°' }, { k: 4, t: '正方形<br>90°' }, { k: 5, t: '正五邊形<br>108°' }, { k: 6, t: '正六邊形<br>120°' }], function (k) { m = k; draw(); });
       segM.set(3, false);
       var stp = P.stepper('一個頂點接', 3, 6, 3, function (v) { n = v; draw(); }, function (v) { return v + ' 個'; });
+      api.solve(function () { [[3, 3], [3, 4], [3, 5], [4, 3], [5, 3]].forEach(function (c) { m = c[0]; n = c[1]; segM.set(m, false); stp.set(n, true); draw(); }); });
       st.append(h('div', { class: 'pl-row pl-row--center' }, stp.el), ro, list, P.hint('換形狀、換個數，找出 5 種摺得起來的組合。')); draw(); api.lock('找出 5 種正多面體');
     },
     /* 5 換個外觀 */

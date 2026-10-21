@@ -19,7 +19,22 @@
       else el.setAttribute(k, v === true ? '' : v);
     }
     for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
+    if (tag === 'line' || tag === 'polyline' || tag === 'polygon') degen(el);
     return el;
+  }
+  /* iOS Safari：長度 0 的線（圓頭＋non-scaling-stroke）會畫成一個超大圓點。
+     線段兩端重合就藏起來；折線去掉連續重複點，只剩一點也藏起來。 */
+  function degen(el) {
+    var hide;
+    if (el.tagName === 'line') {
+      hide = Math.abs(+el.getAttribute('x1') - +el.getAttribute('x2')) < 1e-6 && Math.abs(+el.getAttribute('y1') - +el.getAttribute('y2')) < 1e-6;
+    } else {
+      var raw = (el.getAttribute('points') || '').trim().split(/[\s,]+/), out = [], px, py;
+      for (var k = 0; k + 1 < raw.length; k += 2) { var x = +raw[k], y = +raw[k + 1]; if (out.length && Math.abs(x - px) < 1e-6 && Math.abs(y - py) < 1e-6) continue; out.push(raw[k] + ',' + raw[k + 1]); px = x; py = y; }
+      if (out.length * 2 !== raw.length) el.setAttribute('points', out.join(' '));
+      hide = out.length < 2;
+    }
+    el.style.display = hide ? 'none' : '';
   }
   function append(el, kid) {
     if (kid === null || kid === undefined || kid === false) return;
@@ -92,10 +107,10 @@
     snap: function (p) { var g = this.grid; p = this.clamp(p); return this.snapOn ? [Math.round(p[0] / g) * g, Math.round(p[1] / g) * g] : p; },
     /* 圖形輔助：參數都用「數學座標」 */
     line: function (a, b, cls, layer, extra) { var el = h('line', Object.assign({ x1: a[0], y1: this.Y(a[1]), x2: b[0], y2: this.Y(b[1]), class: cls || 'pl-line' }, extra || {})); (layer || this.gMid).append(el); return el; },
-    setLine: function (el, a, b) { el.setAttribute('x1', a[0]); el.setAttribute('y1', this.Y(a[1])); el.setAttribute('x2', b[0]); el.setAttribute('y2', this.Y(b[1])); },
+    setLine: function (el, a, b) { el.setAttribute('x1', a[0]); el.setAttribute('y1', this.Y(a[1])); el.setAttribute('x2', b[0]); el.setAttribute('y2', this.Y(b[1])); degen(el); },
     poly: function (pts, cls, layer, extra) { var el = h('polygon', Object.assign({ points: this.pts(pts), class: cls || 'pl-poly' }, extra || {})); (layer || this.gMid).append(el); return el; },
     pts: function (pts) { var self = this; return pts.map(function (p) { return p[0].toFixed(3) + ',' + (self.hh - p[1]).toFixed(3); }).join(' '); },
-    setPoly: function (el, pts) { el.setAttribute('points', this.pts(pts)); },
+    setPoly: function (el, pts) { el.setAttribute('points', this.pts(pts)); degen(el); },
     circle: function (c, r, cls, layer, extra) { var el = h('circle', Object.assign({ cx: c[0], cy: this.Y(c[1]), r: r, class: cls || 'pl-circle' }, extra || {})); (layer || this.gMid).append(el); return el; },
     dot: function (c, cls, layer, r) { return this.circle(c, r || 0.16, cls || 'pl-dot', layer); },
     text: function (p, t, cls, layer, extra) { var el = h('text', Object.assign({ x: p[0], y: this.Y(p[1]), class: cls || 'pl-text' }, extra || {})); el.textContent = t; (layer || this.gMid).append(el); return el; },
@@ -113,6 +128,8 @@
       sx.onUpdate = place; sy.onUpdate = place;
       api.set = function (p, instant) { api.pos = p.slice(); if (instant) { sx.jump(p[0]); sy.jump(self.Y(p[1])); } else { sx.to(p[0]); sy.to(self.Y(p[1])); } };
       api.set(opts.pos, true);
+      /* 程式代拖（看詳解用）：移到 p，照真的拖曳一樣觸發 onMove／onEnd */
+      api.moveTo = function (p) { api.set(p); opts.onMove && opts.onMove(p.slice(), p.slice()); opts.onEnd && opts.onEnd(api.pos); };
       api.hide = function (v) { g.style.display = v ? 'none' : ''; ring.style.display = v ? 'none' : ''; };
       function target(raw) {
         var t = raw;
@@ -160,13 +177,29 @@
   function pill(html, cls) { return h('span', { class: 'pl-pill ' + (cls || ''), html: html }); }
   function toast(msg) { var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
+  /* 「看詳解」：題目元件向目前的關卡登記，按下就公布答案並照答對流程走下去 */
+  var curLesson = null;
+  function solvable(el, o) { if (curLesson) curLesson.solvers.push(Object.assign({ el: el }, o)); }
+  var SOLVED = '<span class="pl-sol__tag">詳解</span>';
+
   function choice(host, api, cfg) {
     var box = h('div', { class: 'pl-choice' });
     if (cfg.label) box.append(h('div', { class: 'pl-label' }, cfg.label));
     box.append(h('div', { class: 'pl-q', html: cfg.prompt }));
-    var fb = h('div', { class: 'pl-fb' }), list = h('div', { class: 'pl-opts' + (cfg.row ? ' pl-opts--row' : '') }), locked = false;
+    var fb = h('div', { class: 'pl-fb' }), list = h('div', { class: 'pl-opts' + (cfg.row ? ' pl-opts--row' : '') }), locked = false, btns = [];
+    solvable(box, {
+      predict: !!cfg.predict, done: function () { return locked; },
+      reveal: function () {
+        if (locked) return; locked = true;
+        if (cfg.predict) { box.classList.add('is-done'); fb.className = 'pl-fb is-good'; fb.textContent = '先跳過預測，直接來看答案。'; track('reveal', { step: cfg.id }); if (cfg.onAnswer) cfg.onAnswer(-1); return; }
+        var i = -1; cfg.options.forEach(function (o, k) { if (o.ok && i < 0) i = k; });
+        if (i >= 0) btns[i].classList.add('is-right');
+        fb.className = 'pl-fb is-good pl-fb--sol'; fb.innerHTML = SOLVED + '正確答案：<b>' + (i >= 0 ? cfg.options[i].t : '') + '</b>。' + (i >= 0 && cfg.options[i].fb ? cfg.options[i].fb : '');
+        track('reveal', { step: cfg.id }); if (cfg.onAnswer) cfg.onAnswer(i);
+      }
+    });
     cfg.options.forEach(function (o, i) {
-      var b = h('button', { type: 'button', class: 'pl-opt' }, h('span', { html: o.t }));
+      var b = h('button', { type: 'button', class: 'pl-opt' }, h('span', { html: o.t })); btns.push(b);
       b.addEventListener('click', function () {
         if (locked) return;
         if (cfg.predict) { locked = true; box.classList.add('is-done'); b.classList.add('is-sel'); fb.className = 'pl-fb is-good'; fb.textContent = '好，預測記下了！來驗證看看。'; track('predict', { step: cfg.id, i: i }); if (cfg.onAnswer) cfg.onAnswer(i); return; }
@@ -189,6 +222,11 @@
     }
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') chk(); });
     host.append(box, h('div', { class: 'pl-row pl-row--center' }, h('button', { type: 'button', class: 'button button--primary pl-small', onclick: chk }, '確認')), fb);
+    solvable(box, { done: function () { return done; }, reveal: function () {
+      if (done) return; done = true; inp.value = String(cfg.answer).replace('-', '−'); inp.disabled = true; box.classList.add('is-ok'); box.classList.remove('is-bad');
+      fb.className = 'pl-fb is-good pl-fb--sol'; fb.innerHTML = SOLVED + '答案是 <b>' + inp.value + (cfg.unit || '') + '</b>。' + (cfg.okMsg || ''); pop(ck); track('reveal');
+      if (cfg.onOk) cfg.onOk();
+    } });
   }
   /* 積木填空：點積木放進空格，全對出現綠勾 */
   function fillSlots(host, cfg) {
@@ -209,6 +247,10 @@
       else { slots.forEach(function (s) { s.classList.add('is-bad'); shake(s); }); track('slot_wrong'); if (cfg.onBad) cfg.onBad(); setTimeout(function () { placed.fill(null); Object.keys(chipEls).forEach(function (k) { chipEls[k].classList.remove('is-used'); }); draw(); }, 800); }
     }
     host.append(box, tray); draw();
+    solvable(box, { done: function () { return done; }, reveal: function () {
+      if (done) return; done = true; placed = cfg.answer.slice(); Object.keys(chipEls).forEach(function (k) { chipEls[k].classList.toggle('is-used', placed.indexOf(k) >= 0 || placed.indexOf(+k) >= 0); }); draw();
+      box.classList.add('is-ok'); pop(ck); track('reveal'); if (cfg.onOk) cfg.onOk();
+    } });
   }
   /* 大圓點滑桿 */
   function slider(min, max, value, onInput, step) {
@@ -276,8 +318,10 @@
     this.msg = h('div', { class: 'pl-foot__msg', 'aria-live': 'polite' });
     this.next = h('button', { type: 'button', class: 'button button--primary pl-next' }, '繼續 ▶');
     this.back = h('button', { type: 'button', class: 'button button--secondary pl-back', 'aria-label': '上一步' }, '◀');
+    this.sol = h('button', { type: 'button', class: 'pl-solbtn', 'aria-label': '看詳解並過關' }, h('span', { 'aria-hidden': 'true' }, '💡'), '看詳解');
     this.next.addEventListener('click', function () { self.go(self.i + 1); }); this.back.addEventListener('click', function () { self.go(self.i - 1); });
-    this.foot = h('div', { class: 'pl-foot' }, this.back, this.msg, this.next);
+    this.sol.addEventListener('click', function () { self.solve(); });
+    this.foot = h('div', { class: 'pl-foot' }, this.back, this.msg, this.sol, this.next);
     this.card = h('section', { class: 'pl-lesson', 'aria-label': cfg.title }, h('div', { class: 'pl-head' }, h('a', { class: 'pl-head__back', href: 'play.html' }, '← 獵豹玩中學'), h('div', { class: 'pl-head__title' }, cfg.title), this.dots), this.stage, this.foot);
     root.append(this.card);
     document.title = cfg.title + '｜獵豹玩中學｜獵豹科教';
@@ -289,14 +333,27 @@
     }
   }
   Lesson.prototype = {
-    unlock: function (m) { this.next.disabled = false; this.msg.textContent = m || ''; this.next.classList.add('is-ready'); },
-    lock: function (m) { this.next.disabled = true; this.msg.textContent = m || ''; this.next.classList.remove('is-ready'); },
+    unlock: function (m) { this.next.disabled = false; this.msg.textContent = m || ''; this.next.classList.add('is-ready'); this.sol.hidden = true; },
+    lock: function (m) { this.next.disabled = true; this.msg.textContent = m || ''; this.next.classList.remove('is-ready'); this.sol.hidden = false; },
+    /* 看詳解：先公布目前畫面上還沒答的題目（預測題直接跳過）；沒有題目就跑這一步自己的示範（api.solve）；都沒有就直接放行 */
+    solve: function () {
+      var i0 = this.i; track('solve', { id: this.cfg.id, n: i0 });
+      for (var guard = 0; guard < 8 && this.next.disabled && this.i === i0; guard++) {
+        var s = this.solvers.filter(function (o) { return !o.done() && o.el.isConnected && o.el.getClientRects().length; })[0];
+        if (s) { s.reveal(); if (!s.predict) break; continue; }
+        if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.stepSolve(); continue; }
+        this.unlock('已略過這一步，按「繼續」往下走'); break;
+      }
+      var shown = this.stage.querySelectorAll('.pl-rule, .pl-fb--sol'), el = shown[shown.length - 1];
+      if (el) { el.style.scrollMarginBottom = '110px'; try { el.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {} }
+    },
     go: function (n, first) {
       if (n < 0 || n >= this.cfg.steps.length) return; var self = this; this.i = n;
       Array.prototype.forEach.call(this.dots.children, function (d, k) { d.className = k < n ? 'on' : k === n ? 'cur' : ''; });
       var tt = document.querySelector('.pl-toast'); if (tt) tt.classList.remove('show'); this.stage.innerHTML = ''; var last = n === this.cfg.steps.length - 1;
       this.foot.style.display = last ? 'none' : ''; this.back.style.visibility = n === 0 ? 'hidden' : 'visible'; this.lock('');
-      var api = { unlock: function (m) { self.unlock(m); }, lock: function (m) { self.lock(m); }, ctx: this.ctx, lesson: this, isLast: last };
+      var api = { unlock: function (m) { self.unlock(m); }, lock: function (m) { self.lock(m); }, solve: function (fn) { self.stepSolve = fn; }, ctx: this.ctx, lesson: this, isLast: last };
+      this.solvers = []; this.stepSolve = null; this.stepSolved = false; curLesson = this;
       track('step', { id: this.cfg.id, n: n });
       this.cfg.steps[n](this.stage, api);
       if (!first || window.innerWidth <= 900) this.toTop(first);

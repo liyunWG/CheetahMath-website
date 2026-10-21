@@ -29,7 +29,9 @@
       if (!ready(c, r)) { P.toast('先標好它左邊和下面「有街相連」的路口'); return; }
       var s = 0; pre(c, r).forEach(function (q) { s += val[q.join()]; }); val[k] = s; draw(k); if (o.onReveal) o.onReveal(c, r, s, pre(c, r).map(function (q) { return val[q.join()]; }));
     }
-    draw(); return { val: function (c, r) { return val[c + ',' + r]; }, final: function () { return val[(cols - 1) + ',' + (rows - 1)]; } };
+    /* 看詳解：照「左＋下」的順序一路標到 B */
+    function fillAll() { for (var d = 1; d <= cols + rows; d++) for (var c = 0; c < cols; c++) { var r = d - c; if (r >= 0 && r < rows && val[c + ',' + r] === undefined && ready(c, r)) tap(c, r); } }
+    draw(); return { fillAll: fillAll, val: function (c, r) { return val[c + ',' + r]; }, final: function () { return val[(cols - 1) + ',' + (rows - 1)]; } };
   }
   /* 青蛙石塊：n 個石塊排成圓；點擊跳過去。onJump(path) */
   function stones(host, n, onJump) {
@@ -58,12 +60,13 @@
         { t: '週末只去一個地方：動物園有 2 種套票，科博館有 3 種套票。', a: '+', why: '加：2 ＋ 3 ＝ 5（只去一個地方）' }], ok = 0, box = h('div', { class: 'pc-cards' });
       cards.forEach(function (c) {
         var el = h('div', { class: 'pc-card' }, h('div', { class: 'pc-card__t', html: c.t }), h('div', { class: 'pc-btnrow' })), why = h('div', { class: 'pl-fb' }), row = el.lastChild, done = false;
-        [['x', '連乘 ×'], ['+', '相加 ＋']].forEach(function (o) { var b = h('button', { type: 'button', class: 'pc-tab' }, o[1]); b.addEventListener('click', function () {
+        [['x', '連乘 ×'], ['+', '相加 ＋']].forEach(function (o) { var b = h('button', { type: 'button', class: 'pc-tab' }, o[1]); if (o[0] === c.a) c.btn = b; b.addEventListener('click', function () {
           if (done) return; if (o[0] === c.a) { done = true; ok++; b.classList.add('is-on'); why.className = 'pl-fb is-good'; why.innerHTML = '✓ ' + c.why; row.style.display = 'none'; el.classList.add('is-ok'); P.track('choice_ok', { id: 'count-add-1' });
             if (ok === 4) { P.track('aha', { id: 'count-add', step: 1 }); st.append(P.ruleBox('<b>分成連續的步驟，每一步都要做 → 乘</b>。<br><b>分成不同的類別，只做其中一類 → 加</b>。', '乘或加')); api.unlock('分得出乘或加了！'); } }
           else { P.shake(el); why.className = 'pl-fb is-bad'; why.textContent = '再想想：兩件事都要做，還是只做其中一件？'; } }); row.append(b); });
         el.append(why); box.append(el);
       });
+      api.solve(function () { cards.forEach(function (c) { c.btn.click(); }); });
       st.append(box); api.lock('4 題都答對');
     },
     /* 2 路線分類：A → D */
@@ -94,6 +97,7 @@
         if (nrev === 4 && !asked) { asked = true; var tot = total(); tabs.style.display = 'none'; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '四類互不重複、也沒有遺漏。把四類的種數<b>加起來</b>，A 到 D 共有幾種？' })); P.numBox(qb, { answer: tot, okMsg: '對！' + cats.map(function (x) { return x.f().reduce(function (a, b) { return a * b; }, 1); }).join(' ＋ ') + ' ＝ ' + tot + '。每一類裡面用乘法，類和類之間用加法。', onOk: function () { P.track('aha', { id: 'count-add', step: 2 }); setTimeout(function () { qb.style.display = 'none'; }, 1500); st.append(P.ruleBox('先依「<b>經過哪些中間站</b>」分類（加法），每一類裡面各段連乘（乘法）。<br>只有 B、C 兩個中間站：有沒有經過 B、有沒有經過 C，共 4 類，不重複不遺漏。', '分類')); P.toast(api.ctx.p2 === 1 ? '你猜對了！24 種' : '分類加起來是 24 種'); api.unlock('分類相加，類內連乘！'); } }); }
       }
       var stepper = P.stepper('A–B 路數', 1, 4, 3, function (v) { if (gate.on) { stepper.set(3, true); return; } nAB = v; draw(); }, function (v) { return v + ' 條'; });
+      api.solve(function () { gate.on = false; Array.prototype.forEach.call(tabs.children, function (b) { b.click(); }); });
       st.append(stepper.el, tabs, sum, q); draw(); api.lock('先做上面的預測');
     },
     /* 3 標數法 */
@@ -101,6 +105,7 @@
       st.append(P.instr('走<b>捷徑</b>（只往右、往上）。點路口標數：<b>左邊的數 ＋ 下面的數</b>（有街相連才加）。從 A 往外標到 B。'));
       var host = PC.stage(st), done = false, cap = h('div', { class: 'pl-caption' }, '先標好左邊和下面的路口，才能標這個路口。亮起來閃的就可以點。');
       var grid = makeGrid(host, { cols: 5, rows: 4, missH: [[1, 1], [2, 2]], missV: [[3, 0]], onReveal: function (c, r, v, parts) { cap.innerHTML = '這個路口 ＝ ' + parts.join(' ＋ ') + ' ＝ <b>' + v + '</b>' + (parts.length === 1 ? '（只有一條路通到這裡，直接抄）' : ''); if (c === 4 && r === 3 && !done) { done = true; P.track('aha', { id: 'count-add', step: 3 }); st.append(P.ruleBox('<b>每個路口 ＝ 左邊的數 ＋ 下面的數</b>（有街相連才加；只有一條路就直接抄）。<br>街道缺得不整齊、沒有公式時，一個路口一個路口標數最可靠。B 處共有 <b>' + v + '</b> 條捷徑。', '標數法')); api.unlock('B 處有 ' + v + ' 條捷徑！'); } } });
+      api.solve(function () { grid.fillAll(); });
       st.append(cap); api.lock('標到右上角 B');
     },
     /* 4 青蛙跳：先玩 */
@@ -112,6 +117,7 @@
         if (fr.len() === 4) { var ok = s.charAt(4) === 'A'; if (ok) { var isNew = found.add(s, s.split('').join('→')); P.toast(isNew ? '回到 A 了！新的跳法' : '這條走過了'); } else P.toast('第 4 跳沒回到 A，重來'); setTimeout(function () { fr.reset(); pill.textContent = 'A'; check(); }, 700); }
       });
       st.append(h('div', { class: 'pl-readout' }, pill)); pill.textContent = 'A';
+      api.solve(function () { ['ABABA', 'ABACA', 'ABCBA', 'ABCDA'].forEach(function (s) { found.add(s, s.split('').join('→')); }); check(); });
       function check() { if (found.count >= 4 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-add', step: 4 }); st.append(P.ruleBox('光是這樣找就找了好久。其實總共有 <b>52 種</b>！下一步看看怎麼不用一條一條找就算出來。', '好多！')); api.unlock('找到好幾種了！'); } }
       api.lock('找出 4 種不同的跳法');
     },
@@ -122,6 +128,7 @@
       var an = [1, 0, 4, 12];
       function addRow(n) { var tot = Math.pow(4, n - 1), minus = an[n - 1], r = h('tr', {}, h('td', {}, String(n)), h('td', {}, '4' + '⁰¹²³⁴'.charAt(n - 1) + ' ＝ ' + tot), h('td', {}, '− ' + minus), h('td', {}, h('b', {}, String(tot - minus)))); tbl.append(r); P.pop(r); }
       btn.addEventListener('click', function () { rows++; addRow(rows); if (rows === 3 && !asked) { asked = true; btn.style.display = 'none'; q.append(h('div', { class: 'pl-q', html: '照同樣的方法：跳 4 次回到 A 的方法數 ＝ 4³ − (跳 3 次回到 A 的 12 種) ＝ ？' })); P.numBox(q, { answer: 52, before: 'a₄ ＝', okMsg: '對！64 − 12 ＝ 52，和你一條一條找的同一件事（只是不用找）。', onOk: function () { P.track('aha', { id: 'count-add', step: 5 }); st.append(P.ruleBox('<b>aₙ ＝ 4ⁿ⁻¹ − aₙ₋₁</b>：前 n−1 次隨便跳，扣掉「第 n−1 次剛好在 A」的情形。<br>a₁＝0、a₂＝4、a₃＝12、a₄＝<b>52</b>、a₅＝204。每多跳一次只要一行算式。', '遞迴（補集）')); api.unlock('52 種，一行算出來！'); } }); } });
+      api.solve(function () { while (rows < 3) btn.click(); });
       st.append(tbl, h('div', { class: 'pc-btnrow' }, btn), q); api.lock('按「算下一列」，再算 a₄');
     },
     /* 5 換個外觀 */

@@ -38,6 +38,7 @@
             st.append(P.ruleBox('<b>平移</b>：每個點都移動<b>同一個方向、同一個距離</b>（三條虛線平行又一樣長）。形狀、大小、朝向都不變。', '性質')); api.unlock('這就是平移！');
           }
         } });
+      api.solve(function () { hd.moveTo(add(T0[0], goal)); });
       draw(T0[0]); st.append(ro, P.hint('三個點一起走：看上面「右幾、上幾」。')); api.lock('把三角形搬進虛線框');
     },
     /* 2 鏡射 */
@@ -55,7 +56,7 @@
         if (p[0] !== p[1]) { var L = Math.hypot(q[0] - p[0], q[1] - p[1]); board.rightMark(m, [(q[0] - p[0]) / L, (q[1] - p[1]) / L], [1 / Math.SQRT2, 1 / Math.SQRT2], 0.4, g); }
         pa.textContent = 'P (' + fmt(p[0]) + ', ' + fmt(p[1]) + ')'; pb.textContent = 'P′ (' + fmt(q[0]) + ', ' + fmt(q[1]) + ')';
       }
-      board.handle({ pos: [2, 7], candidates: function () { return board.snapOn ? cand : null; }, disabled: function () { return gate.on; }, valid: function (p) { return p[0] >= 0 && p[1] >= 0; },
+      var hd = board.handle({ pos: [2, 7], candidates: function () { return board.snapOn ? cand : null; }, disabled: function () { return gate.on; }, valid: function (p) { return p[0] >= 0 && p[1] >= 0; },
         onMove: function (t) {
           draw(t); var k = Math.round(t[0] * 2) + ',' + Math.round(t[1] * 2);
           if (t[0] !== t[1] && !seen[k]) { seen[k] = 1; n++; }
@@ -65,6 +66,7 @@
             P.toast(api.ctx.p2 === 0 ? '你猜對了！座標對調' : '座標對調：(x, y) → (y, x)'); api.unlock('發現規律了！');
           }
         } });
+      api.solve(function () { gate.on = false; [[3, 8], [6, 1], [1, 4]].forEach(hd.moveTo); });
       draw([2, 7]); st.append(ro, P.hint('P′ 會自己跟著動。虛線＝P 到鏡中像的連線。')); api.lock('先做上面的預測');
     },
     /* 3 旋轉 */
@@ -88,14 +90,15 @@
       var sp = new P.Spring(0, { k: 160, zeta: 0.5, onUpdate: draw }); draw(0);
       var stp = P.stepper('旋轉 ×90°', 0, 4, 0, function (v) {
         if (gate.on) return; sp.to(v * 90); visited[v] = 1;
-        if (visited[1] && visited[2] && !st.querySelector('.pl-rule')) {
-          setTimeout(function () {
-            P.track('aha', { id: 'transformations', step: 3 });
-            st.append(P.ruleBox('<b>旋轉</b>：每個點繞中心轉<b>同樣的角度</b>，到中心的<b>距離不變</b>（橘色虛線一樣長），形狀不變。', '性質'));
-            P.toast(api.ctx.p3 === 0 ? '你猜對了！在正上方' : '逆時針 90°：A 轉到正上方'); api.unlock('看懂旋轉了！');
-          }, 650);
-        }
+        if (visited[1] && visited[2] && !st.querySelector('.pl-rule')) setTimeout(concl, 650);
       }, function (v) { return v * 90 + '°'; });
+      function concl() {
+        if (st.querySelector('.pl-rule')) return;
+        P.track('aha', { id: 'transformations', step: 3 });
+        st.append(P.ruleBox('<b>旋轉</b>：每個點繞中心轉<b>同樣的角度</b>，到中心的<b>距離不變</b>（橘色虛線一樣長），形狀不變。', '性質'));
+        P.toast(api.ctx.p3 === 0 ? '你猜對了！在正上方' : '逆時針 90°：A 轉到正上方'); api.unlock('看懂旋轉了！');
+      }
+      api.solve(function () { gate.on = false; visited[1] = visited[2] = 1; stp.set(1, true); sp.to(90); concl(); });
       st.append(stp.el, ro, P.hint('橘色弧線＝A 走過的路；轉 4 次回到原位。')); api.lock('先做上面的預測');
     },
     /* 4 辨認 */

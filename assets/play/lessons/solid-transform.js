@@ -67,6 +67,7 @@
       var items = []; [0, 1, 2].forEach(function (a) { items.push({ k: a + '+', t: ANAME[a] + ' 軸 ↺', fn: go(a, 1) }, { k: a + '-', t: ANAME[a] + ' 軸 ↻', fn: go(a, -1) }); });
       var br = PS.btnRow(st, items); br.el.classList.add('ps-btngrid');
       var reset = PS.btnRow(st, [{ t: '重來', fn: function () { if (me.busy) return; me.setR(I3); moves = 0; pm.textContent = '已轉 0 次'; pk.className = 'pl-pill'; pk.textContent = '還沒一樣'; } }]);
+      api.solve(function () { me.setR(goal); after(); });
       st.append(ro, P.hint('↺ 逆時針、↻ 順時針（從軸的尖端往原點看）。紅＝x、綠＝y、藍＝z。')); api.lock('把積木轉成目標的樣子');
     },
     /* 2 順序有關 */
@@ -79,10 +80,12 @@
       var pr = P.pill('按「播放」', ''), ro = h('div', { class: 'pl-readout' }, pr);
       var br = PS.btnRow(st, [{ k: 'play', t: '▶ 播放', fn: function (btn) {
         if (gate.on) { P.toast('先做上面的預測'); return; } if (a.busy || b.busy) return; a.setR(I3); b.setR(I3); pr.className = 'pl-pill'; pr.textContent = '播放中…'; var n = 0;
-        function fin() { if (++n < 2) return; var same = eq(a.R, b.R); pr.className = 'pl-pill ' + (same ? 'is-ok' : 'is-pink'); pr.textContent = same ? '結果一樣' : '結果不一樣！'; played++;
-          if (!same && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-transform', step: 2 }); st.append(P.ruleBox('旋轉的<b>順序</b>會影響結果：先 x 再 y ≠ 先 y 再 x。<br>（先後順序換了，積木最後的姿勢就不同。）', '性質')); P.toast(api.ctx.p2 === 1 ? '你猜對了！不一樣' : '結果不一樣！'); api.unlock('順序很重要！'); } }
+        function fin() { if (++n < 2) return; judge(); }
         seqMoves(a, [[0, 1], [1, 1]], fin); seqMoves(b, [[1, 1], [0, 1]], fin);
       } }]);
+      function judge() { var same = eq(a.R, b.R); pr.className = 'pl-pill ' + (same ? 'is-ok' : 'is-pink'); pr.textContent = same ? '結果一樣' : '結果不一樣！'; played++;
+        if (!same && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-transform', step: 2 }); st.append(P.ruleBox('旋轉的<b>順序</b>會影響結果：先 x 再 y ≠ 先 y 再 x。<br>（先後順序換了，積木最後的姿勢就不同。）', '性質')); P.toast(api.ctx.p2 === 1 ? '你猜對了！不一樣' : '結果不一樣！'); api.unlock('順序很重要！'); } }
+      api.solve(function () { gate.on = false; a.setR(mm(MY, MX)); b.setR(mm(MX, MY)); judge(); });
       st.append(ro, P.hint('兩邊同時從一樣的姿勢出發，只是轉的順序相反。')); api.lock('先做上面的預測');
     },
     /* 3 鏡射與左右手 */
@@ -98,10 +101,12 @@
         if (busy) return; busy = true; var i = 0, hit = 0, base = A.centers();
         (function step() {
           if (i >= ROTS.length) { busy = false; tested[cur] = hit; pr.className = 'pl-pill ' + (hit ? 'is-ok' : 'is-pink'); pr.textContent = hit ? ('有 ' + hit + ' 種姿勢和原來一樣') : '24 種姿勢，沒有一個一樣！'; pn.textContent = '試完 24 / 24'; B.setR(I3);
-            if (tested.spiral !== undefined && tested.ell !== undefined && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-transform', step: 3 }); st.append(P.ruleBox('有些形狀的鏡像<b>怎麼轉都不一樣</b>（像<b>左手與右手</b>）。<br>只有「有對稱面」的形狀，鏡像才能轉成原來的樣子。', '性質')); api.unlock('左手右手轉不一樣！'); } return; }
+            concl(); return; }
           B.setR(ROTS[i]); var ok = sameShape(B.centers(), base); if (ok) hit++; i++; pn.textContent = '第 ' + i + ' / 24 種'; pr.className = 'pl-pill ' + (ok ? 'is-ok' : ''); pr.textContent = ok ? '這個姿勢一樣！' : '還是不一樣'; setTimeout(step, 110);
         })();
       } }]);
+      function concl() { if (tested.spiral !== undefined && tested.ell !== undefined && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-transform', step: 3 }); st.append(P.ruleBox('有些形狀的鏡像<b>怎麼轉都不一樣</b>（像<b>左手與右手</b>）。<br>只有「有對稱面」的形狀，鏡像才能轉成原來的樣子。', '性質')); api.unlock('左手右手轉不一樣！'); } }
+      api.solve(function () { busy = false; ['spiral', 'ell'].forEach(function (k) { cur = k; seg.set(k, false); A.piece = PIECES[k]; B.piece = PIECES[k]; A.setR(I3); var base = A.centers(), hit = 0; ROTS.forEach(function (R) { B.setR(R); if (sameShape(B.centers(), base)) hit++; }); tested[k] = hit; }); B.setR(I3); pr.className = 'pl-pill is-ok'; pr.textContent = '角落積木有 ' + tested.ell + ' 種姿勢一樣；螺旋積木 0 種'; pn.textContent = '兩種都試完 24 種'; concl(); });
       st.append(ro, P.hint('兩種積木都試一次，比較結果。')); api.lock('兩種積木都試一次');
     },
     /* 4 正方體的旋轉軸 */
@@ -128,6 +133,7 @@
         var qb = h('div', {}); ask.append(qb); qb.append(h('div', { class: 'pl-q', html: '把「不轉」也算一種。正方體所有「轉一轉就和自己重合」的方法共有幾種？<br><small>（面軸 3 條×3 種＋頂點軸 4 條×2 種＋稜軸 6 條×1 種＋不轉 1 種）</small>' }));
         P.numBox(qb, { answer: 24, before: '共', unit: '種', okMsg: '對！1 ＋ 3×3 ＋ 4×2 ＋ 6×1 ＝ 24 種。', onOk: function () { P.track('aha', { id: 'solid-transform', step: 4 }); setTimeout(function () { qb.style.display = 'none'; }, 1200); ask.append(P.ruleBox('正方體有 <b>13 條旋轉軸</b>（3 面軸、4 頂點軸、6 稜軸），共 <b>24 種</b>轉法會和自己重合。這就是正方體的<b>旋轉對稱</b>。', '性質')); api.unlock('24 種轉法！'); }, wrong: function () { return '提示：9 ＋ 8 ＋ 6 ＋ 1 ＝ ？'; } });
       }
+      api.solve(function () { visited = { face: 1, vert: 1, edge: 1 }; if (!ask.firstChild) showAsk(); });
       st.append(ro, ask, P.hint('三種軸都「轉給我看」一次，會出現一個問題。')); api.lock('三種軸都看一次，再回答問題');
     },
     /* 5 換個外觀 */

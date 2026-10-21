@@ -33,6 +33,7 @@
       }
       var s1 = P.stepper('a', 1, 5, 3, function (v) { A = v; chg(); }), s2 = P.stepper('b', 1, 3, 2, function (v) { B = v; chg(); });
       var row = h('div', { class: 'pl-steprow' }, s1.el, s2.el);
+      api.solve(function () { gate.on = false; s1.set(4); s2.set(1); s1.set(3); });
       st.append(row, ro, P.hint('邊長一改，四塊面積跟著彈一下。')); api.lock('先做上面的預測');
     },
     /* 2 積木填空 */
@@ -75,6 +76,7 @@
         stp.el.style.display = 'none'; cap.style.display = 'none'; q.append(qb); qb.append(h('div', { class: 'pl-q', html: '只算 25 − 10 − 10 ＝ 5，但藍色真正的面積是 3×3 ＝ 9。<br>差了多少？' }));
         P.numBox(qb, { answer: 4, before: '差了', okMsg: '對！差的 4 ＝ <b>b²</b>（2×2）：右下角被拿了兩次，要補回來。', onOk: function () { P.track('aha', { id: 'multiplication', step: 3 }); setTimeout(function () { qb.style.display = 'none'; ro.style.display = 'none'; }, 1200); q.append(P.ruleBox('<b>(a − b)² ＝ a² − 2ab ＋ b²</b><br>最後的 ＋b² 就是補回「被拿掉兩次的右下角」。', '公式')); api.unlock('補回角落！'); } });
       }
+      api.solve(function () { stp.set(2, true); phase = 2; draw(); if (!asked) { asked = true; ask(); } });
       st.append(stp.el, cap, ro, q); api.lock('拿掉兩條長條');
     },
         /* 4 平方差：剪下搬動 */
@@ -95,6 +97,7 @@
       }
       draw();
       var sl = P.slider(0, 100, 0, function (v) { t = v / 100; draw(); }); sl.addEventListener('change', function () { if (+sl.value > 90 && +sl.value < 100) { sl.value = 100; t = 1; draw(); } });
+      api.solve(function () { sl.value = 100; t = 1; draw(); });
       st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 原位'), h('span', {}, '搬到右邊 →')), ro, P.hint('粉紅那塊旋轉 90° 接到藍色右邊。')); api.lock('把滑桿拉到最右邊');
     },
     /* 5 代數方塊：(x+p)(x+q) */
@@ -113,6 +116,7 @@
       }
       function chg() { sp.to(p); sq.to(q); draw(); touched++; if (touched >= 4 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'multiplication', step: 5 }); st.append(P.ruleBox('<b>(x + p)(x + q) ＝ x² ＋ (p + q)x ＋ pq</b><br>x 的係數＝兩條長條加起來的個數 <b>p + q</b>。', '公式')); api.unlock('展開式看得見了！'); } }
       var sx = P.slider(30, 50, 40, function (v) { X = v / 10; chg(); }, 5), s1 = P.stepper('p', 1, 3, 2, function (v) { p = v; chg(); }), s2 = P.stepper('q', 1, 3, 3, function (v) { q = v; chg(); });
+      api.solve(function () { s1.set(1); s2.set(1); s1.set(3); s2.set(2); });
       st.append(h('div', { class: 'pl-steprow' }, s1.el, s2.el), sx, h('div', { class: 'pl-slider-lab' }, h('span', {}, 'x 短'), h('span', {}, 'x 長')), ro); api.lock('改一改 x、p、q');
     },
     /* 6 換個外觀（每題都有圖） */

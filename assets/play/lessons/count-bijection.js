@@ -41,6 +41,7 @@
       var host = PC.stage(st), found = PC.found(st, { label: '已找到拿法' }), cap = h('div', { class: 'pl-caption' }, '點縫，切開＝不同次拿；連著＝同一次拿'), q = h('div', {}), asked = false;
       var ch = chocolate(host, 5, function (bits, cs) { if (gate.on) { P.toast('先做上面的預測'); return; } cap.innerHTML = '拿法：(' + cs.join(', ') + ')　←　切法：' + bits.map(function (b) { return b ? '切' : '連'; }).join('、'); found.add(bits.join(''), '(' + cs.join(',') + ')'); check(); });
       function check() { if (found.count >= 8 && !asked) { asked = true; found.el.querySelector('.pc-found').style.display = 'none'; cap.style.display = 'none'; host.querySelector('svg').style.maxHeight = '100px'; var qb = h('div', {}); q.append(PC.boxes(q, [2, 2, 2, 2].map(function (n, i) { return { n: n, label: '縫 ' + (i + 1) }; }), { result: 16 }).el, qb); qb.append(h('div', { class: 'pl-q', html: '「拿法」和「切法」一一對應：4 條縫，每條 2 種（切／連）。那 <b>10 顆</b>巧克力有幾種拿法？' })); P.numBox(qb, { answer: 512, okMsg: '對！10 顆有 9 條縫：2⁹ ＝ 512。', onOk: function () { P.track('aha', { id: 'count-bijection', step: 1 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('<b>看「縫」不看「顆」</b>：每種拿法對應一種切法，每條縫「切／連」二選一。<br>n 顆有 n−1 條縫：<b>2ⁿ⁻¹</b> 種。5 顆 ＝ 2⁴ ＝ 16，10 顆 ＝ 2⁹ ＝ 512。', '一一對應')); P.toast(api.ctx.p1 === 1 ? '你猜對了！16 種' : '16 種'); api.unlock('換成看縫，一行算完！'); }, wrong: function (v) { return v === 1024 ? '10 顆有 9 條縫，不是 10 條。' : '提示：n 顆有幾條縫？每條縫 2 種選擇。'; } }); } }
+      api.solve(function () { gate.on = false; for (var m = 0; m < 8; m++) { var bits = [m & 1, m >> 1 & 1, m >> 2 & 1, 0]; found.add(bits.join(''), '(' + comp(bits, 5).join(',') + ')'); } check(); });
       st.append(cap, q); api.lock('先做上面的預測');
     },
     /* 2 補成固定 5 局 */
@@ -56,6 +57,7 @@
       function tog(i) { if (sel.length === 2) sel = []; var k = sel.indexOf(i); if (k >= 0) sel.splice(k, 1); else sel.push(i);
         if (sel.length === 2) { var pad = ''; for (var j = 0; j < 5; j++) pad += sel.indexOf(j) >= 0 ? '乙' : '甲'; var real = realOf(pad); draw(pad, real); cap.innerHTML = '補成 <b>' + pad + '</b>　→　從左讀到有人達標就停：真實賽程 <b>' + real + '</b>'; found.add(real); check(); return; } draw(); cap.textContent = '再點 1 個格子'; }
       function check() { if (found.count >= 6 && !asked) { asked = true; svg.style.maxHeight = '110px'; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '每種真實賽程，都對應「5 個位置選 2 個給乙」的唯一一種；反過來也是。所以共有幾種勝負情形？' })); P.numBox(qb, { answer: 10, okMsg: '對！C(5,2) ＝ 5×4÷2 ＝ 10。', onOk: function () { P.track('aha', { id: 'count-bijection', step: 2 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('<b>補成固定長度</b>：把長短不同的賽程，補成 5 局（3 甲 2 乙）。<b>一一對應</b>：每種賽程 ↔ 一個「選 2 個位置給乙」。<br>所以是 <b>C(5,2) ＝ 10</b>，不必一場一場分類。', '補寫賽程')); api.unlock('補成固定 5 局，一步算完！'); }, wrong: function (v) { return v === 20 ? '位置不分先後（乙乙順序不分），要除以 2。' : '提示：5 個位置選 2 個給乙。'; } }); } }
+      api.solve(function () { for (var i = 0; i < 5; i++) for (var j = i + 1; j < 5; j++) { sel = []; tog(i); tog(j); } });
       st.append(cap, q); draw(); api.lock('找出 6 種不同的真實賽程');
     },
     /* 3 後右下：排成一列 */
@@ -73,6 +75,7 @@
       }
       function mk(i, lab) { var s = P.stepper(lab, 0, 2, ex[i], function (v) { if (gate.on) { s.set(ex[i], true); return; } ex[i] = v; if (ex[0] + ex[1] + ex[2] === 0) { ex[i] = 1; s.set(1, true); } draw(); }, function (v) { return v + ' 次'; }); return s; }
       var s0 = mk(0, '右'), s1 = mk(1, '後'), s2 = mk(2, '下'), row = h('div', { class: 'pl-steprow pc-steprow3' }, s0.el, s1.el, s2.el);
+      api.solve(function () { gate.on = false; ex = [2, 2, 2]; [s0, s1, s2].forEach(function (s) { s.set(2, true); }); draw(); });
       st.append(row, list, cap); draw(); api.lock('先做上面的預測');
     },
     /* 4 單位平行四邊形 ↔ 內部線段 */
@@ -82,6 +85,7 @@
       host.append(gridHost);
       function build() { gridHost.innerHTML = ''; asked = false; q.innerHTML = ''; grid = triGrid(gridHost, n, function (nf) { pill.textContent = '你標出 ' + nf + ' 個'; if (nf >= 6 && !asked) { asked = true; stp.el.style.display = 'none'; var qb = h('div', {}); q.append(qb); var ans = 3 * n * (n - 1) / 2; qb.append(h('div', { class: 'pl-q', html: '每個平行四邊形 ↔ 唯一一條<b>內部</b>單位線段（共用邊）。邊長 ' + n + ' 的大三角形，共有幾個單位平行四邊形？' })); P.numBox(qb, { answer: ans, okMsg: '對！內部線段：三個方向各 ' + n * (n - 1) / 2 + ' 條，共 ' + ans + ' 條。', onOk: function () { P.track('aha', { id: 'count-bijection', step: 4 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('<b>平行四邊形 ↔ 內部線段</b>：一對一，所以數線段就好。<br><b>富比尼（算兩次）</b>：邊長 n 有 n² 個小三角形，每個 3 條邊，共 3n² 次；外框 3n 條各被算 1 次，內部各被算 2 次：內部邊 ＝ (3n² − 3n) ÷ 2 ＝ <b>3n(n−1) ÷ 2</b>。', '一一對應')); api.unlock('數線段，就是數平行四邊形！'); }, wrong: function () { return '提示：三個方向各有幾條內部線段？一共 3n(n−1)÷2。'; } }); } }); pill.textContent = '你標出 0 個'; }
       var stp = P.stepper('邊長', 3, 5, 4, function (v) { n = v; build(); }, function (v) { return v + ' 格'; });
+      api.solve(function () { for (var k = 0; k < 6 && !asked; k++) gridHost.querySelectorAll('line.pc-tap')[k].dispatchEvent(new MouseEvent('click', { bubbles: true })); });
       st.append(stp.el, h('div', { class: 'pl-readout' }, pill), q); build(); api.lock('先標出 6 個平行四邊形');
     },
     /* 5 窮舉：按答對題數分層 */
@@ -99,6 +103,7 @@
       var btn = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '點亮這一層');
       btn.addEventListener('click', function () { if (gate.on) { P.toast('先做上面的預測'); return; } if (layers[c]) return; layers[c] = 1; for (var s = 5 * c - 10; s <= 4 * c; s++) if (!lit[s]) { lit[s] = 1; nlit++; } draw(); check(); });
       function check() { if (Object.keys(layers).length === 11 && !asked) { asked = true; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '最低 −10、最高 40，中間共 51 個整數，但有幾個<b>暗的格子</b>點不亮（無法得到的分數）。不同的總分共有幾種？' })); P.numBox(qb, { answer: 45, okMsg: '對！暗的是 29、33、34、37、38、39 共 6 個：51 − 6 ＝ 45。', onOk: function () { P.track('aha', { id: 'count-bijection', step: 5 }); setTimeout(function () { qb.style.display = 'none'; }, 1400); st.append(P.ruleBox('<b>窮舉也要有系統</b>：按「答對幾題」分層，每層的分數是連續的一段；再看全部合起來有哪些洞。<br>驗算：51 − 6 ＝ <b>45</b> 種。', '分層窮舉')); P.toast(api.ctx.p5 === 1 ? '你猜對了！45 種' : '45 種'); api.unlock('分層窮舉！'); }, wrong: function (v) { return v === 51 ? '51 是最低到最高的所有整數，但 29、33 等分數得不到，要扣掉。' : '提示：數數暗格子有幾個，51 再扣掉。'; } }); } }
+      api.solve(function () { gate.on = false; for (var v = 0; v <= 10; v++) { stp.set(v); btn.click(); } });
       st.append(stp.el, h('div', { class: 'pc-btnrow' }, btn), cap, h('div', { class: 'pl-readout' }, pill), q); draw(); api.lock('先做上面的預測');
     },
     /* 6 換個外觀 */

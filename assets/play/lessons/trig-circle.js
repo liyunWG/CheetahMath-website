@@ -32,14 +32,15 @@
       function draw(p) {
         g.innerHTML = ''; var cs = (p[0] - C[0]) / R, sn = (p[1] - C[1]) / R, th = deg(p);
         b.line(C, p, 'pl-line', g); b.line(C, [p[0], C[1]], 'pl-line pl-line--blue pl-line--bold', g); thetaMark(b, p, g); b.line([p[0], C[1]], p, 'pl-line pl-line--pink pl-line--bold', g);
-        thetaMark(b, p, g);
         pa.textContent = 'θ ＝ ' + f2(th) + '°'; pc.textContent = 'cos θ ＝ ' + f2(cs) + '（橫）'; ps.textContent = 'sin θ ＝ ' + f2(sn) + '（縱）';
         return Math.abs(cs) < 1e-9;
       }
-      circleHandle(b, [8, 10], function (t) {
+      function move(t) {
         var ok = draw(t); if (ok && !done) { done = true; P.track('aha', { id: 'trig-circle', step: 1 }); st.append(P.ruleBox('單位圓上的點 P：<b>橫座標 ＝ cos θ</b>，<b>縱座標 ＝ sin θ</b>。<br>半徑是 1，所以 sin θ、cos θ 一定在 −1 到 1 之間。', '定義')); api.unlock('cos θ ＝ 0，P 在最上或最下！'); }
-      });
-      draw([8, 10]); st.append(ro, P.hint('藍＝橫向（cos θ）、粉紅＝縱向（sin θ）。圓上的格點剛好是 3-4-5。')); api.lock('把 P 拖到最上面或最下面');
+      }
+      var hd = circleHandle(b, [9, 10], move);
+      api.solve(function () { hd.set([6, 11]); move([6, 11]); });
+      draw([9, 10]); st.append(ro, P.hint('藍＝橫向（cos θ）、粉紅＝縱向（sin θ）。圓上的格點剛好是 3-4-5。')); api.lock('把 P 拖到最上面或最下面');
     },
     /* 2 sin²+cos²=1 */
     function (st, api) {
@@ -51,7 +52,8 @@
         b.poly([C, [p[0], C[1]], p], 'pl-poly pl-poly--amber', g); thetaMark(b, p, g); b.text([(C[0] + p[0]) / 2, C[1] - (sn >= 0 ? 0.55 : -0.4)], 'cos θ', 'pl-text pl-text--blue pl-text--sm', g); b.text([p[0] + (cs >= 0 ? 0.55 : -0.55), (C[1] + p[1]) / 2], 'sin θ', 'pl-text pl-text--pink pl-text--sm', g); b.text([(C[0] + p[0]) / 2 + (cs >= 0 ? -0.5 : 0.5), (C[1] + p[1]) / 2 + (sn >= 0 ? 0.5 : -0.5)], '1', 'pl-text pl-text--sm', g);
         pe.textContent = 'cos²θ ＋ sin²θ ＝ ' + f2(cs * cs) + ' ＋ ' + f2(sn * sn) + ' ＝ ' + f2(cs * cs + sn * sn);
       }
-      circleHandle(b, [9, 10], function (t) { draw(t); var k = t.join(); if (!seen[k]) { seen[k] = 1; n++; } if (n >= 3 && !ask.firstChild) showAsk(); });
+      var hd = circleHandle(b, [9, 10], function (t) { draw(t); var k = t.join(); if (!seen[k]) { seen[k] = 1; n++; } if (n >= 3 && !ask.firstChild) showAsk(); });
+      api.solve(function () { hd.set([9, 10]); draw([9, 10]); if (!ask.firstChild) showAsk(); });
       function showAsk() {
         var sv = host.querySelector('svg'); if (sv) sv.style.maxHeight = '215px';
         var qb = h('div', {}); ask.append(qb);
@@ -78,7 +80,10 @@
         pt.textContent = 'tan θ ＝ sin θ ÷ cos θ ＝ ' + f2(dy / R) + ' ÷ ' + f2(dx / R) + ' ＝ ' + f2(tanv);
         return false;
       }
-      circleHandle(b, [11, 6], function (t) { if (gate.on) return; var inf = draw(t); if (inf && !done) { done = true; P.track('aha', { id: 'trig-circle', step: 3 }); st.append(P.ruleBox('<b>tan θ ＝ sin θ ÷ cos θ</b>，就是切線 x＝1 上的高度。<br>θ 接近 90° 時，射線幾乎平行切線，tan θ 變得<b>超大</b>；剛好 90° 就<b>不存在</b>。', '定義')); P.toast(api.ctx.p3 === 1 ? '你猜對了！越來越大' : 'tan θ 越來越大，直到不存在'); api.unlock('看到 tan θ 爆衝了！'); } }, { disabled: function () { return gate.on; } });
+      var hd;
+      api.solve(function () { gate.on = false; hd.set([6, 11]); move([6, 11]); });
+      function move(t) { if (gate.on) return; var inf = draw(t); if (inf && !done) { done = true; P.track('aha', { id: 'trig-circle', step: 3 }); st.append(P.ruleBox('<b>tan θ ＝ sin θ ÷ cos θ</b>，就是切線 x＝1 上的高度。<br>θ 接近 90° 時，射線幾乎平行切線，tan θ 變得<b>超大</b>；剛好 90° 就<b>不存在</b>。', '定義')); P.toast(api.ctx.p3 === 1 ? '你猜對了！越來越大' : 'tan θ 越來越大，直到不存在'); api.unlock('看到 tan θ 爆衝了！'); } }
+      hd = circleHandle(b, [11, 6], move, { disabled: function () { return gate.on; } });
       draw([11, 6]); st.append(ro, P.hint('橘色粗線＝ tan θ 的大小；P 往上轉，它往上衝。')); api.lock('先做上面的預測');
     },
     /* 4 波形連動 */
@@ -106,6 +111,7 @@
         playing = !playing; btn.textContent = playing ? '⏸ 暫停' : '▶ 自動轉'; if (!playing) return; if (ang >= 358) { sp.jump(0); sl.value = 0; }
         P.run(function (dt) { if (!playing) return false; var v = Math.min(360, ang + 70 * dt); sp.jump(v); sl.value = v; if (v >= 360) { playing = false; btn.textContent = '▶ 自動轉'; return false; } });
       });
+      api.solve(function () { playing = false; btn.textContent = '▶ 自動轉'; sp.jump(360); sl.value = 360; });
       draw(); st.append(sl, h('div', { class: 'pl-row pl-row--center' }, btn), ro); api.lock('轉滿一圈（把滑桿拉到最右）');
     },
     /* 5 換個外觀（每題都有圖） */

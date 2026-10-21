@@ -17,6 +17,7 @@
       var tree = PC.tree(host, { names: ['豹', '翰'], colors: ['blue', 'pink'], rowH: 24, end: badminton, locked: function () { return gate.on; }, onChange: function (i) {
         pe.textContent = '已結束的賽程：' + i.ended + ' 種'; pp.textContent = i.pending ? '還有 ' + i.pending + ' 個沒展開' : '全部展開了';
         if (!i.pending && !done && !gate.on) { done = true; P.track('aha', { id: 'count-tree', step: 1 }); st.append(P.ruleBox('每一條從「開始」走到<b>金色圈</b>的路，就是一種勝負情形。一共 <b>10 種</b>：豹先贏第 1 場 5 種，翰先 5 種。<br>樹形圖一層一層分，<b>不重複、不遺漏</b>。', '樹形圖')); P.toast(api.ctx.p1 === 1 ? '你猜對了！10 種' : '數出來是 10 種'); api.unlock('樹形圖數出 10 種！'); } } });
+      api.solve(function () { gate.on = false; tree.expandAll(); });
       st.append(ro, P.hint('藍＝豹勝、粉紅＝翰勝；金色外圈＝比賽結束。'));
     },
     /* 2 專家思維：只畫一半 ×2 */
@@ -33,6 +34,7 @@
         pe.textContent = '豹先 5 ＋ 翰先 5 ＝ 10 種'; pe.className = 'pl-pill is-ok';
         if (!done) { done = true; P.track('aha', { id: 'count-tree', step: 2 }); st.append(P.ruleBox('把豹和翰<b>互換</b>，另一半的樹<b>一模一樣</b>（只是顏色對調）。<br>所以<b>只畫一半、再 × 2</b>：5 × 2 ＝ 10。還能用來檢查樹有沒有漏枝。', '對稱')); api.unlock('只畫一半就夠了！'); }
       });
+      api.solve(function () { tA.expandAll(); btn.click(); });
       st.append(ro, h('div', { class: 'pl-row pl-row--center' }, btn)); api.lock('把這一半展開');
     },
     /* 3 立方體最短路徑 */
@@ -69,6 +71,7 @@
           api.unlock('6 條全找到了！');
         }
       }
+      api.solve(function () { ['ABCG', 'ABFG', 'ADCG', 'ADHG', 'AEFG', 'AEHG'].forEach(function (k) { found.add(k, k.split('').join('→')); }); path = ['A']; fin = false; draw(); check(); });
       draw(); api.lock('找出 6 條最短路徑');
     },
     /* 4 n 人排隊 */
@@ -85,6 +88,7 @@
         if (gate.on) { stp.set(3, true); draw(3); return; } visited[v] = 1; draw(v);
         if (visited[4] && visited[5] && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-tree', step: 4 }); st.append(P.ruleBox('n 個人排隊 ＝ <b>n × (n−1) × … × 2 × 1</b>，記作 <b>n！</b>（n 階乘）。<br>3 人 6 種、4 人 24 種、5 人 120 種。', '階乘')); P.toast(api.ctx.p4 === 2 ? '你猜對了！24 種' : '4 人排隊是 24 種'); api.unlock('階乘看懂了！'); }
       }, function (v) { return v + ' 人'; });
+      api.solve(function () { gate.on = false; stp.set(4); stp.set(5); });
       st.append(stp.el, list, cap); draw(3); api.lock('先做上面的預測');
     },
     /* 5 換個外觀 */

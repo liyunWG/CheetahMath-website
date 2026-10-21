@@ -30,7 +30,8 @@
       sc.faces = faces(H); sc.invalidate(); if (api.onChange) api.onChange(H);
     }
     for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) (function (r, c) { var b = h('button', { type: 'button', class: 'ps-cell', 'aria-label': '加一塊' }); b.addEventListener('click', function () { var i = c, j = N - 1 - r; H[i][j] = (H[i][j] + 1) % (MAXH + 1); refresh(); }); btn.push(b); grid.append(b); })(r, c);
-    api.refresh = refresh; api.clear = function () { for (var i = 0; i < N; i++) for (var j = 0; j < N; j++) H[i][j] = 0; refresh(); }; refresh(); return api;
+    api.refresh = refresh; api.setH = function (M) { for (var i = 0; i < N; i++) for (var j = 0; j < N; j++) H[i][j] = M[i][j]; refresh(); };
+    api.clear = function () { for (var i = 0; i < N; i++) for (var j = 0; j < N; j++) H[i][j] = 0; refresh(); }; refresh(); return api;
   }
 
   var steps = [
@@ -48,6 +49,7 @@
         if (k === 'solid') { info.textContent = '拖動可以自己轉'; } else { holder.append(viewCap(V[k], names[k], 24)); var cnt = 0; V[k].forEach(function (r) { r.forEach(function (x) { cnt += x; }); }); info.textContent = names[k] + '：看到 ' + cnt + ' 個正方形'; if (!seen[k]) { seen[k] = 1; n++; } }
         if (n >= 3 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-views', step: 1 }); st.append(P.ruleBox('從<b>前、上、右</b>三個方向看，各得到一張<b>平面圖</b>，叫做<b>三視圖</b>。<br>被擋住的方塊看不見，所以<b>看到的正方形數 ≠ 方塊總數</b>。', '名稱')); P.toast(api.ctx.p1 === 1 ? '你猜對了！上視是 6 個' : '上視圖是 6 個正方形'); api.unlock('三個方向都看過了！'); }
       });
+      api.solve(function () { gate.on = false; ['front', 'top', 'right'].forEach(function (k) { seg.set(k); }); });
       seg.set('solid', false); st.append(holder, ro); api.lock('先做上面的預測');
     },
     /* 2 由三視圖搭出積木 */
@@ -61,6 +63,7 @@
         function set(p, ok, t) { p.className = 'pl-pill ' + (ok ? 'is-ok' : ''); p.textContent = (ok ? '✓ ' : '✗ ') + t; } set(pf, a, '前視'); set(pt, b, '上視'); set(pr, c, '右視');
         if (a && b && c && !done) { done = true; P.track('aha', { id: 'solid-views', step: 2 }); var same = PS.sameGrid(H, T); st.append(P.ruleBox('三個視圖都對了！' + (same ? '' : '<br>你搭的和標準答案<b>不一樣</b>，但三視圖相同——同樣的三視圖，積木堆<b>可能不只一種</b>。'), '發現')); api.unlock('搭對了！'); }
       } });
+      api.solve(function () { ui.setH(T); });
       st.append(ro, P.hint('先看上視圖決定哪些格有積木，再用前視、右視決定高度。')); api.lock('三個視圖都對');
     },
     /* 3 最少與最多 */
@@ -75,6 +78,7 @@
         if (ok && s === MM.max && !got.max) { got.max = true; px.className = 'pl-pill is-ok'; px.textContent = '最多：' + MM.max + ' 塊 ✓'; P.toast('找到最多：' + MM.max + ' 塊'); }
         if (got.min && got.max && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-views', step: 3 }); st.append(P.ruleBox('<b>最多</b>：每一格都放到「前視、右視要求的較小值」。<b>最少</b>：只放必要的，讓每個要求的高度剛好被某一格達到。<br>這一題：最少 <b>' + MM.min + '</b> 塊、最多 <b>' + MM.max + '</b> 塊。', '推理')); api.unlock('找到最少與最多了！'); }
       } });
+      api.solve(function () { ui.setH(MM.minH); ui.setH(MM.maxH); });
       st.append(ro, P.hint('格子最多放 3 塊。符合兩個視圖才算數。先試試把每格都放滿，再一格一格拿掉。')); api.lock('找出最少與最多');
     },
     /* 4 換個外觀 */

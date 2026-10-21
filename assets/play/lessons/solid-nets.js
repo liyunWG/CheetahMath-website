@@ -75,6 +75,7 @@
       var pr = P.pill('攤平', ''), ro = h('div', { class: 'pl-readout' }, pr);
       var sl = P.slider(0, 100, 0, function (v) { ns.setT(v / 100); var t = v / 100; pr.textContent = t < 0.02 ? '攤平' : t > 0.98 ? '摺好了！' : '摺到 ' + Math.round(v) + '%'; pr.className = 'pl-pill' + (t > 0.98 ? ' is-ok' : ''); if (t > 0.98 && !done) { done = true; P.track('aha', { id: 'solid-nets', step: 1 }); st.append(P.ruleBox('展開圖的 <b>6 個正方形</b>，摺起來剛好變成正方體的 <b>6 個面</b>。<br>數字相同的面，攤平和摺起來是同一面（可以拖動轉轉看）。', '名稱')); api.unlock('摺成正方體了！'); } });
       sl.addEventListener('change', function () { if (+sl.value > 90 && +sl.value < 100) { sl.value = 100; sl.dispatchEvent(new Event('input')); } });
+      api.solve(function () { sl.value = 100; sl.dispatchEvent(new Event('input')); });
       st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤平'), h('span', {}, '摺起來 →')), ro, P.hint('也可以用手指拖動畫面，轉到不同角度看。')); api.lock('把滑桿拉到最右邊');
     },
     /* 2 能摺還是不能摺 */
@@ -93,6 +94,7 @@
         if (right >= 4 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-nets', step: 2 }); st.append(P.ruleBox('不是每個「6 個正方形連在一起」都能摺成正方體！<br>常見<b>不能摺</b>：<b>一排有 5 個</b>、有 <b>2×2 的四個方塊擠在一起</b>、兩個面摺過去會<b>疊在同一面</b>。', '規律')); api.unlock('抓到訣竅了！'); }
       }
       function next() { i++; load(); }
+      api.solve(function () { for (var g = 0; g < 12 && right < 4; g++) { if (locked) next(); judge(seq[i % seq.length].ok); } });
       st.append(ro, P.hint('答對 4 個就過關；錯了也沒關係，看它怎麼摺會更清楚。')); load(); api.lock('答對 4 個');
     },
     /* 3 11 種 */
@@ -107,6 +109,7 @@
         if (!seen[k]) { seen[k] = 1; n++; btns[k].classList.add('is-seen'); pr.textContent = '已看 ' + n + ' / 11'; }
         if (n >= 11 && !st.querySelector('.pl-rule')) { var g4 = V.filter(function (x) { return info.run(x) === 4; }).length, g3 = V.filter(function (x) { return info.run(x) === 3; }).length, g2 = V.length - g4 - g3; P.track('aha', { id: 'solid-nets', step: 3 }); st.append(P.ruleBox('正方體的展開圖<b>共 11 種</b>：<b>一排 4 個</b>的 ' + g4 + ' 種、<b>最長一排 3 個</b>的 ' + g3 + ' 種、<b>階梯形</b>的 ' + g2 + ' 種。', '共 11 種')); api.unlock('11 種都看過了！'); }
       }
+      api.solve(function () { V.forEach(function (c, k) { if (!seen[k]) show(k); }); });
       st.append(pick, ro, P.hint('點一個縮圖，看它怎麼摺；綠色＝已看過。')); show(0); api.lock('把 11 種都點開看過');
     },
     /* 4 柱體與錐體 */
@@ -121,6 +124,7 @@
         if (n >= 4 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-nets', step: 4 }); st.append(P.ruleBox('<b>柱體</b>的側面展開是長方形；<b>錐體</b>的側面是三角形（圓錐是<b>扇形</b>）。<br>圓柱側面的長 ＝ 底圓周長 <b>2πr</b>。', '性質')); P.toast(api.ctx.p4 === 1 ? '你猜對了！圓錐側面是扇形' : '圓錐側面展開是扇形'); api.unlock('四種都摺過了！'); } }
       function load(k) { cur = k; seg.set(k, false); ns.setNet(SOLIDS[k].mk(), null); ns.sc.pitch = -0.95; ns.sc.yaw = -0.5; sl.value = 0; fold = 0; pn.innerHTML = SOLIDS[k].note; }
       seg.set('tprism', false); load('tprism'); pr.textContent = '已摺過 0 / 4 種';
+      api.solve(function () { gate.on = false; ['tprism', 'spyr', 'cyl', 'cone'].forEach(function (k) { if (seen[k]) return; load(k); sl.value = 100; sl.dispatchEvent(new Event('input')); }); });
       st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤平'), h('span', {}, '摺起來 →')), pn, ro); api.lock('先做上面的預測');
     },
     /* 5 螞蟻爬立方體 */
@@ -143,6 +147,7 @@
       var pl = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pl);
       var s1 = P.slider(0, 100, 20, function (v) { if (gate.on) { P.toast('先做上面的預測'); return; } t = Math.abs(v - 50) < 4 ? 0.5 : v / 100; draw(); });
       var s2 = P.slider(0, 90, 0, function (v) { if (gate.on) { P.toast('先做上面的預測'); return; } psi = v; draw(); });
+      api.solve(function () { gate.on = false; t = 0.5; psi = 90; s1.value = 50; s2.value = 90; draw(); });
       st.append(h('div', { class: 'ps-note' }, '① 路線經過上緣的位置'), s1, h('div', { class: 'ps-note' }, '② 把「上面」往外攤平'), s2, ro, P.hint('先把 ① 調到正中間，再把 ② 拉到最右。')); draw(); api.lock('先做上面的預測');
     },
     /* 6 換個外觀 */

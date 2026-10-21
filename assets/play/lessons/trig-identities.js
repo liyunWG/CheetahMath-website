@@ -43,6 +43,7 @@
         pS.textContent = t.sin; pC.textContent = t.cos;
       }
       var hd = circH(b, P0, '', function (tp) { draw(tp); });
+      api.solve(function () { btns.forEach(function (bt) { bt.click(); }); });
       draw(P0); st.append(seg, ro, P.hint('也可以拖動 P，看公式是不是永遠成立。')); api.lock('四個按鈕都按一次');
     },
     /* 2 和角公式＝旋轉 */
@@ -65,6 +66,7 @@
       function chk() { if (moved.a && moved.b && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'trig-identities', step: 2 }); st.append(P.ruleBox('旋轉 α 之後，(cos β, sin β) 變成<br><b>cos β·(cos α, sin α) ＋ sin β·(−sin α, cos α)</b><br>所以 <b>cos(α+β) ＝ cosα cosβ − sinα sinβ</b>、<b>sin(α+β) ＝ sinα cosβ + cosα sinβ</b>', '公式')); api.unlock('和角公式是旋轉合成！'); } }
       A = A0; Bp = B0;
       circH(b, A0, 'is-blue', function (t) { A = t; moved.a = 1; draw(); chk(); }); circH(b, B0, 'is-pink', function (t) { Bp = t; moved.b = 1; draw(); chk(); });
+      api.solve(function () { moved.a = moved.b = 1; draw(); chk(); });
       draw(); st.append(ro, P.hint('藍線＝沿 α 方向走 cos β；粉紅線＝轉 90° 方向走 sin β。終點就是 α＋β。')); api.lock('兩個點都拖一下');
     },
     /* 3 倍角 */
@@ -83,6 +85,7 @@
         var qb = h('div', {}); ask.append(qb); qb.append(h('div', { class: 'pl-q', html: '某個 α 的 <b>cos α ＝ 0.6、sin α ＝ 0.8</b>。<br><b>sin 2α ＝ ？</b>' }));
         P.numBox(qb, { answer: 0.96, okMsg: '對！sin 2α ＝ 2 × 0.8 × 0.6 ＝ 0.96。', onOk: function () { P.track('aha', { id: 'trig-identities', step: 3 }); setTimeout(function () { qb.style.display = 'none'; }, 1100); ask.append(P.ruleBox('<b>sin 2α ＝ 2 sinα cosα</b>，<b>cos 2α ＝ cos²α − sin²α</b>。<br>倍角公式＝和角公式裡 β ＝ α。', '公式')); api.unlock('倍角也是旋轉！'); }, wrong: function (v) { return v === 1.6 || v === 1.2 ? '提示：2 × sinα × cosα，兩個數相乘後再乘 2。' : '提示：sin 2α ＝ 2 sinα cosα。'; } });
       }
+      api.solve(function () { if (!ask.firstChild) showAsk(); });
       draw(); st.append(ro, ask, P.hint('拖動 α 兩次以上，會出現一個問題。')); api.lock('拖動 α，再回答問題');
     },
     /* 4 換個外觀（每題都有圖） */
