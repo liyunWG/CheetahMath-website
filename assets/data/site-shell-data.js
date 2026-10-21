@@ -16,6 +16,7 @@ window.__SITE_SHELL__ = {
     ["students.html", "獵豹菁英"],
     ["columns.html", "文章專欄"],
     ["star-mom.html", "獵豹錦囊"],
+    ["play.html", "獵豹玩中學"],
     ["news.html", "最新消息"],
     ["learning-system.html", "學習系統"],
     ["about.html", "關於獵豹"],

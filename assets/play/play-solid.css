@@ -1,0 +1,51 @@
+/* 獵豹玩中學｜立體幾何單元樣式（前綴 ps-） */
+.pl-stage--3d{padding:4px;display:flex;justify-content:center;background:linear-gradient(180deg,#fff,#fbf7ee)}
+.pl-3d{display:block;max-width:100%;cursor:grab}
+.pl-3d:active{cursor:grabbing}
+.ps-row{display:flex;gap:8px;justify-content:center;align-items:flex-start;flex-wrap:nowrap}
+.ps-row>.pl-stage{flex:1 1 0;min-width:0}
+.ps-seg{margin:6px 0 0}
+.ps-seg .pl-opt{padding:6px 2px;min-height:42px;font-size:13.5px;line-height:1.25}
+.ps-btnrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0 0}
+.ps-btn{appearance:none;border:1.5px solid var(--line-strong);background:linear-gradient(135deg,#fff7de,#fff);color:var(--navy);font:inherit;font-size:14.5px;font-weight:800;border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer}
+.ps-btn.is-on{background:linear-gradient(135deg,#ffe9a8,#fff3d0);border-color:rgba(185,147,72,.8)}
+.ps-btn.is-blue{color:var(--pl-blue);border-color:rgba(47,111,220,.5)}.ps-btn.is-pink{color:var(--pl-pink);border-color:rgba(214,51,108,.5)}.ps-btn.is-green{color:var(--pl-green);border-color:rgba(31,157,85,.5)}
+.ps-btn[disabled]{opacity:.45}
+.ps-tag{position:absolute;left:8px;top:8px;z-index:2;font-size:12px;font-weight:900;color:var(--muted);background:rgba(255,255,255,.88);border-radius:999px;padding:2px 9px}
+.ps-pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 0}
+.ps-pills .pl-pill{font-size:13.5px}
+.ps-viewsvg{display:block}
+.ps-vfill{fill:rgba(47,111,220,.28);stroke:#122548;stroke-width:1.5}
+.ps-vempty{fill:#fff;stroke:#d9ccb0;stroke-width:1}
+.ps-netsvg{display:block}
+.ps-netcell{fill:rgba(47,111,220,.22);stroke:#122548;stroke-width:1.4}
+.ps-viewbox{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:800;color:var(--muted)}
+.ps-viewrow{display:flex;gap:10px;justify-content:center;align-items:flex-end;margin:6px 0}
+.ps-cellgrid{display:grid;gap:3px}
+.ps-cell{appearance:none;border:1.5px solid #cdbf9d;background:#fff;border-radius:8px;font:inherit;font-size:18px;font-weight:900;color:var(--navy);min-height:40px;cursor:pointer;padding:0}
+.ps-cell[data-n="1"]{background:#e6efff}.ps-cell[data-n="2"]{background:#cfe0ff}.ps-cell[data-n="3"]{background:#b3ceff}.ps-cell[data-n="4"]{background:#97bcff}
+.ps-note{text-align:center;font-size:14px;color:var(--muted);margin:6px 0}
+.ps-chipsvg{display:inline-block;vertical-align:middle}
+.pl-opt .ps-netsvg,.pl-opt .ps-viewsvg{margin:0 auto}
+.ps-netpick{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin:6px 0 0}
+.ps-netpick button{appearance:none;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:4px 2px;min-height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ps-netpick button.is-sel{border-color:var(--pl-blue);background:var(--pl-blue-soft)}
+.ps-netpick button.is-seen{background:var(--pl-green-soft);border-color:rgba(31,157,85,.5)}
+.ps-netpick button.is-sel.is-seen{border-color:var(--pl-blue)}
+@media (max-width:520px){.ps-btn{padding:7px 11px;font-size:14px}}
+.ps-fan{display:block;max-height:165px;margin:0 auto}
+
+.ps-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column}
+.ps-cap{text-align:center;font-size:12.5px;font-weight:900;color:var(--muted);margin:0 0 3px}
+.ps-btngrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ps-btngrid .ps-btn{padding:6px 4px;font-size:13.5px}
+.ps-seg small{font-size:11px;font-weight:600;color:var(--muted)}
+
+.ps-gridcol{flex:0 0 132px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ps-gridcol .ps-cellgrid{width:126px}
+.ps-cell--static{display:flex;align-items:center;justify-content:center;cursor:default;min-height:38px;width:42px}
+.ps-cellgrid--static{width:132px}
+.ps-viewbox .ps-cellgrid{margin:0 auto}
+
+.ps-netcol{flex:0 0 128px;align-items:center;justify-content:center}
+.pl-caption{min-height:40px}
