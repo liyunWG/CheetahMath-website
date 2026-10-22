@@ -6,22 +6,24 @@
   function stage(st) { var wrap = h('div', { class: 'pl-stage' }); st.append(wrap); return wrap; }
   function dist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
   function fillPoly(el, c) { el.style.fill = c; el.style.stroke = c.replace(/,[.\d]+\)$/, ',1)'); }
+  /* 把各角度取整數，且加總剛好等於 total（最大餘數法），畫面上的數字加起來才會剛好 360 */
+  function roundSum(vals, total) { var fl = vals.map(Math.floor), rest = total - fl.reduce(function (a, b) { return a + b; }, 0), order = vals.map(function (v, i) { return [v - Math.floor(v), i]; }).sort(function (a, b) { return b[0] - a[0]; }), k; for (k = 0; k < rest; k++) fl[order[k][1]]++; return fl; }
   function poly(n) { return G.ellipsePoly(n, C0, 4.6, 3.6, 200); }
   function tip(board, g, V, d, txt, color) { var r = 2.0, p = G.polar(V, r, d); board.text([p[0], p[1] - 0.2], txt, 'pl-text pl-text--sm ' + (color || ''), g); }
 
   var steps = [
     /* 1. 走一圈：一共轉了幾度 */
     function (st, api) {
-      var gate = { on: true }, n = 3, seen = {}, done = false, t = 0, pts, an, cum, per;
+      var gate = { on: true }, n = 3, seen = {}, done = false, t = 0, pts, an, ints, cum, per;
       P.choice(st, api, { id: 'pa-p1', predict: true, label: '先猜猜看', prompt: '小豹沿著多邊形的邊走一圈回到出發點，過程中<b>一共轉了幾度</b>？', row: true, options: [{ t: '180°' }, { t: '360°' }, { t: '720°' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿讓小豹走一圈，換幾種多邊形'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), outline = board.poly([C0, C0, C0], 'pl-poly pl-poly--ghost'); board.gMid.append(g);
       var pTurn = P.pill('', 'is-amber'), pEnd = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pTurn, pEnd);
       var sn = P.stepper('邊數 n', 3, 8, 3, function (v) { n = v; sl.value = 0; t = 0; build(); draw(); });
-      function build() { pts = poly(n); an = G.polyAngles(pts); cum = [0]; for (var i = 0; i < n; i++) cum.push(cum[i] + dist(pts[i], pts[(i + 1) % n])); per = cum[n]; board.setPoly(outline, pts); }
+      function build() { pts = poly(n); an = G.polyAngles(pts); ints = roundSum(an.ext, 360); cum = [0]; for (var i = 0; i < n; i++) cum.push(cum[i] + dist(pts[i], pts[(i + 1) % n])); per = cum[n]; board.setPoly(outline, pts); }
       function draw() {
         g.innerHTML = ''; var s = t * per, e = 0, v, turned = 0; while (e < n - 1 && s >= cum[e + 1]) e++;
         var p = G.lerp(pts[e], pts[(e + 1) % n], (s - cum[e]) / (cum[e + 1] - cum[e])), hd = an.heads[e] * rad, u = [Math.cos(hd), Math.sin(hd)], q = [-u[1], u[0]];
-        for (v = 1; v <= n; v++) if (s >= cum[v] - 1e-6) { var idx = v % n, d1 = an.heads[(idx + n - 1) % n], w = G.wedge(pts[idx], d1, d1 + an.ext[idx], 1.2, an.ext[idx]); turned += an.ext[idx]; fillPoly(board.poly(w.pts, 'pl-poly', g), COL[(v - 1) % 8]); tip(board, g, pts[idx], w.bis, Math.round(an.ext[idx]) + '°'); }
+        for (v = 1; v <= n; v++) if (s >= cum[v] - 1e-6) { var idx = v % n, d1 = an.heads[(idx + n - 1) % n], w = G.wedge(pts[idx], d1, d1 + an.ext[idx], 1.2, an.ext[idx]); turned += ints[idx]; fillPoly(board.poly(w.pts, 'pl-poly', g), COL[(v - 1) % 8]); tip(board, g, pts[idx], w.bis, ints[idx] + '°'); }
         board.poly([[p[0] + 0.6 * u[0], p[1] + 0.6 * u[1]], [p[0] - 0.3 * u[0] + 0.32 * q[0], p[1] - 0.3 * u[1] + 0.32 * q[1]], [p[0] - 0.3 * u[0] - 0.32 * q[0], p[1] - 0.3 * u[1] - 0.32 * q[1]]], 'pl-poly pl-poly--green', g);
         pTurn.textContent = '已經轉了 ' + Math.round(turned) + '°'; var full = t > 0.999; pEnd.className = 'pl-pill' + (full ? ' is-ok' : ''); pEnd.textContent = full ? '✓ 走完一圈：共轉 ' + Math.round(turned) + '°' : '繼續走…';
         if (full && !seen[n]) { seen[n] = 1; var c = Object.keys(seen).length; if (c >= 3 && !done) { done = true; P.track('aha', { id: 'polygon-angles', step: 1 }); P.toast(api.ctx.p1 === 1 ? '你猜對了！' : '都是 360°'); st.append(P.ruleBox('不管是三角形、四邊形還是更多邊，走一圈回到原來的方向，一共<b>轉了 360°</b>。<br>每個轉角就是一個<b>外角</b>，所以<b>多邊形的外角和 ＝ 360°</b>。', '外角和')); api.unlock('外角和 ＝ 360°！'); } }
@@ -34,12 +36,12 @@
     /* 2. 把外角搬到同一點 */
     function (st, api) {
       st.append(P.instr('把每個頂點的<b>外角</b>「剪」下來，拉滑桿把它們<b>全部搬到同一個點</b>，看看會拼出什麼。'));
-      var n = 4, seen = {}, done = false, u = 0, pts, an, host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), outline = board.poly([C0, C0, C0], 'pl-poly pl-poly--ghost'), M = [6, 5.2]; board.gMid.append(g);
+      var n = 4, seen = {}, done = false, u = 0, pts, an, ints, host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), outline = board.poly([C0, C0, C0], 'pl-poly pl-poly--ghost'), M = [6, 5.2]; board.gMid.append(g);
       var pk = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pk), sn = P.stepper('邊數 n', 3, 8, 4, function (v) { n = v; sl.value = 0; u = 0; build(); draw(); });
-      function build() { pts = poly(n); an = G.polyAngles(pts); board.setPoly(outline, pts); }
+      function build() { pts = poly(n); an = G.polyAngles(pts); ints = roundSum(an.ext, 360); board.setPoly(outline, pts); }
       function draw() {
         g.innerHTML = ''; var i, tot = 0;
-        for (i = 0; i < n; i++) { var d1 = an.heads[(i + n - 1) % n], apex = G.lerp(pts[i], M, u), w = G.wedge(apex, d1, d1 + an.ext[i], 1.8, an.ext[i]); tot += an.ext[i]; fillPoly(board.poly(w.pts, 'pl-poly', g), COL[i % 8]); if (u > 0.99) { var tp = G.polar(M, 1.2, w.bis); board.text([tp[0], tp[1] - 0.2], Math.round(an.ext[i]) + '°', 'pl-text pl-text--sm', g); } }
+        for (i = 0; i < n; i++) { var d1 = an.heads[(i + n - 1) % n], apex = G.lerp(pts[i], M, u), w = G.wedge(apex, d1, d1 + an.ext[i], 1.8, an.ext[i]); tot += an.ext[i]; fillPoly(board.poly(w.pts, 'pl-poly', g), COL[i % 8]); var tp = G.polar(apex, 1.2 + 0.9 * (1 - u), w.bis); board.text([tp[0], tp[1] - 0.2], ints[i] + '°', 'pl-text pl-text--sm', g); }
         var full = u > 0.99; pk.className = 'pl-pill' + (full ? ' is-ok' : ' is-amber'); pk.textContent = full ? '✓ 拼成一整圈 ＝ 360°（沒有縫、沒有重疊）' : '外角們還散在各個頂點…';
         if (full && !seen[n]) { seen[n] = 1; if (Object.keys(seen).length >= 3 && !done) { done = true; P.track('aha', { id: 'polygon-angles', step: 2 }); st.append(P.ruleBox('不管幾邊形，所有外角搬到同一點，<b>剛好拼成一個圓周</b>，一點縫隙也沒有，所以外角和 ＝ <b>360°</b>。', '原因')); api.unlock('外角拼成一整圈！'); } }
       }
@@ -54,9 +56,9 @@
       var pts = [[3, 2], [9, 2], [11, 6], [7, 9], [2, 7]], moves = 0, done = false, hs = [], host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), pg = board.poly(pts, 'pl-poly pl-poly--amber'); board.gMid.append(g);
       var pe = h('div', { class: 'pl-readout pl-readout--col' }), p1 = P.pill('', 'is-blue'), p2 = P.pill('', 'is-ok'), p3 = P.pill('', 'is-pink'); pe.append(p1, p2, p3); st.append(pe);
       function draw() {
-        g.innerHTML = ''; board.setPoly(pg, pts); var an = G.polyAngles(pts); if (!an) return; var i, txt = [];
-        for (i = 0; i < 5; i++) { var d1 = an.heads[(i + 4) % 5], w = G.wedge(pts[i], d1, d1 + an.ext[i], 0.9, an.ext[i]); fillPoly(board.poly(w.pts, 'pl-poly', g), COL[i]); txt.push(Math.round(an.ext[i]) + '°'); }
-        p1.textContent = '外角：' + txt.join(' ＋ '); p2.textContent = '外角和 ＝ ' + Math.round(an.sum) + '°（永遠不變）'; p3.textContent = '內角和 ＝ 540°';
+        g.innerHTML = ''; board.setPoly(pg, pts); var an = G.polyAngles(pts); if (!an) return; var i, txt = [], ints = roundSum(an.ext, 360);
+        for (i = 0; i < 5; i++) { var d1 = an.heads[(i + 4) % 5], w = G.wedge(pts[i], d1, d1 + an.ext[i], 0.9, an.ext[i]); fillPoly(board.poly(w.pts, 'pl-poly', g), COL[i]); txt.push(ints[i] + '°'); tip(board, g, pts[i], w.bis, ints[i] + '°', 'pl-text--lg'); }
+        p1.textContent = '外角：' + txt.join(' ＋ '); p2.textContent = '外角和 ＝ ' + ints.reduce(function (x, y) { return x + y; }, 0) + '°（永遠不變）'; p3.textContent = '內角和 ＝ 540°';
       }
       pts.forEach(function (p0, i) {
         var hd = board.handle({ pos: p0, valid: function (t) { var q = pts.slice(); q[i] = t; return !!G.polyAngles(q); }, onMove: function (t) { var q = pts.slice(); q[i] = t; if (!G.polyAngles(q)) { hd.set(pts[i], true); return; } pts[i] = t; draw(); moves++;
@@ -78,7 +80,7 @@
           function txt() { info.innerHTML = '<b>正 n 邊形</b>的每個外角都一樣大。調整邊數 n，讓<b>每個外角剛好是 ' + targets[Math.min(ti, 2)] + '°</b>。<small>（目標 ' + (Math.min(ti, 2) + 1) + ' / 3）</small>'; }
           function draw() {
             g.innerHTML = ''; var pts = G.regPoly(n, C0, 3.6, 90 + 180 / n), an = G.polyAngles(pts), e = 360 / n; bd.setPoly(pg, pts);
-            for (var i = 0; i < n; i++) { var d1 = an.heads[(i + n - 1) % n], w = G.wedge(pts[i], d1, d1 + an.ext[i], 1.0, an.ext[i]); fillPoly(bd.poly(w.pts, 'pl-poly', g), COL[1]); }
+            for (var i = 0; i < n; i++) { var d1 = an.heads[(i + n - 1) % n], w = G.wedge(pts[i], d1, d1 + an.ext[i], 1.0, an.ext[i]); fillPoly(bd.poly(w.pts, 'pl-poly', g), COL[1]); var lp = G.polar(pts[i], 1.7, w.bis); bd.text([lp[0], lp[1] - 0.2], (Math.round(e * 10) / 10) + '°', 'pl-text pl-text--sm', g); }
             pa.textContent = '每個外角 ＝ 360° ÷ ' + n + ' ＝ ' + (Math.round(e * 10) / 10) + '°'; pb.textContent = '每個內角 ＝ ' + (Math.round((180 - e) * 10) / 10) + '°';
             if (ti < 3 && Math.abs(e - targets[ti]) < 1e-9) { ti++; if (ti >= 3) { P.toast('外角 ＝ 360° ÷ 邊數'); P.track('aha', { id: 'polygon-angles', step: 4 }); txt(); done(); } else { P.toast('✓ 找到了，下一個'); txt(); } }
           }

@@ -102,7 +102,7 @@
         var A = polar(aAng), wp = wedge(Pp, dirTo(Pp, O), dirTo(Pp, A), 1.1), wa = wedge(A, dirTo(A, O), dirTo(A, Pp), 1.1), wc = wedge(O, Ba, aAng, 1.5), x = Math.round(wp.val);
         board.setLine(pa, Pp, A); board.setLine(oa, O, A); board.setPoly(wx, wp.pts); board.setPoly(wy, wa.pts); board.setPoly(wo, wc.pts);
         board.setText(tA, [polar(aAng, R + 0.75)[0], polar(aAng, R + 0.75)[1] - 0.2]);
-        board.setText(tx, [Pp[0] + 2.0 * Math.cos(wp.bis * rad), Pp[1] + 2.0 * Math.sin(wp.bis * rad) - 0.2], 'x'); board.setText(ty, [A[0] + 1.8 * Math.cos(wa.bis * rad), A[1] + 1.8 * Math.sin(wa.bis * rad) - 0.2], 'x');
+        board.setText(tx, [Pp[0] + 2.0 * Math.cos(wp.bis * rad), Pp[1] + 2.0 * Math.sin(wp.bis * rad) - 0.2], 'x ＝ ' + x + '°'); board.setText(ty, [A[0] + 1.9 * Math.cos(wa.bis * rad), A[1] + 1.9 * Math.sin(wa.bis * rad) - 0.2], 'x ＝ ' + Math.round(wa.val) + '°');
         board.setText(to, [polar(wc.bis, 2.6)[0], polar(wc.bis, 2.6)[1] - 0.2], Math.round(wc.val) + '°');
         p1.textContent = '圓周角 x ＝ ∠OPA ＝ ' + x + '°'; p2.textContent = '∠OAP ＝ ' + Math.round(wa.val) + '°（OA ＝ OP，底角相等）'; p3.textContent = '圓心角 ∠AOB ＝ ' + Math.round(wc.val) + '° ＝ 2 × ' + x + '°';
         return Math.round(aAng / 10);
@@ -151,7 +151,7 @@
           function draw() {
             var Pp = polar(pa), Qp = polar(qa), vp = Math.round(angAt(Pp, A, B)), vq = Math.round(angAt(Qp, A, B));
             board.setLine(lp1, Pp, A); board.setLine(lp2, Pp, B); board.setLine(lq1, Qp, A); board.setLine(lq2, Qp, B);
-            board.setText(tP, [Pp[0] + 0.7 * Math.cos(pa * rad), Pp[1] + 0.7 * Math.sin(pa * rad) - 0.2]); board.setText(tQ, [Qp[0] + 0.7 * Math.cos(qa * rad), Qp[1] + 0.7 * Math.sin(qa * rad) - 0.2]);
+            board.setText(tP, [Pp[0] + 1.1 * Math.cos(pa * rad), Pp[1] + 1.1 * Math.sin(pa * rad) - 0.2], 'P：' + vp + '°'); board.setText(tQ, [Qp[0] + 1.1 * Math.cos(qa * rad), Qp[1] + 1.1 * Math.sin(qa * rad) - 0.2], 'Q：' + vq + '°');
             pv.textContent = '∠APB ＝ ' + vp + '°'; qv.textContent = '∠AQB ＝ ' + vq + '°'; var sep = Math.abs(shortest(pa, qa)), ok = vp === 48 && vq === 48 && sep >= 40;
             gl.className = 'pl-pill' + (ok ? ' is-ok' : ''); gl.textContent = ok ? '✓ 兩個都是 48°' : (vp === 132 || vq === 132 ? '在小弧上會是 132° ＝ 180° − 48°' : '兩個都要 48°，且離遠一點');
             if (ok) { P.toast('同一條弧，圓周角一樣大！'); P.track('aha', { id: 'circle-angles', step: 6 }); done(); }

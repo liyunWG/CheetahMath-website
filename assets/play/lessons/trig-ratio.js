@@ -4,6 +4,7 @@
   var P = Play, h = P.h, G = PlayGeo, rad = G.rad, O = [1, 1];
   function stage(st) { var wrap = h('div', { class: 'pl-stage' }); st.append(wrap); return wrap; }
   function f2(x) { return (Math.round(x * 100) / 100).toFixed(2); }
+  function f1(x) { return (Math.round(x * 10) / 10).toFixed(1); }
   function pillRow(host, defs) { var row = h('div', { class: 'pl-readout' }), out = []; defs.forEach(function (c) { var p = P.pill('', c); out.push(p); row.append(p); }); host.append(row); return out; }
 
   /* 圓弧上的直角三角形：斜邊從 O 到圓弧上的點，回傳 {board, draw(deg), cands} */
@@ -33,7 +34,7 @@
       var cand = []; for (var L = 2; L <= 9.5; L += 0.5) cand.push([O[0] + L * c, O[1] + L * sn]);
       function draw(B) {
         g.innerHTML = ''; var A = [B[0], O[1]], a = B[1] - O[1], b = B[0] - O[0], hy = Math.hypot(a, b), w = G.wedge(O, 0, th, 1.4, th);
-        board.poly([O, A, B], 'pl-poly pl-poly--amber', g); board.rightMark(A, [-1, 0], [0, 1], 0.5, g); board.poly(w.pts, 'pl-poly pl-poly--blue', g);
+        board.poly([O, A, B], 'pl-poly pl-poly--amber', g); board.rightMark(A, [-1, 0], [0, 1], 0.5, g); board.poly(w.pts, 'pl-poly pl-poly--blue', g); var tw = G.polar(O, 2.3, w.bis); board.text([tw[0], tw[1] - 0.2], f1(th) + '°', 'pl-text pl-text--blue pl-text--lg', g);
         board.text([A[0] + 0.8, (O[1] + B[1]) / 2], '對邊', 'pl-text pl-text--pink pl-text--sm', g); board.text([(O[0] + A[0]) / 2, O[1] - 0.55], '鄰邊', 'pl-text pl-text--blue pl-text--sm', g); board.text([(O[0] + B[0]) / 2 - 0.9, (O[1] + B[1]) / 2 + 0.5], '斜邊', 'pl-text pl-text--green pl-text--sm', g);
         r1[0].textContent = '對邊 ＝ ' + f2(a); r1[1].textContent = '鄰邊 ＝ ' + f2(b); r1[2].textContent = '斜邊 ＝ ' + f2(hy);
         r2[0].textContent = '對邊 ÷ 斜邊 ＝ ' + f2(a / hy); r2[1].textContent = '鄰邊 ÷ 斜邊 ＝ ' + f2(b / hy); r2[2].textContent = '對邊 ÷ 鄰邊 ＝ ' + f2(a / b); return Math.round(hy * 2);
@@ -70,7 +71,7 @@
           var cand = []; for (var x = 2; x <= 11; x++) for (var y = 2; y <= 9; y++) cand.push([x, y]);
           function draw(B) {
             g.innerHTML = ''; var A = [B[0], O[1]], a = B[1] - O[1], b = B[0] - O[0], hy = Math.hypot(a, b), ok = Math.abs(a / hy - 0.6) < 1e-9;
-            bd.poly([O, A, B], 'pl-poly pl-poly--amber', g); bd.rightMark(A, [-1, 0], [0, 1], 0.5, g); var w = G.wedge(O, 0, Math.atan2(a, b) / rad, 1.3, Math.atan2(a, b) / rad); bd.poly(w.pts, 'pl-poly pl-poly--blue', g);
+            bd.poly([O, A, B], 'pl-poly pl-poly--amber', g); bd.rightMark(A, [-1, 0], [0, 1], 0.5, g); var w = G.wedge(O, 0, Math.atan2(a, b) / rad, 1.3, Math.atan2(a, b) / rad); bd.poly(w.pts, 'pl-poly pl-poly--blue', g); var tw2 = G.polar(O, 2.1, w.bis); bd.text([tw2[0], tw2[1] - 0.2], f1(Math.atan2(a, b) / rad) + '°', 'pl-text pl-text--blue pl-text--lg', g);
             pr[0].textContent = '對邊 ＝ ' + a; pr[1].textContent = '鄰邊 ＝ ' + b; pr[2].textContent = '斜邊 ＝ ' + f2(hy); pr[3].className = 'pl-pill ' + (ok ? 'is-ok' : 'is-amber'); pr[3].textContent = ok ? '✓ sin θ ＝ ' + a + '/' + f2(hy) + ' ＝ 0.60' : 'sin θ ＝ ' + f2(a / hy);
             if (ok) { var key = a + ',' + b; if (!seen[key]) { seen[key] = 1; n++; pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('大小不同，角度和比值都一樣：它們是相似三角形'); P.track('aha', { id: 'trig-ratio', step: 4 }); done(); } } }
           }
@@ -84,7 +85,7 @@
           function txt() { info.innerHTML = '樹高 4 公尺。拖動你站的位置，讓「<b>樹高 ÷ 距離</b>」的 ' + T[Math.min(ti, 2)].t + '。<small>（目標 ' + (Math.min(ti, 2) + 1) + ' / 3）</small>'; }
           function draw(p) {
             g.innerHTML = ''; var d = TX - p[0], k = TH / d, ang = Math.atan2(TH, d) / rad, top = [TX, 1 + TH], w = G.wedge(p, 0, ang, 1.2, ang);
-            bd.line(p, top, 'pl-line pl-line--pink pl-line--dash', g); bd.line(p, [TX, 1], 'pl-line pl-line--blue pl-line--bold', g); bd.rightMark([TX, 1], [-1, 0], [0, 1], 0.5, g); bd.poly(w.pts, 'pl-poly pl-poly--blue', g);
+            bd.line(p, top, 'pl-line pl-line--pink pl-line--dash', g); bd.line(p, [TX, 1], 'pl-line pl-line--blue pl-line--bold', g); bd.rightMark([TX, 1], [-1, 0], [0, 1], 0.5, g); bd.poly(w.pts, 'pl-poly pl-poly--blue', g); var tw3 = G.polar(p, 2.1, w.bis); bd.text([tw3[0], tw3[1] - 0.15], f1(ang) + '°', 'pl-text pl-text--blue pl-text--lg', g);
             pr[0].textContent = '距離 ＝ ' + d; pr[1].textContent = 'tan θ ＝ 4 ÷ ' + d + ' ＝ ' + f2(k); pr[2].textContent = '仰角 θ ≈ ' + (Math.round(ang * 10) / 10) + '°'; return k;
           }
           var cand = []; for (var x = 1; x <= 9; x++) cand.push([x, 1]);
