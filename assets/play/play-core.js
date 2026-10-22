@@ -275,6 +275,21 @@
     return { el: h('div', { class: 'pl-stepper' }, h('span', { class: 'pl-stepper__l', html: label }), minus, out, plus), set: set, get: function () { return v; } };
   }
 
+  /* 多關卡「操作題」：每一關是 function(box, done, setSolve)——在 box 裡擺出可操作的畫面，完成時呼叫 done()；
+     setSolve(fn) 登記這一關的「看詳解」示範（fn 要把畫面操作到完成）。全部完成後呼叫 o.onDone。 */
+  function taskSeq(box, api, tasks, o) {
+    o = o || {}; var k = 0;
+    function show() {
+      box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + tasks.length + ' 關')); var finished = false;
+      function done() {
+        if (finished) return; finished = true; api.solve(function () { var b = document.querySelector('.pl-nextq'); if (b) b.click(); }, true);
+        if (k + 1 < tasks.length) later(function () { k++; show(); }, 900); else if (o.onDone) o.onDone();
+      }
+      tasks[k](box, done, function (fn) { api.solve(fn, true); });
+    }
+    show(); api.lock(o.lock || ('完成 ' + tasks.length + ' 關'));
+  }
+
   /* ------------------------------------------------------------ 完成頁：性質卡、深度標尺、鎖住的進階卡、問老師 */
   function depthRuler(d) {
     // d: {here:0..1, cheetah:[{at:0..1, label}]}
@@ -352,7 +367,7 @@
       for (var guard = 0; guard < 8 && this.next.disabled && this.i === i0; guard++) {
         var s = this.solvers.filter(function (o) { return !o.done() && o.el.isConnected && o.el.getClientRects().length; })[0];
         if (s) { s.reveal(); if (!s.predict) break; continue; }
-        if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.stepSolve(); continue; }
+        if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.stepSolve(); if (this.stepHold) break; continue; }
         this.unlock('已略過這一步，按「繼續」往下走'); break;
       }
       } finally { revealing = false; }
@@ -364,8 +379,8 @@
       Array.prototype.forEach.call(this.dots.children, function (d, k) { d.className = k < n ? 'on' : k === n ? 'cur' : ''; });
       var tt = document.querySelector('.pl-toast'); if (tt) tt.classList.remove('show'); this.stage.innerHTML = ''; var last = n === this.cfg.steps.length - 1;
       this.foot.style.display = last ? 'none' : ''; this.back.style.visibility = n === 0 ? 'hidden' : 'visible'; this.lock('');
-      var api = { unlock: function (m) { self.unlock(m); }, lock: function (m) { self.lock(m); }, solve: function (fn) { self.stepSolve = fn; }, ctx: this.ctx, lesson: this, isLast: last };
-      this.solvers = []; this.stepSolve = null; this.stepSolved = false; curLesson = this;
+      var api = { unlock: function (m) { self.unlock(m); }, lock: function (m) { self.lock(m); }, solve: function (fn, hold) { self.stepSolve = fn; self.stepSolved = false; self.stepHold = !!hold; }, ctx: this.ctx, lesson: this, isLast: last };
+      this.solvers = []; this.stepSolve = null; this.stepSolved = false; this.stepHold = false; curLesson = this;
       track('step', { id: this.cfg.id, n: n });
       this.cfg.steps[n](this.stage, api);
       if (!first || window.innerWidth <= 900 || window.innerHeight < 1000) this.toTop(first);
@@ -373,5 +388,5 @@
     toTop: function (instant) { var top = this.card.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: top, behavior: (reduce || instant) ? 'auto' : 'smooth' }); this._y = instant ? Math.max(0, top) : this._y; }
   };
 
-  window.Play = { h: h, store: store, track: track, Spring: Spring, run: run, ease: ease, pop: pop, shake: shake, Board: Board, snapSwitch: snapSwitch, ruleBox: ruleBox, instr: instr, hint: hint, pill: pill, toast: toast, choice: choice, numBox: numBox, fillSlots: fillSlots, slider: slider, stepper: stepper, complete: complete, Lesson: Lesson, askTeacher: askTeacher, later: later, LINE_URL: LINE_URL };
+  window.Play = { h: h, store: store, track: track, Spring: Spring, run: run, ease: ease, pop: pop, shake: shake, Board: Board, snapSwitch: snapSwitch, ruleBox: ruleBox, instr: instr, hint: hint, pill: pill, toast: toast, choice: choice, numBox: numBox, fillSlots: fillSlots, slider: slider, stepper: stepper, complete: complete, taskSeq: taskSeq, Lesson: Lesson, askTeacher: askTeacher, later: later, LINE_URL: LINE_URL };
 })();

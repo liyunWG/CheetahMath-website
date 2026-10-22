@@ -41,15 +41,6 @@
     return sl;
   }
 
-  /* 小測驗用的直角三角形圖（圖不一定照比例） */
-  function triFig(box, labels) {
-    var host = h('div', { class: 'pl-stage pl-stage--sm' }); box.append(host); var b = new P.Board(host, { w: 12, h: 8, cls: 'pl-svg--sm' });
-    var A = [2, 1], B = [10, 1], C = [2, 7];
-    b.poly([A, B, C], 'pl-poly pl-poly--amber'); b.rightMark(A, [1, 0], [0, 1], 0.6);
-    b.text([6, 0.15], labels[0], 'pl-text pl-text--blue pl-text--lg'); b.text([1.1, 4.1], labels[1], 'pl-text pl-text--pink pl-text--lg'); b.text([6.9, 4.7], labels[2], 'pl-text pl-text--green pl-text--lg');
-    return b;
-  }
-
   var steps = [
     /* 1. 預測＋搬三角形 */
     function (st, api) {
@@ -66,23 +57,41 @@
       upd(0); st.append(ro, P.hint('這個三角形的兩條直角邊是 a＝3、b＝4。三個三角形只是「平移」，沒有轉動也沒有變形。'));
       api.lock('先做上面的預測');
     },
-    /* 2. 用面積算出斜邊 */
+    /* 2. 自己動手搬四個三角形，再用方格正方形量出 c */
     function (st, api) {
-      st.append(P.instr('用面積算算看：直角邊 <b>3</b> 和 <b>4</b>，斜邊 <b>c</b> 是多少？'));
-      var host = stage(st), board = new P.Board(host, { w: 7, h: 7 }); figure(board, 3, 4)(1);
-      var box = h('div', {}), k = 0; st.append(box);
-      var qs = [
-        { q: '大正方形邊長是 3 ＋ 4 ＝ 7，面積是多少？', ans: 49, ok: '對！7 × 7 ＝ 49。', wr: '邊長是 3 ＋ 4 ＝ 7，面積 ＝ 7 × 7。' },
-        { q: '每個三角形面積是 3 × 4 ÷ 2 ＝ 6。<b>四個</b>三角形共多大？', ans: 24, ok: '對！4 × 6 ＝ 24。', wr: '一個三角形是 6，乘以 4 個。' },
-        { q: '斜放的正方形（c²）＝ 大正方形 − 四個三角形 ＝ 49 − 24 ＝？', ans: 25, ok: '對！c² ＝ 25。', wr: '49 − 24。' },
-        { q: 'c² ＝ 25，所以斜邊 c ＝？', ans: 5, ok: '對！c ＝ 5。3² ＋ 4² ＝ 5²，這就是有名的「3-4-5」直角三角形。', wr: '什麼數的平方是 25？' }];
-      function next() { P.later(function () { k++; show(); }, 800); }
-      function show() {
-        if (k >= qs.length) { P.track('aha', { id: 'pythagoras', step: 2 }); st.append(P.ruleBox('c² ＝ (a＋b)² − 4 × (ab ÷ 2) ＝ a² ＋ b²。<br>用面積就<b>算出</b>了畢氏定理，不是死背。', '原因')); api.unlock('用面積算出 c ＝ 5 了！'); return; }
-        var q = qs[k]; box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + qs.length + ' 步'), h('div', { class: 'pl-q', html: q.q }));
-        P.numBox(box, { answer: q.ans, okMsg: q.ok, onOk: next, wrong: function () { return '提示：' + q.wr; } });
+      st.append(P.instr('換你動手！把<b>四個三角形</b>拖到大正方形的<b>四個角落</b>（只能平移，不能轉）。看看中間空出什麼。'));
+      var a = 3, b = 4, L = layout(a, b), S = L.S, host = stage(st), board = new P.Board(host, { w: S, h: S }), solved = false;
+      board.poly([[0, 0], [S, 0], [S, S], [0, S]], 'pl-poly pl-poly--ghost');
+      var sa = board.poly(L.sqA, 'pl-poly'), sb = board.poly(L.sqB, 'pl-poly pl-poly--pink'), sc = board.poly(L.sqC, 'pl-poly pl-poly--green'), tc = board.text([S / 2, S / 2 - 0.2], 'c²', 'pl-text pl-text--green pl-text--lg');
+      sc.style.opacity = 0; tc.style.opacity = 0;
+      var sq = board.poly([[0, 0], [0, 0], [0, 0], [0, 0]], 'pl-poly pl-poly--pink'); sq.style.opacity = 0; sq.style.strokeDasharray = '7 5'; sq.style.pointerEvents = 'none';
+      var off = [[0, 0], [0, 0], [0, 0], [0, 0]], base = [[0, 0], [0, 0], [0, 0], [0, 0]], tris = L.tri.map(function (t) { var el = board.poly(t, 'pl-poly pl-poly--amber'); el.style.cursor = 'grab'; return el; });
+      var pc = P.pill('就位 0 / 4', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pc), calc = h('div', { class: 'pl-readout' }), box2 = h('div', {}), pn = P.pill('', ''), pt = P.pill('', ''); st.append(ro, calc, box2);
+      function place(i) { board.setPoly(tris[i], shift(L.tri[i], off[i], 1)); }
+      function ok(i) { return off[i][0] === L.mv[i][0] && off[i][1] === L.mv[i][1]; }
+      function check() {
+        var k = 0; tris.forEach(function (el, i) { var g = ok(i); el.style.stroke = g ? '#1f9d55' : ''; if (g) k++; });
+        pc.textContent = '就位 ' + k + ' / 4'; pc.className = 'pl-pill' + (k === 4 ? ' is-ok' : ' is-amber');
+        if (k === 4 && !solved) { solved = true; sa.style.opacity = 0; sb.style.opacity = 0; sc.style.opacity = 1; tc.style.opacity = 1; P.toast('中間空出一個斜斜的正方形！'); measure(); }
       }
-      show(); api.lock('完成 4 個小問題');
+      tris.forEach(function (el, i) {
+        board.dragBody(el, function (p, d) { if (solved) return; off[i] = [base[i][0] + d[0], base[i][1] + d[1]]; place(i); },
+          function () { if (solved) return; off[i] = [Math.round(off[i][0]), Math.round(off[i][1])]; base[i] = off[i].slice(); place(i); check(); });
+      });
+      /* 量一量：用方格正方形 n × n 去比，找出斜正方形的邊長 */
+      function measure() {
+        calc.append(P.pill('大正方形 7 × 7 ＝ 49', 'is-blue'), P.pill('4 個三角形 ＝ 4 × 6 ＝ 24', 'is-amber'), P.pill('空白（斜正方形）＝ 49 − 24 ＝ 25', 'is-ok'));
+        box2.append(P.instr('用<b>方格正方形 n × n</b>（粉紅虛線）去比：n 是多少時，面積剛好等於中間斜正方形？'));
+        var sn = P.stepper('邊長 n', 1, 7, 1, function (v) { setN(v); }); box2.append(h('div', { class: 'pl-steprow' }, sn.el), h('div', { class: 'pl-readout' }, pn, pt));
+        api.solve(function () { sn.set(5); }); sq.style.opacity = 0.55; setN(1);
+        function setN(v) {
+          board.setPoly(sq, [[0, 0], [v, 0], [v, v], [0, v]]); pn.textContent = 'n × n ＝ ' + v * v; var eq = v * v === 25; pn.className = 'pl-pill' + (eq ? ' is-ok' : '');
+          pt.className = 'pl-pill' + (eq ? ' is-ok' : ''); pt.textContent = eq ? '✓ 剛好 25！邊長 c ＝ 5' : (v * v < 25 ? '比 25 小，再大一點' : '比 25 大，再小一點');
+          if (eq) { P.track('aha', { id: 'pythagoras', step: 2 }); if (!st.querySelector('.pl-rule')) st.append(P.ruleBox('空白面積 ＝ c² ＝ 25，方格正方形 5 × 5 剛好一樣大，所以斜邊 <b>c ＝ 5</b>。<br>3² ＋ 4² ＝ 9 ＋ 16 ＝ 25 ＝ 5²：用面積<b>量出來</b>的畢氏定理。', '發現')); api.unlock('量出斜邊 c ＝ 5 了！'); }
+        }
+      }
+      api.solve(function () { tris.forEach(function (el, i) { off[i] = L.mv[i].slice(); base[i] = L.mv[i].slice(); place(i); }); check(); });
+      st.append(P.hint('提示：有一個三角形本來就在角落。每個三角形只要「平移」就能到另一個角落，不用翻轉。')); api.lock('把四個三角形都拖到角落');
     },
     /* 3. 換成別的三角形 */
     function (st, api) {
@@ -101,27 +110,82 @@
       api.solve(function () { [[2, 3], [1, 2], [3, 5]].forEach(function (p) { a = p[0]; b = p[1]; sa.set(a, true); sb.set(b, true); build(); sl.value = 100; cur.t = 1; upd(); }); });
       build(); st.append(P.hint('提示：至少試 3 種不同的 (a, b)。三個三角形永遠只用平移就能搬過去。')); api.lock('試 3 種三角形');
     },
-    /* 4. 用用看 */
+    /* 4. 四個操作關卡 */
     function (st, api) {
-      var box = h('div', {}), k = 0; st.append(box);
-      function next() { P.later(function () { k++; qs[k](); }, 900); }
-      function head(i) { box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + i + ' / 4 題')); }
-      var qs = [
-        function () { head(1); triFig(box, ['6', '8', 'c']); box.append(h('div', { class: 'pl-q', html: '直角三角形兩條直角邊是 <b>6</b> 和 <b>8</b>，斜邊是？<small>（圖不一定照比例）</small>' })); P.numBox(box, { answer: 10, okMsg: '對！c² ＝ 36 ＋ 64 ＝ 100，c ＝ 10。', onOk: next, wrong: function () { return '提示：c² ＝ 6² ＋ 8² ＝ 36 ＋ 64。'; } }); },
-        function () { head(2); triFig(box, ['b', '5', '13']); box.append(h('div', { class: 'pl-q', html: '斜邊是 <b>13</b>，一條直角邊是 <b>5</b>，另一條直角邊 b 是多少？' })); P.numBox(box, { answer: 12, okMsg: '對！b² ＝ 13² − 5² ＝ 169 − 25 ＝ 144，b ＝ 12。', onOk: next, wrong: function () { return '提示：斜邊的平方減去另一邊的平方：b² ＝ 169 − 25。'; } }); },
-        function () {
-          head(3); box.append(h('div', { class: 'pl-q', html: '三條邊長各是下面哪一組時，這個三角形是<b>直角三角形</b>？<small>（逆定理：a²＋b²＝c² 就是直角）</small>' }));
-          P.choice(box, {}, { id: 'py-t3', prompt: '', row: true, options: [{ t: '4、5、6', fb: '16 ＋ 25 ＝ 41，不等於 36。' }, { t: '5、12、13', ok: true, fb: '對！25 ＋ 144 ＝ 169 ＝ 13²，是直角三角形。' }, { t: '6、8、9', fb: '36 ＋ 64 ＝ 100，不等於 81。' }], onAnswer: function () { next(); } });
+      var box = h('div', {}); st.append(box);
+      function sq(x) { return x * x; }
+      function isSq(n) { var r = Math.round(Math.sqrt(n)); return r * r === n; }
+      var tasks = [
+        /* 關 1：格線上，長度² 的目標 */
+        function (b0, done, setSolve) {
+          var targets = [13, 25, 50], sol = [[2, 3], [3, 4], [5, 5]], ti = 0, O = [1, 1], info = h('div', { class: 'pl-q' }), host = h('div', { class: 'pl-stage pl-stage--sm' }), g = h('g');
+          b0.append(info, host); var bd = new P.Board(host, { w: 10, h: 10, cls: 'pl-svg--sm' }); bd.gMid.append(g); var seg = bd.line(O, O, 'pl-line pl-line--green pl-line--bold'); bd.dot(O, 'pl-dot', null, 0.18); bd.text([O[0] - 0.5, O[1] - 0.6], 'O', 'pl-text');
+          var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), pc = P.pill('', 'is-amber'); b0.append(h('div', { class: 'pl-readout' }, pa, pb, pc));
+          function txt() { info.innerHTML = '從 O 拖一個點到格點，讓「<b>長度的平方</b>」剛好等於 <b>' + targets[ti] + '</b>。<small>（目標 ' + (ti + 1) + ' / 3）</small>'; }
+          function draw(p) {
+            var dx = p[0] - O[0], dy = p[1] - O[1]; bd.setLine(seg, O, p); g.innerHTML = '';
+            bd.line(O, [p[0], O[1]], 'pl-line pl-line--blue pl-line--dash', g); bd.line([p[0], O[1]], p, 'pl-line pl-line--pink pl-line--dash', g); if (dx > 0 && dy > 0) bd.rightMark([p[0], O[1]], [-1, 0], [0, 1], 0.4, g);
+            pa.textContent = '橫 ' + dx; pb.textContent = '直 ' + dy; pc.textContent = '長度² ＝ ' + dx + '² ＋ ' + dy + '² ＝ ' + (dx * dx + dy * dy); return dx * dx + dy * dy;
+          }
+          var hd = bd.handle({ pos: [3, 2], onMove: function (t) { var n = draw(t); if (ti < targets.length && n === targets[ti]) { ti++; if (ti >= targets.length) { P.toast('三個目標都找到了！'); P.track('aha', { id: 'pythagoras', step: 4 }); done(); } else { P.toast('✓ 找到了，下一個'); txt(); } } } });
+          setSolve(function () { while (ti < targets.length) hd.moveTo([O[0] + sol[ti][0], O[1] + sol[ti][1]]); });
+          txt(); draw([3, 2]); b0.append(P.hint('提示：長度² ＝ 橫² ＋ 直²。想想哪兩個平方數（1、4、9、16、25…）加起來剛好是目標。'));
         },
-        function () {
-          head(4); var host = h('div', { class: 'pl-stage pl-stage--sm' }); box.append(host); var b = new P.Board(host, { w: 12, h: 8, cls: 'pl-svg--sm' });
-          var R = [[1, 1], [11, 1], [11, 7], [1, 7]]; b.poly(R, 'pl-poly pl-poly--amber'); b.line([1, 1], [11, 7], 'pl-line pl-line--green pl-line--dash');
-          b.text([6, 0.15], '24', 'pl-text pl-text--blue pl-text--lg'); b.text([11.9, 4.1], '7', 'pl-text pl-text--pink pl-text--lg'); b.text([5.4, 4.7], '？', 'pl-text pl-text--green pl-text--lg');
-          [[1, 1], [11, 1], [11, 7], [1, 7]].forEach(function (c, i) { b.rightMark(c, [[1, 0], [-1, 0], [-1, 0], [1, 0]][i], [[0, 1], [0, 1], [0, -1], [0, -1]][i], 0.5); });
-          box.append(h('div', { class: 'pl-q', html: '長方形長 <b>24</b>、寬 <b>7</b>，<b>對角線</b>有多長？' }));
-          P.numBox(box, { answer: 25, okMsg: '對！對角線把長方形切成直角三角形：24² ＋ 7² ＝ 576 ＋ 49 ＝ 625，所以是 25。', onOk: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'pythagoras' }); }, wrong: function () { return '提示：對角線是直角三角形的斜邊，兩條直角邊是 24 和 7。'; } });
+        /* 關 2：哪些三角形是直角？ */
+        function (b0, done, setSolve) {
+          var A = [2, 2], B = [10, 2], found = { A: false, B: false, C: false }, host = h('div', { class: 'pl-stage pl-stage--sm' }), g = h('g');
+          b0.append(h('div', { class: 'pl-q', html: 'A、B 固定。拖動 <b>C</b>，找出讓 △ABC 成為<b>直角三角形</b>的位置：直角在 <b>A</b>、在 <b>B</b>、在 <b>C</b> 各找一個。' }), host);
+          var bd = new P.Board(host, { w: 12, h: 10, cls: 'pl-svg--sm' }), tri = bd.poly([A, B, [6, 5]], 'pl-poly pl-poly--amber'); bd.gMid.append(g);
+          [[A, 'A', [-0.5, -0.6]], [B, 'B', [0.5, -0.6]]].forEach(function (q) { bd.dot(q[0], 'pl-dot', null, 0.18); bd.text([q[0][0] + q[2][0], q[0][1] + q[2][1]], q[1], 'pl-text pl-text--lg'); });
+          var tC = bd.text([0, 0], 'C', 'pl-text pl-text--lg pl-text--pink'), pl = P.pill('', ''), chips = {}, ro = h('div', { class: 'pl-readout' }, pl); ['A', 'B', 'C'].forEach(function (k) { chips[k] = P.pill('直角在 ' + k, ''); ro.append(chips[k]); }); b0.append(ro);
+          function d2(p, q) { return sq(p[0] - q[0]) + sq(p[1] - q[1]); }
+          function dot3(V, P1, P2) { return (P1[0] - V[0]) * (P2[0] - V[0]) + (P1[1] - V[1]) * (P2[1] - V[1]); }
+          function unit(V, P1) { var dx = P1[0] - V[0], dy = P1[1] - V[1], L1 = Math.hypot(dx, dy); return [dx / L1, dy / L1]; }
+          function draw(C) {
+            bd.setPoly(tri, [A, B, C]); bd.setText(tC, [C[0] + 0.5, C[1] + 0.55]); g.innerHTML = '';
+            var s = [d2(B, C), d2(A, C), d2(A, B)].sort(function (x, y) { return x - y; }), who = dot3(A, B, C) === 0 ? 'A' : dot3(B, A, C) === 0 ? 'B' : dot3(C, A, B) === 0 ? 'C' : '';
+            pl.textContent = s[0] + ' ＋ ' + s[1] + (s[0] + s[1] === s[2] ? ' ＝ ' : ' ≠ ') + s[2]; pl.className = 'pl-pill' + (who ? ' is-ok' : '');
+            if (who) {
+              var V = who === 'A' ? A : who === 'B' ? B : C, Q1 = who === 'A' ? B : A, Q2 = who === 'A' ? C : who === 'B' ? C : B; bd.rightMark(V, unit(V, Q1), unit(V, Q2), 0.6, g);
+              found[who] = true; chips[who].className = 'pl-pill is-ok'; chips[who].textContent = '✓ 直角在 ' + who;
+            }
+            if (found.A && found.B && found.C) { P.toast('三種直角都找到了！'); P.track('aha', { id: 'pythagoras', step: 5 }); done(); }
+          }
+          var cand = []; for (var x = 1; x <= 11; x++) for (var y = 1; y <= 9; y++) if (y !== 2) cand.push([x, y]);
+          var hd = bd.handle({ pos: [6, 5], candidates: cand, onMove: draw }); draw([6, 5]);
+          setSolve(function () { [[2, 6], [10, 5], [6, 6]].forEach(hd.moveTo); }); b0.append(P.hint('提示：較短兩邊的平方和 ＝ 最長邊的平方，就是直角（畢氏定理的逆定理）。'));
+        },
+        /* 關 3：長、寬、對角線都是整數的長方形 */
+        function (b0, done, setSolve) {
+          var host = h('div', { class: 'pl-stage pl-stage--sm' }), seen = {}, n = 0;
+          b0.append(h('div', { class: 'pl-q', html: '拖動長方形的右上角，找出<b>長、寬、對角線都是整數</b>的長方形（找 <b>2 種</b>）。' }), host);
+          var bd = new P.Board(host, { w: 12, h: 12, cls: 'pl-svg--sm' }), rect = bd.poly([[0, 0], [1, 0], [1, 1], [0, 1]], 'pl-poly pl-poly--amber'), dg = bd.line([0, 0], [1, 1], 'pl-line pl-line--green pl-line--dash');
+          var pw = P.pill('', 'is-blue'), ph = P.pill('', 'is-pink'), pd = P.pill('', ''), pn = P.pill('找到 0 / 2', 'is-amber'); b0.append(h('div', { class: 'pl-readout' }, pw, ph, pd, pn));
+          function draw(p) {
+            var w = p[0], hh = p[1], d = w * w + hh * hh, ok = isSq(d); bd.setPoly(rect, [[0, 0], [w, 0], [w, hh], [0, hh]]); bd.setLine(dg, [0, 0], p);
+            pw.textContent = '長 ' + w; ph.textContent = '寬 ' + hh; pd.className = 'pl-pill' + (ok ? ' is-ok' : ''); pd.textContent = ok ? '✓ 對角線 ＝ ' + Math.round(Math.sqrt(d)) : '對角線 ＝ √' + d;
+            if (ok) { var key = Math.min(w, hh) + ',' + Math.max(w, hh); if (!seen[key]) { seen[key] = 1; n++; pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('找到兩種了！它們都是「畢氏三元數」'); P.track('aha', { id: 'pythagoras', step: 6 }); done(); } } }
+          }
+          var hd = bd.handle({ pos: [7, 5], valid: function (t) { return t[0] >= 1 && t[1] >= 1; }, onMove: draw }); draw([7, 5]);
+          setSolve(function () { [[3, 4], [6, 8]].forEach(hd.moveTo); }); b0.append(P.hint('對角線是直角三角形的斜邊，所以 長² ＋ 寬² 要剛好是某個整數的平方。'));
+        },
+        /* 關 4：梯子靠牆 */
+        function (b0, done, setSolve) {
+          var host = h('div', { class: 'pl-stage pl-stage--sm' }), seen = {}, n = 0;
+          b0.append(h('div', { class: 'pl-q', html: '<b>13 公尺</b>的梯子靠牆。拖動梯腳，找出「梯頂離地也剛好是<b>整數公尺</b>」的位置（有 <b>2 個</b>）。' }), host);
+          var bd = new P.Board(host, { w: 14, h: 14, cls: 'pl-svg--sm' }); bd.line([0, 0], [14, 0], 'pl-line'); bd.line([0, 0], [0, 14], 'pl-line');
+          var lad = bd.line([5, 0], [0, 12], 'pl-line pl-line--amber pl-line--bold'), gm = h('g'); bd.gMid.append(gm);
+          var px = P.pill('', 'is-blue'), py = P.pill('', 'is-pink'), pk = P.pill('找到 0 / 2', 'is-amber'); b0.append(h('div', { class: 'pl-readout' }, px, py, pk));
+          var cand = []; for (var x = 1; x <= 12; x++) cand.push([x, 0]);
+          function draw(p) {
+            var xx = p[0], hh = Math.sqrt(169 - xx * xx), ok = isSq(169 - xx * xx); bd.setLine(lad, p, [0, hh]); gm.innerHTML = ''; bd.rightMark([0, 0], [1, 0], [0, 1], 0.7, gm);
+            px.textContent = '離牆 ' + xx + ' 公尺'; py.className = 'pl-pill' + (ok ? ' is-ok' : ' is-pink'); py.textContent = ok ? '✓ 高 ' + Math.round(hh) + ' 公尺' : '高 ' + (Math.round(hh * 100) / 100) + ' 公尺';
+            if (ok && !seen[xx]) { seen[xx] = 1; n++; pk.textContent = '找到 ' + n + ' / 2'; if (n >= 2) { P.toast('5-12-13 就是這樣出現的！'); P.track('aha', { id: 'pythagoras', step: 7 }); done(); } }
+          }
+          var hd = bd.handle({ pos: [8, 0], candidates: cand, onMove: draw }); draw([8, 0]);
+          setSolve(function () { [[5, 0], [12, 0]].forEach(hd.moveTo); }); b0.append(P.hint('梯腳、牆、梯子圍成直角三角形，斜邊固定是 13。'));
         }];
-      qs[0](); api.lock('完成 4 題');
+      P.taskSeq(box, api, tasks, { lock: '完成 4 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'pythagoras' }); } });
     },
     /* 5. 完成 */
     function (st, api) {

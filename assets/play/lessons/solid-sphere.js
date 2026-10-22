@@ -30,18 +30,6 @@
     };
   }
 
-  /* 小測驗用的圖：{type:'sphere'|'half'|'cyl'|'cylcone'} */
-  function qfig(box, type) {
-    var host = h('div', { class: 'pl-stage pl-stage--sm' }); box.append(host); var b = new P.Board(host, { w: 12, h: 8, cls: 'pl-svg--sm' }), c = [6, 4], r = 3;
-    if (type === 'sphere') { circ(b, c, r, 'rgba(47,111,220,.2)', '#2f6fdc'); b.line(c, [c[0] + r, c[1]], 'pl-line pl-line--pink'); b.text([c[0] + r / 2, c[1] + 0.5], 'r', 'pl-text pl-text--pink pl-text--lg'); }
-    if (type === 'half') { b.line([3, 2], [9, 2], 'pl-line'); b.gMid.append(h('path', { d: arcPath(b, 6, 2, 3), class: 'pl-poly pl-poly--green' })); b.line([6, 2], [9, 2], 'pl-line pl-line--pink'); b.text([7.5, 1.2], 'r', 'pl-text pl-text--pink pl-text--lg'); }
-    if (type === 'cyl' || type === 'cylcone') {
-      b.poly([[3, 1], [9, 1], [9, 7], [3, 7]], 'pl-poly pl-poly--ghost'); circ(b, c, r, 'rgba(47,111,220,.2)', '#2f6fdc');
-      if (type === 'cylcone') { b.poly([[3, 1], [9, 1], [6, 7]], 'pl-poly pl-poly--pink'); b.text([6, 2.1], '圓錐', 'pl-text pl-text--pink'); b.text([c[0] + 0.1, 4.8], '球', 'pl-text pl-text--lg'); }
-    }
-    return b;
-  }
-
   var steps = [
     /* 1. 預測＋拉滑桿：同一個高度，截面一樣大 */
     function (st, api) {
@@ -60,55 +48,105 @@
       draw(50); st.append(ro, P.hint('橘色虛線是切的位置。綠色＝半球被切到的地方，粉紅＝挖掉圓錐後的柱體被切到的地方。圓環的內圈半徑剛好等於 y（因為圓錐是 45° 角）。'));
       api.lock('先做上面的預測');
     },
-    /* 2. 算出球的體積 */
+    /* 2. 疊切片：把立體切成 n 片圓餅疊起來，看總體積 */
     function (st, api) {
-      st.append(P.instr('用祖暅原理算球的體積。圓柱半徑 3、高 3。<small>（答案單位都是 π）</small>'));
-      var host = stage(st), board = new P.Board(host, { w: 14, h: 11 }); figures(board)(1.5);
-      var box = h('div', {}), k = 0; st.append(box);
-      var qs = [
-        { q: '圓柱：半徑 3、高 3，體積 ＝ π × 3² × 3 ＝ ？π', ans: 27, ok: '對！圓柱 ＝ 27π。', wr: 'π × 3 × 3 × 3。' },
-        { q: '同底同高的圓錐，體積是圓柱的 <b>1/3</b>。圓錐 ＝ ？π', ans: 9, ok: '對！27 ÷ 3 ＝ 9，圓錐 ＝ 9π。', wr: '27 ÷ 3。' },
-        { q: '圓柱挖掉圓錐，剩下的體積 ＝ 27π − 9π ＝ ？π', ans: 18, ok: '對！剩下 18π。', wr: '27 − 9。' },
-        { q: '半球和它「每個高度截面積都一樣」，所以<b>半球體積</b> ＝ ？π', ans: 18, ok: '對！祖暅原理：半球 ＝ 18π。', wr: '和上一題剩下的體積一樣大。' },
-        { q: '整個球是兩個半球，體積 ＝ ？π', ans: 36, ok: '對！球 ＝ 36π ＝ <b>4/3 × π × 3³</b>。這就是球的體積公式 V ＝ (4/3)πr³。', wr: '18 × 2。' }];
-      function next() { P.later(function () { k++; show(); }, 800); }
-      function show() {
-        if (k >= qs.length) { P.track('aha', { id: 'solid-sphere', step: 2 }); st.append(P.ruleBox('<b>球的體積 ＝ (4/3)πr³</b>，是用「<b>圓柱 − 圓錐</b>」算出來的，不用背。<br>半球 ＝ 圓柱 − 圓錐 ＝ πr³ − (1/3)πr³ ＝ (2/3)πr³。', '推導')); api.unlock('算出球的體積了！'); return; }
-        var q = qs[k]; box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + qs.length + ' 步'), h('div', { class: 'pl-q', html: q.q }));
-        P.numBox(box, { answer: q.ans, unit: 'π', okMsg: q.ok, onOk: next, wrong: function () { return '提示：' + q.wr; } });
+      st.append(P.instr('把立體切成 <b>n 片</b>圓餅疊起來，片越多越準。比比看<b>圓柱、圓錐、半球</b>（半徑 3、高 3）的體積。<small>（單位 π）</small>'));
+      var shape = 'cyl', n = 3, seen = {}, done = false, host = stage(st), b = new P.Board(host, { w: 8, h: 4, cls: 'pl-svg--sm' }), CX = 4, Y0 = 0.3, g = h('g'), outl = h('g'); b.gMid.append(outl, g);
+      var NAME = { cyl: '圓柱', cone: '圓錐', hemi: '半球' }, CLS = { cyl: 'pl-poly pl-poly--green', cone: 'pl-poly pl-poly--pink', hemi: 'pl-poly' };
+      function rOf(sh, y) { return sh === 'cyl' ? R : sh === 'cone' ? y : Math.sqrt(Math.max(0, R * R - y * y)); }
+      function outline() {
+        outl.innerHTML = '';
+        if (shape === 'cyl') b.poly([[CX - R, Y0], [CX + R, Y0], [CX + R, Y0 + R], [CX - R, Y0 + R]], 'pl-poly pl-poly--ghost', outl);
+        else if (shape === 'cone') b.poly([[CX, Y0], [CX + R, Y0 + R], [CX - R, Y0 + R]], 'pl-poly pl-poly--ghost', outl);
+        else outl.append(h('path', { d: arcPath(b, CX, Y0, R), class: 'pl-poly pl-poly--ghost' }));
       }
-      show(); api.lock('完成 5 個小問題');
-    },
-    /* 3. 圓錐、球、圓柱 ＝ 1 : 2 : 3 */
-    function (st, api) {
-      var gate = { on: true }, r = 3, seen = {}, n = 0, done = false;
-      P.choice(st, api, { id: 'ss2-p3', predict: true, label: '先猜猜看', prompt: '球剛好放進圓柱（高 ＝ 2r）。球的體積是圓柱的…？', row: true, options: [{ t: '1/3' }, { t: '1/2' }, { t: '2/3' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('改變半徑 r，看三個體積'); draw(); } });
-      var host = stage(st), b = new P.Board(host, { w: 14, h: 7 });
-      b.poly([[0.5, 1], [4.5, 1], [2.5, 5]], 'pl-poly pl-poly--pink'); b.text([2.5, 0.2], '圓錐', 'pl-text pl-text--pink');
-      circ(b, [7, 3], 2, 'rgba(47,111,220,.22)', '#2f6fdc'); b.text([7, 0.2], '球', 'pl-text pl-text--blue');
-      b.poly([[9.5, 1], [13.5, 1], [13.5, 5], [9.5, 5]], 'pl-poly pl-poly--green'); circ(b, [11.5, 3], 2, 'rgba(47,111,220,.22)', '#2f6fdc'); b.text([11.5, 0.2], '圓柱', 'pl-text pl-text--green');
-      b.text([2.5, 5.55], '底＝圓柱底、高 2r', 'pl-text pl-text--sm'); b.text([11.5, 5.55], '高 ＝ 2r', 'pl-text pl-text--sm');
-      var sr = P.stepper('半徑 r', 1, 5, r, function (v) { r = v; draw(); }), pc = P.pill('', 'is-pink'), pb = P.pill('', 'is-blue'), pg = P.pill('', 'is-ok'), pr = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pc, pb, pg, pr);
+      var bar = h('div', { class: 'pl-opts pl-opts--row' }), btn = {}; ['cyl', 'cone', 'hemi'].forEach(function (k) { btn[k] = h('button', { type: 'button', class: 'pl-opt' }, NAME[k]); btn[k].addEventListener('click', function () { shape = k; draw(); }); bar.append(btn[k]); });
+      var sn = P.stepper('切成幾片', 1, 12, n, function (v) { n = v; draw(); }), p1 = P.pill('', 'is-amber'), p2 = P.pill('', 'is-blue'), ro = h('div', { class: 'pl-readout' }, p1, p2);
+      st.append(bar, h('div', { class: 'pl-steprow' }, sn.el), ro);
       function draw() {
-        var c = 2 * r * r * r / 3, s = 4 * r * r * r / 3, y = 2 * r * r * r; pc.textContent = '圓錐 ' + fr(2 * r * r * r) + 'π'; pb.textContent = '球 ' + fr(4 * r * r * r) + 'π'; pg.textContent = '圓柱 ' + fr(6 * r * r * r) + 'π'; pr.textContent = c / c + ' : ' + s / c + ' : ' + y / c;
-        if (!seen[r]) { seen[r] = 1; n++; } if (n >= 3 && !done && !gate.on) { done = true; P.track('aha', { id: 'solid-sphere', step: 3 }); P.toast(api.ctx.p3 === 2 ? '你猜對了！' : '球是圓柱的 2/3'); st.append(P.ruleBox('不管 r 多大，<b>圓錐 : 球 : 圓柱 ＝ 1 : 2 : 3</b>。<br>球 ＝ 圓柱的 <b>2/3</b>；這是阿基米德最得意的發現，據說他的墓碑上就刻著「球與外切圓柱」。', '性質')); api.unlock('1 : 2 : 3！'); } }
-      st.append(h('div', { class: 'pl-steprow' }, sr.el), ro, P.hint('圓錐：(1/3)·πr²·2r。球：(4/3)πr³。圓柱：πr²·2r。三個式子都有 r³！'));
-      api.solve(function () { gate.on = false; [1, 4, 5].forEach(function (v) { r = v; sr.set(v, true); draw(); }); }); draw(); api.lock('先做上面的預測');
+        g.innerHTML = ''; outline(); var dy = R / n, tot = 0, i;
+        for (i = 0; i < n; i++) { var y = (i + 0.5) * dy, r = rOf(shape, y), y1 = Y0 + i * dy; tot += r * r * dy; b.poly([[CX - r, y1], [CX + r, y1], [CX + r, y1 + dy], [CX - r, y1 + dy]], CLS[shape], g, { style: 'fill-opacity:.55;stroke-width:1.5' }); }
+        ['cyl', 'cone', 'hemi'].forEach(function (k) { btn[k].classList.toggle('is-sel', k === shape); });
+        p1.textContent = NAME[shape] + ' 切成 ' + n + ' 片'; p2.textContent = '疊起來 ≈ ' + (Math.round(tot * 10) / 10).toFixed(1) + 'π';
+        if (n >= 10) { seen[shape] = Math.round(tot * 10) / 10; var all = seen.cyl !== undefined && seen.cone !== undefined && seen.hemi !== undefined; if (all && !done) { done = true; P.track('aha', { id: 'solid-sphere', step: 2 }); st.append(P.ruleBox('圓錐 ≈ <b>9π</b>、半球 ≈ <b>18π</b>、圓柱 ＝ <b>27π</b>：<b>圓錐 : 半球 : 圓柱 ＝ 1 : 2 : 3</b>。<br>半球 ＋ 圓錐 ＝ 圓柱，所以<b>半球 ＝ 圓柱 − 圓錐 ＝ 18π</b>，整個球 ＝ 2 × 18π ＝ <b>36π ＝ (4/3)π·3³</b>。', '發現')); api.unlock('球的體積 ＝ (4/3)πr³！'); } }
+      }
+      api.solve(function () { n = 12; sn.set(12, true); ['cyl', 'cone', 'hemi'].forEach(function (k) { shape = k; draw(); }); });
+      draw(); st.append(P.hint('提示：每種立體都要切到 10 片以上（越薄越準），把三個答案比一比。')); api.lock('三種立體都切成 10 片以上');
     },
-    /* 4. 用用看 */
+    /* 3. 倒水實驗：球和圓錐的水倒進圓柱 */
     function (st, api) {
-      var box = h('div', {}), k = 0; st.append(box);
-      function next() { P.later(function () { k++; qs[k](); }, 900); }
-      function head(i) { box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + i + ' / 4 題')); }
-      var qs = [
-        function () { head(1); qfig(box, 'sphere'); box.append(h('div', { class: 'pl-q', html: '球的半徑是 <b>6</b>，體積 ＝ ？π' })); P.numBox(box, { answer: 288, unit: 'π', okMsg: '對！(4/3) × 6³ ＝ (4/3) × 216 ＝ 288，體積 ＝ 288π。', onOk: next, wrong: function () { return '提示：V ＝ (4/3)πr³，r³ ＝ 6 × 6 × 6 ＝ 216。'; } }); },
-        function () {
-          head(2); qfig(box, 'cyl'); P.choice(box, {}, { id: 'ss2-t2', prompt: '球剛好放進圓柱（半徑 r、高 2r）。<b>圓柱</b>的體積是<b>球</b>的幾倍？', row: true, options: [{ t: '1.5 倍', ok: true, fb: '對！圓柱 2πr³ ÷ 球 (4/3)πr³ ＝ 3/2 ＝ 1.5。' }, { t: '2 倍', fb: '2 倍是「球和圓錐」的比。圓柱 : 球 ＝ 3 : 2。' }, { t: '3 倍', fb: '3 是比例裡的「圓柱」那一份，圓柱 : 圓錐 ＝ 3 : 1。' }], onAnswer: next });
+      var gate = { on: true }, poured = { s: false, c: false }, done = false, lvl = 0;
+      P.choice(st, api, { id: 'ss2-p3', predict: true, label: '先猜猜看', prompt: '球裝滿水，倒進剛好放得下它的圓柱（寬 ＝ 高 ＝ 2r）。水位會到哪裡？', row: true, options: [{ t: '1/3' }, { t: '1/2' }, { t: '2/3' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按按鈕，把水倒進圓柱'); } });
+      var host = stage(st), b = new P.Board(host, { w: 14, h: 6 });
+      var sph = circ(b, [2, 3], 2, 'rgba(47,111,220,.4)', '#2f6fdc'), cone = b.poly([[10, 1], [14, 1], [12, 5]], 'pl-poly pl-poly--pink');
+      b.poly([[5, 1], [9, 1], [9, 5], [5, 5]], 'pl-poly pl-poly--ghost'); var water = b.poly([[5, 1], [9, 1], [9, 1], [5, 1]], 'pl-poly'); water.style.fill = 'rgba(47,111,220,.4)'; water.style.stroke = '#2f6fdc';
+      b.poly([[5, 1], [9, 1], [9, 5], [5, 5]], 'pl-poly pl-poly--ghost').style.fill = 'none';
+      b.text([2, 0.15], '球', 'pl-text pl-text--blue'); b.text([7, 0.15], '圓柱', 'pl-text pl-text--green'); b.text([12, 0.15], '圓錐', 'pl-text pl-text--pink'); b.text([7, 5.5], '高 ＝ 2r', 'pl-text pl-text--sm');
+      var sp = new P.Spring(0, { k: 110, zeta: 0.95, onUpdate: function (v) { var top = 1 + Math.max(0, v) * 4; b.setPoly(water, [[5, 1], [9, 1], [9, top], [5, top]]); water.style.display = v < 0.005 ? 'none' : ''; } });
+      var pl = P.pill('水位 ＝ 0', 'is-blue'), ro = h('div', { class: 'pl-readout' }, pl);
+      var bS = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '倒球的水'), bC = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '倒圓錐的水'), bR = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '全部倒回去');
+      st.append(h('div', { class: 'pl-row pl-row--center' }, bS, bC, bR), ro);
+      function upd() {
+        lvl = (poured.s ? 2 : 0) + (poured.c ? 1 : 0); sp.to(lvl / 3); sph.style.opacity = poured.s ? 0.12 : 1; cone.style.opacity = poured.c ? 0.15 : 1;
+        pl.textContent = '水位 ＝ ' + (lvl === 0 ? '0' : lvl === 3 ? '滿了！（3/3）' : lvl + '/3'); pl.className = 'pl-pill' + (lvl === 3 ? ' is-ok' : ' is-blue');
+        if (lvl === 3 && !done) { done = true; P.toast(api.ctx.p3 === 2 ? '球的水剛好是 2/3，你猜對了！' : '剛好裝滿！'); P.track('aha', { id: 'solid-sphere', step: 3 }); st.append(P.ruleBox('球 ＋ 圓錐 ＝ 剛好裝滿圓柱：球 ＝ 圓柱的 <b>2/3</b>，圓錐 ＝ <b>1/3</b>。<br><b>圓錐 : 球 : 圓柱 ＝ 1 : 2 : 3</b>——和切片算出來的一樣！據說這是阿基米德最得意的發現。', '性質')); api.unlock('1 : 2 : 3！'); }
+      }
+      function act(f) { return function () { if (gate.on) { P.toast('先做上面的預測'); return; } f(); upd(); }; }
+      bS.addEventListener('click', act(function () { poured.s = true; })); bC.addEventListener('click', act(function () { poured.c = true; })); bR.addEventListener('click', act(function () { poured.s = false; poured.c = false; }));
+      api.solve(function () { gate.on = false; poured.s = true; poured.c = true; upd(); });
+      st.append(P.hint('球和圓錐都裝滿水。先倒哪個都可以，也可以只倒一個看看水位。')); api.lock('先做上面的預測');
+    },
+    /* 4. 三個操作關卡 */
+    function (st, api) {
+      var box = h('div', {}); st.append(box);
+      function G(hh) { return R * R * hh - hh * hh * hh / 3; }           /* 高度 hh 以下的體積（單位 π），半球與「圓柱挖掉圓錐」一樣 */
+      function inv(v) { var lo = 0, hi = R, k; for (k = 0; k < 40; k++) { var m = (lo + hi) / 2; if (G(m) < v) lo = m; else hi = m; } return (lo + hi) / 2; }
+      var tasks = [
+        /* 關 1：圓錐的水倒進圓柱，倒幾杯會滿？ */
+        function (b0, done, setSolve) {
+          b0.append(h('div', { class: 'pl-q', html: '圓錐和圓柱<b>同底、同高</b>。圓錐裝滿水倒進圓柱，按「倒一杯」，看<b>倒幾杯</b>會剛好裝滿？' }));
+          var host = h('div', { class: 'pl-stage pl-stage--sm' }); b0.append(host); var bd = new P.Board(host, { w: 10, h: 5, cls: 'pl-svg--sm' }), k = 0;
+          var cone = bd.poly([[0.5, 0.5], [4.5, 0.5], [2.5, 4.5]], 'pl-poly pl-poly--pink'); bd.poly([[5.5, 0.5], [9.5, 0.5], [9.5, 4.5], [5.5, 4.5]], 'pl-poly pl-poly--ghost'); var wt = bd.poly([[5.5, 0.5], [9.5, 0.5], [9.5, 0.5], [5.5, 0.5]], 'pl-poly'); wt.style.fill = 'rgba(214,51,108,.3)'; wt.style.stroke = '#d6336c';
+          bd.text([2.5, -0.35], '圓錐', 'pl-text pl-text--pink'); bd.text([7.5, -0.35], '圓柱', 'pl-text pl-text--green');
+          var sp = new P.Spring(0, { k: 110, zeta: 0.95, onUpdate: function (v) { var top = 0.5 + Math.max(0, v) * 4; bd.setPoly(wt, [[5.5, 0.5], [9.5, 0.5], [9.5, top], [5.5, top]]); wt.style.display = v < 0.005 ? 'none' : ''; } });
+          var pk = P.pill('倒了 0 杯', 'is-pink'), bt = h('button', { type: 'button', class: 'button button--primary pl-small' }, '倒一杯'), br = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '重來'); b0.append(h('div', { class: 'pl-row pl-row--center' }, bt, br), h('div', { class: 'pl-readout' }, pk));
+          function upd() { sp.to(k / 3); pk.textContent = k === 0 ? '倒了 0 杯' : '倒了 ' + k + ' 杯'; pk.className = 'pl-pill ' + (k === 3 ? 'is-ok' : 'is-pink'); if (k === 3) { pk.textContent = '✓ 倒了 3 杯，剛好滿！'; bt.disabled = true; P.toast('圓錐的體積是同底同高圓柱的 1/3'); P.track('aha', { id: 'solid-sphere', step: 4 }); done(); } }
+          bt.addEventListener('click', function () { if (k < 3) { k++; upd(); } }); br.addEventListener('click', function () { if (k < 3) { k = 0; upd(); } });
+          setSolve(function () { k = 3; upd(); }); b0.append(P.hint('每一杯都是圓錐裝滿的水。'));
         },
-        function () { head(3); qfig(box, 'half'); box.append(h('div', { class: 'pl-q', html: '<b>半球</b>的半徑是 <b>6</b>，體積 ＝ ？π' })); P.numBox(box, { answer: 144, unit: 'π', okMsg: '對！(2/3) × 6³ ＝ (2/3) × 216 ＝ 144，半球 ＝ 144π（是整個球 288π 的一半）。', onOk: next, wrong: function (v) { return v === 288 ? '288π 是整個球，題目是半球。' : '提示：半球 ＝ (2/3)πr³。'; } }); },
-        function () { head(4); qfig(box, 'cylcone'); box.append(h('div', { class: 'pl-q', html: '球放進圓柱（r ＝ 3、高 6）。圓柱 ＝ 54π，圓錐（底同圓柱、高 6）＝ 18π。<b>球</b> ＝ ？π<br><small>提示：圓柱 : 球 : 圓錐 的關係</small>' }));
-          P.numBox(box, { answer: 36, unit: 'π', okMsg: '對！球 ＝ 圓柱 − 圓錐 ＝ 54π − 18π ＝ 36π（也就是 1 : 2 : 3 裡的「2」）。', onOk: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-sphere' }); }, wrong: function () { return '提示：圓錐 : 球 : 圓柱 ＝ 1 : 2 : 3，圓錐是 18π，球就是它的 2 倍。'; } }); }];
-      qs[0](); api.lock('完成 4 題');
+        /* 關 2：半球的水倒進「圓柱挖掉圓錐」的碗 */
+        function (b0, done, setSolve) {
+          b0.append(h('div', { class: 'pl-q', html: '半球裝滿水。拉動滑桿，把水倒進<b>「圓柱挖掉圓錐」的碗</b>，看看水會倒到哪裡？' }));
+          var host = h('div', { class: 'pl-stage pl-stage--sm' }); b0.append(host); var bd = new P.Board(host, { w: 14, h: 4.5, cls: 'pl-svg--sm' }), C1 = 3.5, C2 = 10.5, Z = 0.6, fin = false;
+          bd.line([0.2, Z], [13.8, Z], 'pl-line pl-line--soft'); bd.gMid.append(h('path', { d: arcPath(bd, C1, Z, R), class: 'pl-poly pl-poly--ghost' }));
+          bd.poly([[C2 - R, Z], [C2 + R, Z], [C2 + R, Z + R], [C2 - R, Z + R]], 'pl-poly pl-poly--ghost'); bd.poly([[C2, Z], [C2 + R, Z + R], [C2 - R, Z + R]], 'pl-poly pl-poly--ghost');
+          var w1 = bd.poly([[0, 0], [0, 0], [0, 0]], 'pl-poly'), wl = bd.poly([[0, 0], [0, 0], [0, 0]], 'pl-poly pl-poly--pink'), wr = bd.poly([[0, 0], [0, 0], [0, 0]], 'pl-poly pl-poly--pink'); [w1, wl, wr].forEach(function (e) { e.style.fillOpacity = 0.5; });
+          bd.text([C1, Z + R + 0.5], '半球', 'pl-text pl-text--blue'); bd.text([C2, Z + R + 0.5], '圓柱挖掉圓錐', 'pl-text pl-text--pink');
+          var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), pc = P.pill('', '');
+          function draw(t) {
+            var h1 = inv((1 - t) * G(R)), h2 = inv(t * G(R)), pts = [], i;
+            for (i = 0; i <= 20; i++) { var y = h1 * i / 20; pts.push([C1 - Math.sqrt(R * R - y * y), Z + y]); } for (i = 20; i >= 0; i--) { var y2 = h1 * i / 20; pts.push([C1 + Math.sqrt(R * R - y2 * y2), Z + y2]); }
+            bd.setPoly(w1, h1 < 0.01 ? [[0, 0], [0, 0]] : pts); bd.setPoly(wl, h2 < 0.01 ? [[0, 0], [0, 0]] : [[C2 - R, Z], [C2 - R, Z + h2], [C2 - h2, Z + h2], [C2, Z]]); bd.setPoly(wr, h2 < 0.01 ? [[0, 0], [0, 0]] : [[C2 + R, Z], [C2 + R, Z + h2], [C2 + h2, Z + h2], [C2, Z]]);
+            pa.textContent = '半球裡 ' + (Math.round((1 - t) * 180) / 10).toFixed(1) + 'π'; pb.textContent = '碗裡 ' + (Math.round(t * 180) / 10).toFixed(1) + 'π'; var full = t > 0.995; pc.className = 'pl-pill' + (full ? ' is-ok' : ''); pc.textContent = full ? '✓ 碗剛好滿，半球剛好空！' : '還在倒…';
+            if (full && !fin) { fin = true; P.toast('半球的水 ＝ 碗的容量'); P.track('aha', { id: 'solid-sphere', step: 5 }); done(); }
+          }
+          var sl = P.slider(0, 100, 0, function (v) { draw(v / 100); }); b0.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 還沒倒'), h('span', {}, '全部倒完 →')), h('div', { class: 'pl-readout' }, pa, pb, pc));
+          setSolve(function () { sl.value = 100; draw(1); }); draw(0); b0.append(P.hint('倒的過程中，注意兩邊水位的變化，最後會停在哪裡？'));
+        },
+        /* 關 3：調整半徑，找出目標體積 */
+        function (b0, done, setSolve) {
+          var targets = [{ t: '體積變成 r ＝ 1 時的 <b>8 倍</b>', r: 2 }, { t: '體積剛好是 <b>36π</b>', r: 3 }, { t: '體積剛好是 <b>288π</b>', r: 6 }], ti = 0, info = h('div', { class: 'pl-q' }), host = h('div', { class: 'pl-stage pl-stage--sm' }); b0.append(info, host);
+          var bd = new P.Board(host, { w: 7, h: 7, cls: 'pl-svg--sm' }), ball = circ(bd, [3.5, 3.5], 0.5, 'rgba(47,111,220,.25)', '#2f6fdc'), tr = bd.text([3.5, 0.3], 'r', 'pl-text pl-text--lg pl-text--blue');
+          var pv = P.pill('', 'is-blue'), px = P.pill('', 'is-amber'), r = 1;
+          var sr = P.stepper('半徑 r', 1, 6, 1, function (v) { r = v; upd(); }); b0.append(h('div', { class: 'pl-steprow' }, sr.el), h('div', { class: 'pl-readout' }, pv, px));
+          function txt() { info.innerHTML = '調整球的半徑 r，讓' + targets[Math.min(ti, 2)].t + '。<small>（目標 ' + (Math.min(ti, 2) + 1) + ' / 3）</small>'; }
+          function upd() {
+            ball.setAttribute('r', r * 0.5); bd.setText(tr, [3.5, 0.3], 'r ＝ ' + r); pv.textContent = '體積 ＝ ' + fr(4 * r * r * r) + 'π'; px.textContent = '是 r ＝ 1 時的 ' + r * r * r + ' 倍';
+            if (ti < 3 && r === targets[ti].r) { ti++; if (ti >= 3) { P.toast('體積跟 r 的「三次方」成正比！'); P.track('aha', { id: 'solid-sphere', step: 6 }); done(); } else { P.toast('✓ 找到了，下一個'); txt(); } }
+          }
+          setSolve(function () { while (ti < 3) { var v = targets[ti].r; sr.set(v); } }); txt(); upd(); b0.append(P.hint('提示：體積 ＝ (4/3)πr³。半徑變 2 倍，體積變幾倍？'));
+        }];
+      P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-sphere' }); } });
     },
     /* 5. 完成 */
     function (st, api) {
