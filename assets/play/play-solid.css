@@ -147,3 +147,9 @@
   .ps-gridcol .ps-cap{grid-area:cp;text-align:center;margin:0;min-height:18px}
   .ps-ro{margin:0 0 4px}
 }
+
+/* v5：選項（小圖／數字網格）寬度跟著欄寬縮小，避免第三個選項被右邊裁掉 */
+.ps-qans,.ps-qfig{min-width:0}
+.ps-qans .pl-opts--row{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ps-qans .pl-opts--row .pl-opt{min-width:0;padding:8px 4px}
+.pl-opt .ps-viewsvg--opt,.pl-opt .ps-plan{width:100%;max-width:var(--vwo)}
