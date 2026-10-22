@@ -120,7 +120,7 @@ for f in sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)
     SOON.extend(getattr(m, 'SOON', []))
     GAME_SOON.extend(getattr(m, 'GAME_SOON', []))
 SOON = [s for s in SOON if s[0] not in {en['title'] for en in ENTRIES}]
-AREAS = ['幾何', '立體幾何', '代數', '三角函數', '排列組合']
+AREAS = ['幾何', '立體幾何', '代數', '三角函數', '排列組合', '應用問題', '數與量', '機率與推理']
 
 
 def css_links(paths):
