@@ -4,6 +4,8 @@
   var P = Play, h = P.h, A = [2, 3], B = [10, 3], M = [6, 3];
   function d2(p, q) { return (p[0] - q[0]) * (p[0] - q[0]) + (p[1] - q[1]) * (p[1] - q[1]); }
   function fmt(n) { return (Math.round(n * 10) / 10).toFixed(1); }
+  /* 在線段 a–b 旁邊標出長度（偏向上方／右方），拖動時跟著即時更新 */
+  function dl(board, g, a, b, txt, cls) { var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); if (L < 0.3) return; var nx = -dy / L, ny = dx / L; if (ny < -1e-9 || (Math.abs(ny) < 1e-9 && nx < 0)) { nx = -nx; ny = -ny; } board.text([(a[0] + b[0]) / 2 + nx * 0.7, (a[1] + b[1]) / 2 + ny * 0.7 - 0.2], txt, 'pl-text ' + (cls || ''), g); }
   function stage(st) { var w = h('div', { class: 'pl-stage' }); st.append(w); return w; }
   function clip(p, d) { var t0 = -1e9, t1 = 1e9; [[0, 12, 0], [0, 10, 1]].forEach(function (r) { var i = r[2]; if (Math.abs(d[i]) < 1e-9) return; var a = (r[0] - p[i]) / d[i], b = (r[1] - p[i]) / d[i]; t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b)); }); return [[p[0] + d[0] * t0, p[1] + d[1] * t0], [p[0] + d[0] * t1, p[1] + d[1] * t1]]; }
   function circumcenter(a, b, c) {
@@ -26,6 +28,7 @@
       function draw(t) {
         g.innerHTML = ''; var da = d2(t, A), db = d2(t, B), eq = da === db;
         g.append(h('line', { x1: t[0], y1: board.Y(t[1]), x2: A[0], y2: board.Y(A[1]), class: 'pl-line pl-line--blue pl-line--dash' }), h('line', { x1: t[0], y1: board.Y(t[1]), x2: B[0], y2: board.Y(B[1]), class: 'pl-line pl-line--pink pl-line--dash' }));
+        dl(board, g, t, A, fmt(Math.sqrt(da)), 'pl-text--blue'); dl(board, g, t, B, fmt(Math.sqrt(db)), 'pl-text--pink');
         pa.textContent = 'PA ＝ ' + fmt(Math.sqrt(da)); pb.textContent = 'PB ＝ ' + fmt(Math.sqrt(db)); pl.className = 'pl-pill' + (eq ? ' is-ok' : ''); pl.textContent = eq ? '✓ 一樣遠' : (da < db ? '離 A 比較近' : '離 B 比較近');
         return eq;
       }
@@ -44,7 +47,7 @@
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), seen = {}, nSeen = 0, up = false, down = false; board.gMid.append(g);
       board.line([6, 0], [6, 10], 'pl-line pl-line--green'); baseAB(board); board.dot(M, 'pl-dot pl-dot--green', null, 0.2); board.text([M[0] + 0.75, M[1] - 0.95], 'M', 'pl-text pl-text--green');
       var pa = P.pill('', 'is-blue'), pm = P.pill('AM ＝ MB ＝ 4', 'is-amber'), pr = P.pill('∠PMA ＝ 90°', 'is-ok'); st.append(h('div', { class: 'pl-readout' }, pa, pm, pr));
-      function draw(t) { g.innerHTML = ''; g.append(h('line', { x1: t[0], y1: board.Y(t[1]), x2: A[0], y2: board.Y(A[1]), class: 'pl-line pl-line--blue pl-line--dash' }), h('line', { x1: t[0], y1: board.Y(t[1]), x2: B[0], y2: board.Y(B[1]), class: 'pl-line pl-line--pink pl-line--dash' })); board.rightMark(M, [-1, 0], [0, t[1] > 3 ? 1 : -1], 0.5, g); pa.textContent = 'PA ＝ PB ＝ ' + fmt(Math.sqrt(d2(t, A))); }
+      function draw(t) { g.innerHTML = ''; g.append(h('line', { x1: t[0], y1: board.Y(t[1]), x2: A[0], y2: board.Y(A[1]), class: 'pl-line pl-line--blue pl-line--dash' }), h('line', { x1: t[0], y1: board.Y(t[1]), x2: B[0], y2: board.Y(B[1]), class: 'pl-line pl-line--pink pl-line--dash' })); board.rightMark(M, [-1, 0], [0, t[1] > 3 ? 1 : -1], 0.5, g); dl(board, g, t, A, fmt(Math.sqrt(d2(t, A))), 'pl-text--blue'); dl(board, g, t, B, fmt(Math.sqrt(d2(t, B))), 'pl-text--pink'); pa.textContent = 'PA ＝ PB ＝ ' + fmt(Math.sqrt(d2(t, A))); }
       var cand = pts(6, 6, 0, 10, function (x, y) { return y !== 3; });
       var hd = board.handle({ pos: [6, 7], candidates: cand, onMove: function (t) { draw(t); var k = t.join(','); if (!seen[k]) { seen[k] = 1; nSeen++; } if (t[1] > 3) up = true; else down = true;
         if (nSeen >= 4 && up && down && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'perp-bisector', step: 2 }); st.append(P.ruleBox('<b>垂直平分線</b>有兩個性質：<br>① <b>平分</b>：通過 AB 的中點 M（AM ＝ MB）<br>② <b>垂直</b>：和 AB 成 90°<br>線上每一點，到 A、B 的距離都<b>相等</b>。', '垂直平分線')); P.toast('線上每一點都一樣遠'); api.unlock('垂直又平分！'); } } });
@@ -89,7 +92,7 @@
           var ps = cfg.pts.map(function () { return P.pill('', 'is-blue'); }), pl = P.pill('', ''); b0.append(h('div', { class: 'pl-readout' }, ps), h('div', { class: 'pl-readout' }, pl));
           function draw(t) {
             g.innerHTML = ''; var ds = cfg.pts.map(function (p) { return d2(t, p); }), eq = ds.every(function (v) { return v === ds[0]; });
-            cfg.pts.forEach(function (p, i) { g.append(h('line', { x1: t[0], y1: board.Y(t[1]), x2: p[0], y2: board.Y(p[1]), class: 'pl-line pl-line--dash ' + ['pl-line--blue', 'pl-line--pink', 'pl-line--amber'][i] })); ps[i].textContent = cfg.names[i] + ' 到 P：' + fmt(Math.sqrt(ds[i])); });
+            cfg.pts.forEach(function (p, i) { g.append(h('line', { x1: t[0], y1: board.Y(t[1]), x2: p[0], y2: board.Y(p[1]), class: 'pl-line pl-line--dash ' + ['pl-line--blue', 'pl-line--pink', 'pl-line--amber'][i] })); ps[i].textContent = cfg.names[i] + ' 到 P：' + fmt(Math.sqrt(ds[i])); dl(board, g, t, p, fmt(Math.sqrt(ds[i])), ['pl-text--blue', 'pl-text--pink', 'pl-text--amber'][i]); });
             pl.className = 'pl-pill' + (eq ? ' is-ok' : ''); pl.textContent = eq ? '✓ 到每個點都一樣遠' : '距離還不一樣'; return eq;
           }
           var hd = board.handle({ pos: cfg.start, candidates: cfg.cand, onMove: function (t) { var eq = draw(t); if (eq && !fin) { fin = true; P.toast(cfg.msg); done(); } } });

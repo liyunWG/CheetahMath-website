@@ -14,6 +14,8 @@
   function inAngle(p) { var dx = p[0] - O[0], dy = p[1] - O[1]; return dy > 0 && 4 * dx - 3 * dy > 0; }
   function angOf(v) { return Math.atan2(v[1], v[0]) / rad; }
   function fmt(n) { return (Math.round(n * 10) / 10).toFixed(1); }
+  /* 在線段 a–b 旁邊標出長度（偏向上方／右方），拖動時跟著即時更新 */
+  function dl(board, g, a, b, txt, cls) { var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); if (L < 0.3) return; var nx = -dy / L, ny = dx / L; if (ny < -1e-9 || (Math.abs(ny) < 1e-9 && nx < 0)) { nx = -nx; ny = -ny; } board.text([(a[0] + b[0]) / 2 + nx * 0.7, (a[1] + b[1]) / 2 + ny * 0.7 - 0.2], txt, 'pl-text ' + (cls || ''), g); }
   function rayToEdge(board, dir) { var t = 1e9; if (dir[0] > 0) t = Math.min(t, (board.w - O[0]) / dir[0]); if (dir[1] > 0) t = Math.min(t, (board.hh - O[1]) / dir[1]); return add(O, mul(dir, t)); }
   function arcPts(r, a0, a1) { var pts = [O]; for (var i = 0; i <= 24; i++) { var a = (a0 + (a1 - a0) * i / 24) * rad; pts.push([O[0] + r * Math.cos(a), O[1] + r * Math.sin(a)]); } return pts; }
   function latticeInside() { var c = []; for (var x = 0; x <= 12; x++) for (var y = 0; y <= 10; y++) if (inAngle([x, y])) c.push([x, y]); return c; }
@@ -64,6 +66,7 @@
         var d1 = distLine(p, O, U1), d2 = distLine(p, O, U2);
         g.append(h('line', { x1: p[0], y1: board.Y(p[1]), x2: f1[0], y2: board.Y(f1[1]), class: 'pl-line pl-line--blue pl-line--dash' }), h('line', { x1: p[0], y1: board.Y(p[1]), x2: f2[0], y2: board.Y(f2[1]), class: 'pl-line pl-line--pink pl-line--dash' }));
         board.rightMark(f1, [-1, 0], [0, 1], 0.4, g); var nv = mul(sub(p, f2), 1 / len(sub(p, f2))); board.rightMark(f2, mul(U2, -1), nv, 0.4, g);
+        dl(board, g, p, f1, fmt(d1), 'pl-text--blue'); dl(board, g, p, f2, fmt(d2), 'pl-text--pink');
         pa.textContent = '到下邊 ' + fmt(d1); pb.textContent = '到上邊 ' + fmt(d2);
       }
       var hd = board.handle({ pos: bis[2], candidates: bis, disabled: function () { return gate.on; }, onMove: function (t) { draw(t); var key = t.join(','); if (!seen[key]) { seen[key] = 1; count++; } if (count >= 3 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'angle-bisector', step: 2 }); st.append(P.ruleBox('角平分線上的<b>每一點</b>，到角的<b>兩邊一樣遠</b>。', '性質')); P.toast(api.ctx.p2 === 2 ? '你猜對了！' : '兩個距離永遠一樣'); api.unlock('發現規律了！'); } } });
@@ -81,7 +84,7 @@
         g.innerHTML = ''; var f1 = [p[0], 1], f2 = foot(p, O, U2), d1 = distLine(p, O, U1), d2 = distLine(p, O, U2);
         g.append(h('line', { x1: p[0], y1: board.Y(p[1]), x2: f1[0], y2: board.Y(f1[1]), class: 'pl-line pl-line--blue pl-line--dash' }), h('line', { x1: p[0], y1: board.Y(p[1]), x2: f2[0], y2: board.Y(f2[1]), class: 'pl-line pl-line--pink pl-line--dash' }));
         board.rightMark(f1, [-1, 0], [0, 1], 0.4, g); var nv3 = sub(p, f2), L3 = len(nv3); if (L3 > 0.01) board.rightMark(f2, mul(U2, -1), mul(nv3, 1 / L3), 0.4, g);
-        pa.textContent = fmt(d1); pb.textContent = fmt(d2);
+        dl(board, g, p, f1, fmt(d1), 'pl-text--blue'); dl(board, g, p, f2, fmt(d2), 'pl-text--pink'); pa.textContent = fmt(d1); pb.textContent = fmt(d2);
         var ok = board.snapOn ? (p[0] - 1 === 2 * (p[1] - 1)) : Math.abs(d1 - d2) < 0.22; pc.className = 'pl-pill' + (ok ? ' is-ok' : ''); pc.textContent = ok ? '✓ 一樣遠' : '不一樣遠';
         if (ok) { var key = (board.snapOn ? p.join(',') : Math.round(p[0] * 2) + ',' + Math.round(p[1] * 2)); if (!found[key]) { found[key] = 1; n++; trail.append(h('circle', { cx: p[0], cy: board.Y(p[1]), r: 0.2, class: 'pl-dot pl-dot--green' })); pop2(trail.lastChild); reveal(); } }
       }
@@ -126,6 +129,7 @@
         g.innerHTML = ''; var d = dists(p), fs = [[p[0], 1], [1, p[1]], null]; var f3 = foot(p, [9, 1], [-0.8, 0.6]); fs[2] = f3; var cl = ['blue', 'pink', 'amber'];
         fs.forEach(function (f, i) { g.append(h('line', { x1: p[0], y1: board.Y(p[1]), x2: f[0], y2: board.Y(f[1]), class: 'pl-line pl-line--' + cl[i] + ' pl-line--dash' })); });
         var sd = [[1, 0], [0, 1], [-0.8, 0.6]]; fs.forEach(function (f, i) { var v = sub(p, f), L = len(v); if (L > 0.45) board.rightMark(f, sd[i], mul(v, 1 / L), 0.38, g); });
+        fs.forEach(function (f, i) { dl(board, g, p, f, fmt(d[i]), 'pl-text--' + cl[i]); });
         p1.textContent = '到下邊 ' + fmt(d[0]); p2.textContent = '到左邊 ' + fmt(d[1]); p3.textContent = '到斜邊 ' + fmt(d[2]);
         var ok = board.snapOn ? (5 * d[0] === 5 * d[1] && 5 * d[1] === 5 * d[2]) : (Math.max.apply(null, d) - Math.min.apply(null, d) < 0.25);
         pc.className = 'pl-pill' + (ok ? ' is-ok' : ''); pc.textContent = ok ? '✓ 三個一樣遠' : '還不一樣遠'; return ok;
@@ -148,7 +152,7 @@
         function () {
           box.innerHTML = ''; var b = fig(), g = h('g'); b.gMid.append(g); var cand = latticeInside();
           var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), lamp = P.pill('', ''), pf = P.pill('已找到 0 個一樣遠的點', 'is-amber'); var ro = h('div', { class: 'pl-readout' }, pa, pb, lamp), found = {}, nf = 0, bisLine = null; box.append(ro, h('div', { class: 'pl-readout' }, pf));
-          function draw(p) { g.innerHTML = ''; feet(b, p, g); b.dot(p, 'pl-dot', g, 0.14); b.text([p[0] + 0.5, p[1] + 0.55], 'P', 'pl-text', g); pa.textContent = '到下邊 ' + fmt(distLine(p, O, U1)); pb.textContent = '到上邊 ' + fmt(distLine(p, O, U2)); var ok = p[0] - 1 === 2 * (p[1] - 1); lamp.className = 'pl-pill' + (ok ? ' is-ok' : ''); lamp.textContent = ok ? '✓ 一樣遠' : '不一樣遠'; return ok; }
+          function draw(p) { g.innerHTML = ''; var fp = feet(b, p, g); b.dot(p, 'pl-dot', g, 0.14); b.text([p[0] + 0.5, p[1] + 0.55], 'P', 'pl-text', g); dl(b, g, p, fp[0], fmt(distLine(p, O, U1)), 'pl-text--blue'); dl(b, g, p, fp[1], fmt(distLine(p, O, U2)), 'pl-text--pink'); pa.textContent = '到下邊 ' + fmt(distLine(p, O, U1)); pb.textContent = '到上邊 ' + fmt(distLine(p, O, U2)); var ok = p[0] - 1 === 2 * (p[1] - 1); lamp.className = 'pl-pill' + (ok ? ' is-ok' : ''); lamp.textContent = ok ? '✓ 一樣遠' : '不一樣遠'; return ok; }
           /* 找到一樣遠的點就留下綠點（不會因為拖開而消失）；找到 3 個以上，把它們連成的角平分線畫出來 */
           b.handle({ pos: [8, 3], candidates: cand, valid: inAngle, onMove: function (t) { if (draw(t)) { var k = t.join(','); if (!found[k]) { found[k] = 1; nf++; b.goalMark(t); pf.textContent = '已找到 ' + nf + ' 個一樣遠的點'; pf.className = 'pl-pill is-ok'; } if (nf >= 3 && !bisLine) { bisLine = b.line(O, rayToEdge(b, [2 / Math.sqrt(5), 1 / Math.sqrt(5)]), 'pl-line pl-line--green pl-line--dash', b.gMark); P.toast('這些點排成一條線：就是角平分線！'); } } } }); draw([8, 3]);
           P.choice(box, { unlock: next }, { id: 'ab-t1', label: '第 1 / 4 題', prompt: '點 P 到角的兩邊<b>一樣遠</b>（拖動 P 找找看）。P 一定在哪裡？', options: [{ t: '這個角的角平分線上', ok: true, fb: '對！到兩邊等距，就在角平分線上。' }, { t: '角的其中一邊上', fb: '在邊上的點到那一邊的距離是 0，不可能和另一邊一樣遠（頂點除外）。' }, { t: '離頂點最近的位置', fb: '一樣遠和離頂點多遠無關。' }], onAnswer: function () { next(); } });
