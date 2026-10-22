@@ -18,7 +18,7 @@
       function upd() { pT.textContent = '種了 ' + n + ' 棵'; pD.textContent = n === 6 ? '6 棵 ＝ 5 段 ＋ 1' : '還沒種完'; pD.className = 'pl-pill' + (n === 6 ? ' is-ok' : ''); }
       function plant(k) {
         if (gate.on) { P.toast('先做上面的預測'); return; } if (filled[k]) return;
-        filled[k] = 1; n++; socks[k].setAttribute('class', 'pa-slot is-full'); P.pop(PA.tree(b, XS[k], RY, 1, gt, k === 0 || k === 5 ? 'is-end' : ''), 0.3); upd();
+        filled[k] = 1; n++; socks[k].setAttribute('class', 'pa-slot is-full'); P.pop(PA.tree(b, XS[k], RY, 1, gt, k === 0 || k === 5 ? 'is-end' : '').inner, 0.3); upd();
         if (n === 6 && !done) { done = true; P.track('aha', { id: 'plant-gap', step: 1 }); P.toast(api.ctx.p1 === 2 ? '你猜對了！6 棵' : '種完是 6 棵'); st.append(P.ruleBox('20 公尺每 4 公尺一段，共 <b>5 段</b>；可是<b>頭尾兩端都有樹</b>，所以樹比段<b>多 1</b>：<br><b>棵數 ＝ 段數 ＋ 1 ＝ 6</b>。<br>先數「空隙」，再看兩端要不要補一棵。', '兩端都種')); api.unlock('棵數 ＝ 段數 ＋ 1'); }
       }
       hd = PA.dropper(b, { tray: [6, 1.4], sockets: XS.map(function (x) { return [x, RY]; }), can: function (k) { return !filled[k]; }, disabled: function () { if (gate.on) { P.toast('先做上面的預測'); return true; } return false; }, onDrop: plant });

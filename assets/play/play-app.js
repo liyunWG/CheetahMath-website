@@ -15,10 +15,12 @@
 
   /* 樹的圖示：底部中心在 (x, y)（數學座標），s 是大小倍率 */
   PA.tree = function (board, x, y, s, layer, cls) {
+    /* 位置用外層 transform 屬性，彈出動畫（P.pop 會設 CSS transform）只作用在內層 g.inner；
+       不然 CSS transform 會把位置蓋掉，樹會跑到畫面左上角（手機上有開動畫才會發生） */
     s = s || 1; var X = x, Y = board.Y(y);
-    var g = h('g', { class: 'pa-tree' + (cls ? ' ' + cls : ''), transform: 'translate(' + X + ',' + Y + ') scale(' + s + ')' },
-      h('rect', { x: -0.11, y: -0.42, width: 0.22, height: 0.46, class: 'pa-tree__trunk' }), h('circle', { cx: 0, cy: -0.78, r: 0.46, class: 'pa-tree__crown' }));
-    (layer || board.gMid).append(g); return g;
+    var inner = h('g', { class: 'pa-tree__in' }, h('rect', { x: -0.11, y: -0.42, width: 0.22, height: 0.46, class: 'pa-tree__trunk' }), h('circle', { cx: 0, cy: -0.78, r: 0.46, class: 'pa-tree__crown' }));
+    var g = h('g', { class: 'pa-tree' + (cls ? ' ' + cls : ''), transform: 'translate(' + X + ',' + Y + ') scale(' + s + ')' }, inner);
+    g.inner = inner; (layer || board.gMid).append(g); return g;
   };
 
   /* 拖放：一個把手平時待在 tray，拖到某個「插槽」放開就算放下（onDrop(i)），然後自己回到 tray。
