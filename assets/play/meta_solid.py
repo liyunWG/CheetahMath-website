@@ -10,6 +10,16 @@ def cube_svg(extra=''):
             '<polygon points="110,40 150,15 230,15 190,40" fill="rgba(214,51,108,.22)"/><polygon points="190,40 230,15 230,85 190,110" fill="rgba(31,157,85,.25)"/></g></svg>')
 
 
+SPHERE_ART = (
+    '<svg viewBox="0 0 320 130" aria-hidden="true"><g stroke="#122548" stroke-width="2.5" stroke-linejoin="round">'
+    '<path d="M30 100 A45 45 0 0 1 120 100 Z" fill="rgba(31,157,85,.3)"/>'
+    '<rect x="190" y="55" width="90" height="45" fill="none" stroke-dasharray="6 5"/>'
+    '<polygon points="190,100 190,55 235,100" fill="rgba(214,51,108,.28)"/><polygon points="235,100 280,55 280,100" fill="rgba(214,51,108,.28)"/>'
+    '<line x1="15" y1="100" x2="300" y2="100" stroke="#b9ad92"/><line x1="15" y1="78" x2="300" y2="78" stroke="#d29b1f" stroke-dasharray="5 4"/></g>'
+    '<text x="140" y="95" font-family="sans-serif" font-weight="800" font-size="34" fill="#122548">＝</text>'
+    '<g font-family="sans-serif" font-weight="800" font-size="14" fill="#122548" text-anchor="middle"><text x="75" y="122">半球</text><text x="235" y="122">圓柱挖掉圓錐</text></g></svg>')
+
+
 ENTRIES = [
     dict(slug='solid-basic', title='立體圖形的基本性質', grade='國中', area='立體幾何', mins='約 8 分鐘',
          blurb='數一數正方體的頂點、稜、面，發現所有多面體都有 頂點 − 稜 + 面 ＝ 2，再看為什麼正多面體只有 5 種。',
@@ -52,10 +62,14 @@ ENTRIES = [
          desc='拉動滑桿用平面切正方體，看切面是三角形、四邊形、五邊形或正六邊形，並算切下一個角的體積——立體幾何互動單元。',
          art=('<svg viewBox="0 0 320 130" aria-hidden="true"><g stroke="#122548" stroke-width="3" stroke-linejoin="round"><polygon points="120,40 200,40 200,110 120,110" fill="rgba(47,111,220,.12)"/><polygon points="120,40 150,15 230,15 200,40" fill="rgba(214,51,108,.1)"/><polygon points="200,40 230,15 230,85 200,110" fill="rgba(31,157,85,.12)"/>'
               '<polygon points="120,75 160,40 215,28 230,50 190,85 140,110" fill="rgba(242,169,59,.75)" stroke="#b4700b"/></g></svg>')),
+    dict(slug='solid-sphere', title='球與圓錐、圓柱的關係', grade='高中', area='立體幾何', mins='約 8 分鐘',
+         blurb='用祖暅原理：半球和「圓柱挖掉圓錐」在每個高度切開，截面積都一樣大，所以體積一樣，球的體積公式自己算出來。',
+         see='可拉動滑桿的切片（圓對圓環）、算出 (4/3)πr³、圓錐：球：圓柱＝1：2：3', deep='祖暅原理與其他立體、球的表面積、最大內接圖形、積分求體積', classes='國中、高中「立體圖形的體積」',
+         desc='拉動滑桿切開半球與挖掉圓錐的圓柱，看截面積處處相等，用祖暅原理算出球的體積，並發現圓錐：球：圓柱＝1：2：3——立體幾何互動單元。',
+         art=SPHERE_ART),
 ]
 SOON = [
     ('立體圖形的體積與表面積', '國中', '立體幾何', '柱體、錐體為什麼是 1/3？倒水、切片、堆疊一次看懂。'),
-    ('球與圓錐、圓柱的關係', '高中', '立體幾何', '祖暅原理：同高處截面積相等，體積就相等。'),
 ]
 
 for _e in ENTRIES:
