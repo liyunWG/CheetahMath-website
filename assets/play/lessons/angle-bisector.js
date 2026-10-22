@@ -147,9 +147,10 @@
       var qs = [
         function () {
           box.innerHTML = ''; var b = fig(), g = h('g'); b.gMid.append(g); var cand = latticeInside();
-          var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), lamp = P.pill('', ''); var ro = h('div', { class: 'pl-readout' }, pa, pb, lamp); box.append(ro);
-          function draw(p) { g.innerHTML = ''; feet(b, p, g); b.dot(p, 'pl-dot', g, 0.14); b.text([p[0] + 0.5, p[1] + 0.55], 'P', 'pl-text', g); pa.textContent = '到下邊 ' + fmt(distLine(p, O, U1)); pb.textContent = '到上邊 ' + fmt(distLine(p, O, U2)); var ok = p[0] - 1 === 2 * (p[1] - 1); lamp.className = 'pl-pill' + (ok ? ' is-ok' : ''); lamp.textContent = ok ? '✓ 一樣遠' : '不一樣遠'; }
-          b.handle({ pos: [8, 3], candidates: cand, valid: inAngle, onMove: draw }); draw([8, 3]);
+          var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), lamp = P.pill('', ''), pf = P.pill('已找到 0 個一樣遠的點', 'is-amber'); var ro = h('div', { class: 'pl-readout' }, pa, pb, lamp), found = {}, nf = 0, bisLine = null; box.append(ro, h('div', { class: 'pl-readout' }, pf));
+          function draw(p) { g.innerHTML = ''; feet(b, p, g); b.dot(p, 'pl-dot', g, 0.14); b.text([p[0] + 0.5, p[1] + 0.55], 'P', 'pl-text', g); pa.textContent = '到下邊 ' + fmt(distLine(p, O, U1)); pb.textContent = '到上邊 ' + fmt(distLine(p, O, U2)); var ok = p[0] - 1 === 2 * (p[1] - 1); lamp.className = 'pl-pill' + (ok ? ' is-ok' : ''); lamp.textContent = ok ? '✓ 一樣遠' : '不一樣遠'; return ok; }
+          /* 找到一樣遠的點就留下綠點（不會因為拖開而消失）；找到 3 個以上，把它們連成的角平分線畫出來 */
+          b.handle({ pos: [8, 3], candidates: cand, valid: inAngle, onMove: function (t) { if (draw(t)) { var k = t.join(','); if (!found[k]) { found[k] = 1; nf++; b.goalMark(t); pf.textContent = '已找到 ' + nf + ' 個一樣遠的點'; pf.className = 'pl-pill is-ok'; } if (nf >= 3 && !bisLine) { bisLine = b.line(O, rayToEdge(b, [2 / Math.sqrt(5), 1 / Math.sqrt(5)]), 'pl-line pl-line--green pl-line--dash', b.gMark); P.toast('這些點排成一條線：就是角平分線！'); } } } }); draw([8, 3]);
           P.choice(box, { unlock: next }, { id: 'ab-t1', label: '第 1 / 4 題', prompt: '點 P 到角的兩邊<b>一樣遠</b>（拖動 P 找找看）。P 一定在哪裡？', options: [{ t: '這個角的角平分線上', ok: true, fb: '對！到兩邊等距，就在角平分線上。' }, { t: '角的其中一邊上', fb: '在邊上的點到那一邊的距離是 0，不可能和另一邊一樣遠（頂點除外）。' }, { t: '離頂點最近的位置', fb: '一樣遠和離頂點多遠無關。' }], onAnswer: function () { next(); } });
         },
         function () {
