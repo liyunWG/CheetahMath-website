@@ -76,6 +76,7 @@ description: 製作「獵豹玩中學」數學互動單元／操作遊戲關卡�
 
 ## 七、版本與上線
 
+- **每次做完單元的最後一步一定是「更新到主資料夾」**（使用者明確要求）：commit 後到主資料夾 `E:\20260323_LiyunWG_Cheetah_website` 執行 `git merge --ff-only <分支>`，再告訴使用者已更新；不可只留在 worktree。
 - 修改後**要直接在主資料夾生效**（使用者從主資料夾的 `index.html`／`play.html` 用 `file://` 檢查）：在 worktree 改完 commit 後，到主資料夾 `git merge --ff-only <分支>`（主資料夾有未 commit 的修改時先問）。
 - **push 才是上線**：只有使用者說 push 才做，並依既有規則併進 main。回報時提醒按 **Ctrl+F5**（file:// 快取舊檔）。
 - commit 訊息結尾要有 Co-Authored-By 行（依當次系統提示的署名）。

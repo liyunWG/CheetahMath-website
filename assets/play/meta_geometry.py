@@ -47,6 +47,13 @@ CIRCLE_AREA_ART = (
     '<g font-family="sans-serif" font-weight="800"><text x="240" y="62" font-size="18" fill="#122548">長 πr × 寬 r</text><text x="240" y="96" font-size="26" fill="#d6336c">＝ πr²</text></g></svg>')
 
 
+COSINE_ART = (
+    '<svg viewBox="0 0 320 130" aria-hidden="true"><g stroke-linejoin="round" stroke-linecap="round"><polygon points="40,108 130,108 98,34" fill="rgba(210,155,31,.26)" stroke="#122548" stroke-width="2.5"/>'
+    '<line x1="40" y1="108" x2="130" y2="108" stroke="#2f6fdc" stroke-width="4"/><line x1="40" y1="108" x2="98" y2="34" stroke="#d6336c" stroke-width="4"/><line x1="98" y1="34" x2="130" y2="108" stroke="#1f9d55" stroke-width="4"/></g>'
+    '<path d="M62 108 A22 22 0 0 0 57 92" fill="none" stroke="#122548" stroke-width="2.5"/>'
+    '<g font-family="sans-serif" font-weight="800"><text x="160" y="46" font-size="18" fill="#122548">c² ＝ a² ＋ b²</text><text x="160" y="76" font-size="21" fill="#d6336c">− 2ab·cos C</text><text x="160" y="108" font-size="15" fill="#1f9d55">C ＝ 90° 就是畢氏定理</text></g></svg>')
+
+
 ENTRIES = [
     dict(slug='pythagoras', title='畢氏定理：重排四個直角三角形', grade='國中', area='幾何', mins='約 8 分鐘',
          blurb='拖動滑桿，把三個直角三角形搬到另一個位置：空白面積不變，a²＋b²＝c² 自己現形，再換不同的三角形驗證。',
@@ -78,5 +85,10 @@ ENTRIES = [
          see='切扇形拼長方形、剝洋蔥拼三角形、數方格估 π、3 個操作關卡（半徑變化、圓環、扇形）', deep='圓與扇形的割補、圓周長與圓面積、弧長與扇形面積', classes='PK3B／PK3C／J82S',
          desc='把圓切成扇形再拼起來，發現圓面積是 πr²；還能用剝洋蔥和數方格驗證——小學幾何互動單元。',
          art=CIRCLE_AREA_ART),
+    dict(slug='cosine-law', title='餘弦定理與畢氏定理', grade='高中', area='三角函數', mins='約 9 分鐘', libs=GEO,
+         blurb='固定三角形的兩邊，拖動夾角：第三邊跟著變，c² 與 a²＋b² 差的剛好是 −2ab·cos C；夾角 90° 時，就回到畢氏定理。',
+         see='拖動夾角比較 c² 與 a²＋b² 的長條、自己發現 −2ab·cos C、作高用畢氏定理證明、3 個操作關卡（用夾角湊出指定邊長）', deep='用三邊求角、正弦定理與外接圓、向量內積', classes='S102／PK4A／J81A',
+         desc='固定兩邊、拖動夾角，親眼看見餘弦定理 c²＝a²＋b²−2ab·cos C，90° 時就是畢氏定理——高中三角函數互動單元。',
+         art=COSINE_ART),
 ]
 SOON = []
