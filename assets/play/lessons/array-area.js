@@ -37,7 +37,7 @@
   var steps = [
     /* 1. 12 個點排成長方形：行列互換 */
     function (st, api) {
-      var gate = { on: true }, c = 3, r = 4, TG = [[1, 12], [2, 6], [3, 4], [4, 3], [6, 2], [12, 1]], found = {}, nf = 0, fin = false, hd;
+      var gate = { on: true }, c = 2, r = 2, TG = [[1, 12], [2, 6], [3, 4], [4, 3], [6, 2], [12, 1]], found = {}, nf = 0, fin = false, hd;
       P.choice(st, api, { id: 'aa-p1', predict: true, label: '先猜猜看', prompt: '12 個點排成長方形：「<b>3 排，每排 4 個</b>」和「<b>4 排，每排 3 個</b>」，點數一樣嗎？', row: true, options: [{ t: '一樣多' }, { t: '3 排的比較多' }, { t: '4 排的比較多' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動右上角，排出 12 個點'); } });
       st.append(P.instr('拖動右上角的點，改變陣列。把<b>剛好 12 個點</b>的長方形<b>每一種排法</b>都找出來（幾排 × 每排幾個）。'));
       var host = stage(st), ab = arrayBoard(host, 12, 12), b = ab.b, rim = b.poly([[0, 0], [1, 0], [1, 1], [0, 1]], 'pl-poly pl-poly--blue');
@@ -92,7 +92,7 @@
             if (goal.ok(s) && !fin) { fin = true; P.toast(msg); done(); }
           }
           var cand = []; for (var k = 1; k < cols; k++) cand.push([k, rows + 0.65]);
-          var hd = b.handle({ pos: cand[0], candidates: cand, onMove: function (t) { s = t[0]; draw(); } }); b.text([0.2, rows + 0.65], '✂', 'pl-text pl-text--l');
+          var hd = b.handle({ pos: cand[0], candidates: cand, onMove: function (t) { s = t[0]; draw(); } }); b.text([-0.2, rows + 0.45], '✂', 'pl-text');
           setSolve(function () { hd.moveTo([goal.s, rows + 0.65]); }); draw(); b0.append(P.hint(hint));
         };
       }
@@ -115,7 +115,7 @@
         var bb = 10 - a, q = a * a, w = bb * bb, m = a * bb;
         ab.paint(10 + OFF, 10 + OFF, function (i, j) { if (i < OFF || j < OFF) return null; var x = i - OFF, y = j - OFF; return (x < a && y < a) ? BLUE : (x >= a && y >= a) ? PINK : AMBER; });
         b.setLine(cutV, [OFF + a, OFF - 0.1], [OFF + a, OFF + 10.1]); b.setLine(cutH, [OFF - 0.1, OFF + a], [OFF + 10.1, OFF + a]);
-        b.setText(tx[0], [OFF + a / 2, OFF + a / 2 - 0.2], 'a²＝' + q); b.setText(tx[1], [OFF + a + bb / 2, OFF + a + bb / 2 - 0.2], 'b²＝' + w); b.setText(tx[2], [OFF + a + bb / 2, OFF + a / 2 - 0.2], 'ab＝' + m); b.setText(tx[3], [OFF + a / 2, OFF + a + bb / 2 - 0.2], 'ab＝' + m);
+        b.setText(tx[0], [OFF + a / 2, OFF + a / 2 - 0.2], a >= 2 ? 'a²＝' + q : ''); b.setText(tx[1], [OFF + a + bb / 2, OFF + a + bb / 2 - 0.2], bb >= 2 ? 'b²＝' + w : ''); b.setText(tx[2], [OFF + a + bb / 2, OFF + a / 2 - 0.2], 'ab＝' + m); b.setText(tx[3], [OFF + a / 2, OFF + a + bb / 2 - 0.2], 'ab＝' + m);
         b.setText(la, [OFF + a / 2, OFF - 0.6], 'a ＝ ' + a); b.setText(lb, [OFF + a + bb / 2, OFF - 0.6], 'b ＝ ' + bb);
         p1.textContent = 'a² ＋ b² ＝ ' + q + ' ＋ ' + w + ' ＝ ' + (q + w); p2.textContent = '兩塊 ab ＝ 2 × ' + m + ' ＝ ' + 2 * m; p3.textContent = '全部 ＝ ' + (q + w) + ' ＋ ' + 2 * m + ' ＝ 100';
         if (ti < T.length && q + w === T[ti].v) { ti++; if (ti >= T.length) { P.track('aha', { id: 'array-area', step: 4 }); P.toast('(a＋b)² ＝ a²＋2ab＋b²'); st.append(P.ruleBox('大正方形的邊長是 <b>a ＋ b</b>，面積 ＝ 四塊加起來：<br><b>(a ＋ b)² ＝ a² ＋ 2ab ＋ b²</b>。<br>所以 (a＋b)² 一定比 a²＋b² <b>多出兩塊 ab</b>；當 a ＝ b ＝ 5 時 a²＋b² 最小。', '乘法公式的種子')); api.unlock('看見 (a＋b)²！'); } else { P.toast('✓ 找到了，下一個'); txt(); } }

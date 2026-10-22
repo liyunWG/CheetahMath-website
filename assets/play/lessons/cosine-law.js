@@ -8,11 +8,11 @@
   function f2(x) { return (Math.round(x * 100) / 100).toFixed(2).replace('-', '−'); }
   function z(x) { return Math.abs(x) < 1e-9 ? 0 : x; }
 
-  var W = 15, HH = 11.6, BY = 3.5;
+  var W = 15, HH = 12.4, BY = 4.8;
   /* 三角形畫板（含 a²＋b² 與 c² 的長條比較）。o: {start, alt, onMove(th, d), disabled}。 */
   function figure(host, a, b, o) {
     o = o || {};
-    var k = Math.min(13 / (a + b), 7.2 / b), rr = b * k, Cx = (W - (a + b) * k) / 2 + b * k, C = [Cx, BY], Bp = [Cx + a * k, BY], bs = 13 / ((a + b) * (a + b)), BX0 = 1;
+    var span = b + Math.max(a, b), k = Math.min(11 / span, 6 / b), rr = b * k, Cx = (W - span * k) / 2 + b * k, C = [Cx, BY], Bp = [Cx + a * k, BY], bs = 13 / ((a + b) * (a + b)), BX0 = 1;
     var bd = new P.Board(host, { w: W, h: HH }), th = o.start || 60, hd;
     var tri = bd.poly([C, Bp, [Cx, BY + 1]], 'pl-poly pl-poly--amber');
     var lA = bd.line(C, Bp, 'pl-line pl-line--blue pl-line--bold'), lB = bd.line(C, C, 'pl-line pl-line--pink pl-line--bold'), lC = bd.line(C, Bp, 'pl-line pl-line--green pl-line--bold');
@@ -35,21 +35,21 @@
     function set(t) {
       th = t; var d = info(t), A = G.polar(C, rr, t), mB = [(C[0] + A[0]) / 2, (C[1] + A[1]) / 2], mC = [(A[0] + Bp[0]) / 2, (A[1] + Bp[1]) / 2], n = [-Math.sin(t * rad), Math.cos(t * rad)];
       bd.setPoly(tri, [C, Bp, A]); bd.setLine(lB, C, A); bd.setLine(lC, A, Bp);
-      var w = G.wedge(C, 0, t, 1.15, t); bd.setPoly(wd, w.pts); var lp = t < 28 ? [C[0] + 2.6, C[1] - 0.55] : G.polar(C, 2.0, w.bis); bd.setText(tC, [lp[0], lp[1] - 0.2], 'C ＝ ' + t + '°');
-      bd.setText(vA, [A[0] + 0.55 * Math.cos(t * rad), A[1] + 0.55 * Math.sin(t * rad)]);
-      bd.setText(tAl, [Cx + a * k / 2, BY - 0.7], 'a ＝ ' + a); bd.setText(tBl, [mB[0] + 0.85 * n[0], mB[1] + 0.85 * n[1] - 0.2], 'b ＝ ' + b);
+      var w = G.wedge(C, 0, t, 1.15, t); bd.setPoly(wd, w.pts); var low = t < 30 || t >= 130, lp = low ? [Cx + 1.8, BY - 0.55] : G.polar(C, 2.0, w.bis); bd.setText(tC, [lp[0], lp[1] - (low ? 0 : 0.2)], 'C ＝ ' + t + '°');
+      bd.setText(vA, [A[0] + 1.05 * Math.cos(t * rad), A[1] + 1.05 * Math.sin(t * rad) - 0.2]);
+      bd.setText(tAl, [Cx + a * k / 2, BY - 1.6], 'a ＝ ' + a); bd.setText(tBl, [mB[0] + 0.85 * n[0], mB[1] + 0.85 * n[1] - 0.2], 'b ＝ ' + b);
       var v = [Bp[0] - A[0], Bp[1] - A[1]], vl = Math.hypot(v[0], v[1]), n2 = [v[1] / vl, -v[0] / vl]; if (n2[0] * (mC[0] - C[0]) + n2[1] * (mC[1] - C[1]) < 0) n2 = [-n2[0], -n2[1]];
-      bd.setText(tCl, [mC[0] + 0.9 * n2[0], mC[1] + 0.9 * n2[1] - 0.2], 'c ＝ ' + f2(d.c));
+      var cp = vl < 3.6 ? [Bp[0] + 0.3, BY - 1.6] : [mC[0] + 0.95 * n2[0], mC[1] + 0.95 * n2[1] - 0.2]; bd.setText(tCl, cp, 'c ＝ ' + f2(d.c));
       var cw = d.c2 * bs; bd.setPoly(barC, [[BX0, yb2], [BX0 + cw, yb2], [BX0 + cw, yb2 + bh], [BX0, yb2 + bh]]); bd.setText(tbc, [BX0 + Math.max(cw / 2, 0.6), yb2 + bh / 2 - 0.2], 'c²');
       if (altEls) {
         var Hh = [C[0] + rr * Math.cos(t * rad), BY]; bd.setLine(altEls.ah, A, Hh); bd.setLine(altEls.hb, Hh, Bp); bd.setLine(altEls.hc, C, Hh);
-        bd.setText(altEls.th, [Hh[0] + (Hh[0] <= C[0] ? -0.1 : 0.0), BY - 0.7], Math.abs(Hh[0] - C[0]) < 0.01 ? '' : 'H');
+        bd.setText(altEls.th, [Hh[0], BY - 0.95], (Math.abs(Hh[0] - C[0]) < 0.01 || Math.abs(Hh[0] - Bp[0]) < 1.7) ? '' : 'H');
         var near = Math.abs(Hh[0] - C[0]) < 0.01 || Math.abs(Hh[0] - Bp[0]) < 0.05;
         bd.setPoly(altEls.rm, near ? [Hh, Hh, Hh] : (function () { var s = 0.5, dir = Bp[0] >= Hh[0] ? 1 : -1; return [[Hh[0] + dir * s, BY], [Hh[0] + dir * s, BY + s], [Hh[0], BY + s], Hh]; })());
       }
       return d;
     }
-    var cand = []; for (var q = 5; q <= 175; q += 5) cand.push(G.polar(C, rr, q));
+    var cand = []; for (var q = 10; q <= 170; q += 5) cand.push(G.polar(C, rr, q));
     hd = bd.handle({ pos: G.polar(C, rr, th), candidates: cand, disabled: o.disabled, onMove: function (t) { var d = set(Math.round(G.norm(G.dirTo(C, t)))); if (o.onMove) o.onMove(d.th, d); } });
     set(th);
     return { bd: bd, hd: hd, set: set, info: info, C: C, B: Bp, k: k, go: function (t) { hd.moveTo(G.polar(C, rr, t)); }, cur: function () { return th; } };
