@@ -7,9 +7,10 @@
   /* 時間軸：tasks=[{id,label,dur,kind('m'|'p'|…),lanes:[可放的軌道],after:[id…]}]；每個方塊的把手在方塊中央，拖到想放的時間（整數分鐘）。
      cfg: {lanes:[名稱], best:[[t,lane]…]（看詳解用）, optimum, onChange(tl), onDone(tl)} */
   function makeTimeline(b, cfg) {
-    var tasks = cfg.tasks, T = tasks.reduce(function (s, t) { return s + t.dur; }, 0), k = W / T, nl = cfg.lanes.length, top = 5.9, st = [], hds = [], gBg = h('g'), gB = h('g'), self = {}, fin = false, byId = {};
+    var tasks = cfg.tasks, T = tasks.reduce(function (s, t) { return s + t.dur; }, 0), k = W / T, nl = cfg.lanes.length, top = 6.3, st = [], hds = [], gBg = h('g'), gB = h('g'), self = {}, fin = false, byId = {};
     b.gMid.append(gBg, gB); tasks.forEach(function (t, i) { byId[t.id] = i; });
-    function LY(l) { return top - l * 2.2; }
+    function LY(l) { return top - l * 2.7; }
+    function HY(l) { return LY(l) - 1.1; }   /* 把手放在方塊正下方，標籤放在方塊裡面，兩者不會互相擠開 */
     var t0 = 0; tasks.forEach(function (tk, i) { st[i] = { t: t0, lane: tk.lanes[0] }; t0 += tk.dur; });
     function cx(i) { return X0 + k * (st[i].t + tasks[i].dur / 2); }
     function maxEnd() { var m = 0; tasks.forEach(function (tk, i) { m = Math.max(m, st[i].t + tk.dur); }); return m; }
@@ -20,32 +21,32 @@
       for (j = 0; j < tasks.length; j++) { if ((tasks[j].after || []).indexOf(tasks[i].id) >= 0 && st[j].t < t + d) return false; }
       return true;
     }
-    function cands(i) { var out = [], tk = tasks[i]; tk.lanes.forEach(function (l) { for (var t = 0; t + tk.dur <= T; t++) out.push([X0 + k * (t + tk.dur / 2), LY(l)]); }); return out; }
+    function cands(i) { var out = [], tk = tasks[i]; tk.lanes.forEach(function (l) { for (var t = 0; t + tk.dur <= T; t++) out.push([X0 + k * (t + tk.dur / 2), HY(l)]); }); return out; }
     var step = T <= 8 ? 1 : T <= 20 ? 2 : T <= 40 ? 5 : 10, i, l;
     for (l = 0; l < nl; l++) { gBg.append(h('rect', { x: X0 - 0.05, y: b.Y(LY(l)) - 0.62, width: W + 0.1, height: 1.24, rx: 0.15, fill: l % 2 ? '#fbf6e6' : '#eef3fd', stroke: '#e2d8bd', 'stroke-width': 0.04 })); b.text([1.0, LY(l) - 0.18], cfg.lanes[l], 'pl-text pl-text--sm', gBg); }
-    b.line([X0, 2.0], [X0 + W, 2.0], 'pl-line pl-line--thin', gBg);
-    for (i = 0; i <= T; i += step) { gBg.append(h('line', { x1: X0 + k * i, y1: b.Y(2.0), x2: X0 + k * i, y2: b.Y(1.75), stroke: '#6d6250', 'stroke-width': 0.05 })); b.text([X0 + k * i, 1.0], '' + i, 'pl-text pl-text--sm', gBg); }
-    b.text([1.0, 1.0], '分鐘', 'pl-text pl-text--sm pl-text--amber', gBg);
+    b.line([X0, 1.5], [X0 + W, 1.5], 'pl-line pl-line--thin', gBg);
+    for (i = 0; i <= T; i += step) { gBg.append(h('line', { x1: X0 + k * i, y1: b.Y(1.5), x2: X0 + k * i, y2: b.Y(1.25), stroke: '#6d6250', 'stroke-width': 0.05 })); b.text([X0 + k * i, 0.55], '' + i, 'pl-text pl-text--sm', gBg); }
+    b.text([1.0, 0.55], '分鐘', 'pl-text pl-text--sm pl-text--amber', gBg);
     var endLine = h('line', { x1: 0, y1: 0, x2: 0, y2: 0, stroke: '#d6336c', 'stroke-width': 0.06, 'stroke-dasharray': '.2 .18' }); gBg.append(endLine);
     function draw() {
       gB.innerHTML = '';
       tasks.forEach(function (tk, i) {
         var x = X0 + k * st[i].t, y = LY(st[i].lane);
         gB.append(h('rect', { x: x + 0.03, y: b.Y(y) - 0.5, width: Math.max(0.1, k * tk.dur - 0.06), height: 1.0, rx: 0.14, fill: COLS[tk.kind || 'p'], stroke: '#fff', 'stroke-width': 0.05, style: 'pointer-events:none' }));
-        var lab = tk.s && k * tk.dur < tk.label.length * 0.5 + 0.2 ? tk.s : tk.label; b.text([x + k * tk.dur / 2, y + 0.95], lab, 'pl-text pl-text--sm', gB);
+        var lab = tk.s && k * tk.dur < tk.label.length * 0.5 + 0.2 ? tk.s : tk.label; b.text([x + k * tk.dur / 2, y + 0.4], lab, 'pl-text pl-text--sm', gB);
       });
-      var e = maxEnd(); endLine.setAttribute('x1', X0 + k * e); endLine.setAttribute('x2', X0 + k * e); endLine.setAttribute('y1', b.Y(LY(0) + 0.8)); endLine.setAttribute('y2', b.Y(2.0));
+      var e = maxEnd(); endLine.setAttribute('x1', X0 + k * e); endLine.setAttribute('x2', X0 + k * e); endLine.setAttribute('y1', b.Y(LY(0) + 0.8)); endLine.setAttribute('y2', b.Y(1.5));
       if (cfg.onChange) cfg.onChange(self, e);
       if (e === cfg.optimum && !fin) { fin = true; if (cfg.onDone) cfg.onDone(self, e); }
     }
     tasks.forEach(function (tk, i) {
-      var hd = b.handle({ pos: [cx(i), LY(st[i].lane)], candidates: function () { return cands(i); }, cls: tk.kind === 'm' ? 'is-blue' : '',
-        valid: function (p) { var tt = Math.round((p[0] - X0) / k - tk.dur / 2), ln = 0; for (var q = 0; q < nl; q++) if (Math.abs(LY(q) - p[1]) < 0.01) ln = q; return okAt(i, tt, ln); },
-        onMove: function (p) { var tt = Math.round((p[0] - X0) / k - tk.dur / 2), ln = 0; for (var q = 0; q < nl; q++) if (Math.abs(LY(q) - p[1]) < 0.01) ln = q; st[i] = { t: tt, lane: ln }; draw(); } });
+      var hd = b.handle({ pos: [cx(i), HY(st[i].lane)], candidates: function () { return cands(i); }, cls: tk.kind === 'm' ? 'is-blue' : '',
+        valid: function (p) { var tt = Math.round((p[0] - X0) / k - tk.dur / 2), ln = 0; for (var q = 0; q < nl; q++) if (Math.abs(HY(q) - p[1]) < 0.01) ln = q; return okAt(i, tt, ln); },
+        onMove: function (p) { var tt = Math.round((p[0] - X0) / k - tk.dur / 2), ln = 0; for (var q = 0; q < nl; q++) if (Math.abs(HY(q) - p[1]) < 0.01) ln = q; st[i] = { t: tt, lane: ln }; draw(); } });
       hds.push(hd);
     });
     self.T = T; self.maxEnd = maxEnd; self.finished = function () { return fin; };
-    self.setAll = function (arr) { arr.forEach(function (a, i) { st[i] = { t: a[0], lane: a[1] }; hds[i].set([cx(i), LY(a[1])]); }); draw(); };
+    self.setAll = function (arr) { arr.forEach(function (a, i) { st[i] = { t: a[0], lane: a[1] }; hds[i].set([cx(i), HY(a[1])]); }); draw(); };
     draw(); return self;
   }
 
@@ -119,11 +120,11 @@
     function (st, api) {
       st.append(P.instr('平底鍋一次可以放 <b>2 條</b>魚，每條魚<b>正面、反面各煎 1 分鐘</b>（先正後反）。煎 <b>3 條魚</b>，最少幾分鐘？把方塊排進兩個鍋位。'));
       var done = false, b = PA.board(st, 14, 8), pA = P.pill('一條一條煎：6 分鐘', 'is-amber'), pB = P.pill('', 'is-blue'); st.append(h('div', { class: 'pl-readout' }, pA, pB));
-      var tl = makeTimeline(b, { lanes: ['鍋位 1', '鍋位 2'], tasks: [{ id: 'a1', label: '1正', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b1', label: '1反', dur: 1, kind: 'b', lanes: [0, 1], after: ['a1'] }, { id: 'a2', label: '2正', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b2', label: '2反', dur: 1, kind: 'b', lanes: [0, 1], after: ['a2'] }, { id: 'a3', label: '3正', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b3', label: '3反', dur: 1, kind: 'b', lanes: [0, 1], after: ['a3'] }], best: [[0, 0], [1, 1], [0, 1], [2, 0], [1, 0], [2, 1]], optimum: 3,
+      var tl = makeTimeline(b, { lanes: ['鍋位 1', '鍋位 2'], tasks: [{ id: 'a1', label: '1', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b1', label: '1', dur: 1, kind: 'b', lanes: [0, 1], after: ['a1'] }, { id: 'a2', label: '2', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b2', label: '2', dur: 1, kind: 'b', lanes: [0, 1], after: ['a2'] }, { id: 'a3', label: '3', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b3', label: '3', dur: 1, kind: 'b', lanes: [0, 1], after: ['a3'] }], best: [[0, 0], [1, 1], [0, 1], [2, 0], [1, 0], [2, 1]], optimum: 3,
         onChange: function (t, e) { pB.textContent = '你排的：' + e + ' 分鐘'; pB.className = 'pl-pill ' + (e === 3 ? 'is-ok' : 'is-blue'); },
         onDone: function () { if (done) return; done = true; P.track('aha', { id: 'time-axis', step: 3 }); st.append(P.ruleBox('3 條魚共有 <b>6 個面</b>，鍋子一次煎 2 面，所以最少 <b>6 ÷ 2 ＝ 3 分鐘</b>。<br>關鍵是<b>鍋子不要空著</b>：第 3 條魚的正面，可以和第 1 條魚的反面一起煎。', '不要讓鍋子空著')); api.unlock('鍋子一直滿著，最快'); } });
       api.solve(function () { tl.setAll([[0, 0], [1, 1], [0, 1], [2, 0], [1, 0], [2, 1]]); });
-      st.append(P.hint('「1反」一定要排在「1正」後面。每一分鐘兩個鍋位都放滿，就是最快。')); api.lock('排出最快的 3 分鐘');
+      st.append(P.hint('綠色是魚的正面、粉紅色是反面，數字是第幾條魚。同一條魚的反面要排在正面後面。每一分鐘兩個鍋位都放滿，就是最快。')); api.lock('排出最快的 3 分鐘');
     },
     /* 4. 操作關卡 */
     function (st, api) {
@@ -131,7 +132,7 @@
       var tasks = [
         timelineTask({ prompt: '泡一壺茶：<b>燒開水 8 分鐘</b>（水壺自己燒）、洗茶壺 1、洗茶杯 1、拿茶葉 1；<b>水燒開了才能泡茶</b>（泡茶 1 分鐘，要在其他事都做完後）。排出最快的時間。', lanes: ['水壺', '人'], tasks: [{ id: 'b', label: '燒水 8', dur: 8, kind: 'm', lanes: [0] }, { id: 'w1', label: '洗壺 1', s: '壺', dur: 1, lanes: [1] }, { id: 'w2', label: '洗杯 1', s: '杯', dur: 1, lanes: [1] }, { id: 'l', label: '茶葉 1', s: '葉', dur: 1, lanes: [1] }, { id: 't', label: '泡茶 1', s: '泡', dur: 1, lanes: [1], after: ['b', 'w1', 'w2', 'l'] }], best: [[0, 0], [0, 1], [1, 1], [2, 1], [8, 1]], optimum: 9, msg: '燒水的時候把別的事做完', hint: '壺＝洗茶壺、杯＝洗茶杯、葉＝拿茶葉、泡＝泡茶（各 1 分鐘）。燒水的 8 分鐘，人有空嗎？' }),
         bridgeTask,
-        timelineTask({ prompt: '煎 <b>5 條魚</b>：鍋子一次放 2 條，每條正面、反面各煎 1 分鐘（先正後反）。排出最快的時間。', lanes: ['鍋位 1', '鍋位 2'], tasks: [1, 2, 3, 4, 5].reduce(function (a, i) { a.push({ id: 'a' + i, label: i + '正', dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b' + i, label: i + '反', dur: 1, kind: 'b', lanes: [0, 1], after: ['a' + i] }); return a; }, []), best: [[0, 0], [1, 1], [0, 1], [2, 0], [1, 0], [3, 0], [2, 1], [4, 0], [3, 1], [4, 1]], optimum: 5, msg: '10 個面 ÷ 2 ＝ 5', hint: '總共幾個面？鍋子一次煎幾個面？' })];
+        timelineTask({ prompt: '煎 <b>5 條魚</b>：鍋子一次放 2 條，每條正面、反面各煎 1 分鐘（先正後反）。排出最快的時間。', lanes: ['鍋位 1', '鍋位 2'], tasks: [1, 2, 3, 4, 5].reduce(function (a, i) { a.push({ id: 'a' + i, label: '' + i, dur: 1, kind: 'a', lanes: [0, 1] }, { id: 'b' + i, label: '' + i, dur: 1, kind: 'b', lanes: [0, 1], after: ['a' + i] }); return a; }, []), best: [[0, 0], [1, 1], [0, 1], [2, 0], [1, 0], [3, 0], [2, 1], [4, 0], [3, 1], [4, 1]], optimum: 5, msg: '10 個面 ÷ 2 ＝ 5', hint: '綠色是正面、粉紅色是反面，數字是第幾條魚（反面排在同一條魚的正面後面）。總共幾個面？鍋子一次煎幾個面？' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'time-axis' }); } });
     },
     /* 5. 完成 */

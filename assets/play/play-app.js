@@ -33,8 +33,9 @@
 
   /* 圓形按鈕（SVG）：點一下呼叫 fn；回傳 g */
   PA.button = function (board, x, y, r, label, fn, cls, layer) {
-    var g = h('g', { class: 'pa-btn' + (cls ? ' ' + cls : ''), transform: 'translate(' + x + ',' + board.Y(y) + ')' }, h('circle', { r: Math.max(r, 0.9), fill: 'transparent' }), h('circle', { r: r, class: 'pa-btn__c' }));
-    if (label) { var t = h('text', { x: 0, y: 0.18, class: 'pa-btn__t' }); t.textContent = label; g.append(t); }
+    /* 文字不放在有 transform 的群組裡（標籤避讓是用 svg 座標算位置，群組內的文字會被誤判成互相重疊而被挪走） */
+    var cy = board.Y(y), g = h('g', { class: 'pa-btn' + (cls ? ' ' + cls : '') }, h('circle', { cx: x, cy: cy, r: Math.max(r, 0.9), fill: 'transparent' }), h('circle', { cx: x, cy: cy, r: r, class: 'pa-btn__c' }));
+    if (label) { var t = h('text', { x: x, y: cy + 0.18, class: 'pa-btn__t' }); t.textContent = label; g.append(t); }
     g.addEventListener('click', fn); (layer || board.gTop).append(g); return g;
   };
   /* 重來／清除這種文字按鈕 */

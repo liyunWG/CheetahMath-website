@@ -29,11 +29,11 @@
     function draw() {
       g.innerHTML = ''; var info = relate(L1, L2);
       [[L1, 'pl-line--blue'], [L2, 'pl-line--pink']].forEach(function (l) { var d = [l[0][1][0] - l[0][0][0], l[0][1][1] - l[0][0][1]], c = clip(l[0][0], d); g.append(h('line', { x1: c[0][0], y1: board.Y(c[0][1]), x2: c[1][0], y2: board.Y(c[1][1]), class: 'pl-line pl-line--bold ' + l[1] })); });
-      if (info.rel === 'one' && info.x >= 0 && info.x <= 12 && info.y >= 0 && info.y <= 10) { g.append(h('circle', { cx: info.x, cy: board.Y(info.y), r: 0.26, class: 'pl-dot pl-dot--green', style: 'stroke:#fff;stroke-width:2' })); board.text([info.x + 0.9, info.y + 0.35], '(' + info.xs + ', ' + info.ys + ')', 'pl-text pl-text--sm pl-text--green', g); }
+      if (info.rel === 'one' && info.x >= 0 && info.x <= 12 && info.y >= 0 && info.y <= 10) { g.append(h('circle', { cx: info.x, cy: board.Y(info.y), r: 0.26, class: 'pl-dot pl-dot--green', style: 'stroke:#fff;stroke-width:2' })); }
       info.e1 = eqStr(L1[0], L1[1]); info.e2 = eqStr(L2[0], L2[1]); self.info = info; if (cfg.onChange) cfg.onChange(info); return info;
     }
     function mk(L, i, partner, cls) {
-      var hd = board.handle({ pos: L[i], cls: cls, valid: function (t) { return !(t[0] === partner()[0] && t[1] === partner()[1]); }, onMove: function (t) { L[i] = t; draw(); } }); hds.push(hd); return hd;
+      var hd = board.handle({ pos: L[i], cls: cls, valid: function (t) { return t[0] >= 1 && t[0] <= 11 && t[1] >= 1 && t[1] <= 9 && !(t[0] === partner()[0] && t[1] === partner()[1]); }, onMove: function (t) { L[i] = t; draw(); } }); hds.push(hd); return hd;
     }
     if (cfg.move1) { mk(L1, 0, function () { return L1[1]; }, 'is-blue'); mk(L1, 1, function () { return L1[0]; }, 'is-blue'); }
     if (cfg.move2) { mk(L2, 0, function () { return L2[1]; }, 'is-pink'); mk(L2, 1, function () { return L2[0]; }, 'is-pink'); }
@@ -66,7 +66,7 @@
       board.line([0, 2], [8, 10], 'pl-line pl-line--bold pl-line--blue'); board.line([0, 8], [8, 0], 'pl-line pl-line--bold pl-line--pink');
       for (var k = 2; k <= 12; k += 2) board.text([k, -0.62], '' + k, 'pl-text pl-text--sm'); for (k = 2; k <= 10; k += 2) board.text([-0.45, k - 0.2], '' + k, 'pl-text pl-text--sm');
       function draw(t) { var u = t[0] - t[1], v = t[0] + t[1]; pa.className = 'pl-pill ' + (u === -2 ? 'is-ok' : 'is-blue'); pb.className = 'pl-pill ' + (v === 8 ? 'is-ok' : 'is-pink'); pa.textContent = 'x − y ＝ ' + u + (u === -2 ? ' ✓' : '（要 −2）').replace('-', '−'); pb.textContent = 'x ＋ y ＝ ' + v + (v === 8 ? ' ✓' : '（要 8）'); pt.textContent = 'T ＝ (' + t[0] + ', ' + t[1] + ')'; return u === -2 && v === 8; }
-      var hd = board.handle({ pos: [2, 3], onMove: function (t) { if (draw(t) && !done) { done = true; P.track('aha', { id: 'line-intersect', step: 2 }); P.toast('(3, 5) 同時在兩條線上'); st.append(P.ruleBox('交點 (3, 5) <b>同時在兩條直線上</b>，所以它的座標<b>同時滿足兩個方程式</b>：<br>3 − 5 ＝ −2 ✓　3 ＋ 5 ＝ 8 ✓<br>所以<b>兩條直線的交點，就是聯立方程式的解</b>。', '交點＝解')); api.unlock('交點就是聯立方程式的解'); } } });
+      var hd = board.handle({ pos: [2, 3], valid: function (t) { return t[0] >= 1 && t[0] <= 11 && t[1] >= 1 && t[1] <= 9; }, onMove: function (t) { if (draw(t) && !done) { done = true; P.track('aha', { id: 'line-intersect', step: 2 }); P.toast('(3, 5) 同時在兩條線上'); st.append(P.ruleBox('交點 (3, 5) <b>同時在兩條直線上</b>，所以它的座標<b>同時滿足兩個方程式</b>：<br>3 − 5 ＝ −2 ✓　3 ＋ 5 ＝ 8 ✓<br>所以<b>兩條直線的交點，就是聯立方程式的解</b>。', '交點＝解')); api.unlock('交點就是聯立方程式的解'); } } });
       api.solve(function () { hd.moveTo([3, 5]); }); draw([2, 3]); st.append(P.hint('先讓 T 落在藍線上，再沿著藍線找粉紅線也經過的位置。')); api.lock('找到同時滿足的點');
     },
     /* 3. 操作關卡 */

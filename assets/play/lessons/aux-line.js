@@ -84,7 +84,7 @@
       function draw() {
         g.innerHTML = ''; var x = G.angAt(A, B, C), y = G.angAt(B, A, C), tot = Math.round(x + y), r = roundSum([x, y], tot);
         board.poly([A, B, C], 'pl-poly pl-poly--amber', g); seg(board, g, A, B, 'pl-line'); seg(board, g, A, C, 'pl-line'); seg(board, g, B, C, 'pl-line'); seg(board, g, C, D, 'pl-line pl-line--bold pl-line--green pl-line--dash');
-        dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, B, 'B', -0.5, -0.9); dot(board, g, C, 'C', -0.4, -0.9); dot(board, g, D, 'D', 0, -0.9);
+        dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, B, 'B', -0.5, -0.9); dot(board, g, C, 'C', -0.4, -0.9); dot(board, g, D, 'D', 0, -1.4);
         corner(board, g, A, B, C, 1.2, r[0] + '°', 'pl-poly--blue', 'pl-text--blue'); corner(board, g, B, C, A, 1.5, r[1] + '°', 'pl-poly--pink', 'pl-text--pink'); corner(board, g, C, D, A, 1.4, tot + '°', 'pl-poly--green', 'pl-text--green');
         pa.textContent = '∠A ＝ ' + r[0] + '°'; pb.textContent = '∠B ＝ ' + r[1] + '°'; pe.textContent = '外角 ∠ACD ＝ ' + r[0] + '° ＋ ' + r[1] + '° ＝ ' + tot + '°';
       }

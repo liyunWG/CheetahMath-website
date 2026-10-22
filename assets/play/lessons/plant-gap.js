@@ -13,7 +13,6 @@
       P.choice(st, api, { id: 'pg-p1', predict: true, label: '先猜猜看', prompt: '一條 <b>20 公尺</b>的路，每隔 <b>4 公尺</b>種一棵樹，<b>頭尾兩端都要種</b>。一共需要幾棵？', row: true, options: [{ t: '4 棵' }, { t: '5 棵' }, { t: '6 棵' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把樹苗拖到路上的圓點'); } });
       var b = PA.board(st, 12, 7), gs = h('g'), gt = h('g'); b.gMid.append(gs, gt);
       for (var i = 0; i < 5; i++) { seg(b, gs, XS[i], XS[i + 1], RY, i); b.text([(XS[i] + XS[i + 1]) / 2, RY - 0.95], '第 ' + (i + 1) + ' 段', 'pl-text pl-text--sm pl-text--blue', gs); }
-      b.text([6, RY - 1.8], '每段 4 公尺，全長 20 公尺', 'pl-text pl-text--sm pl-text--amber', gs);
       var socks = XS.map(function (x, k) { var c = h('circle', { cx: x, cy: b.Y(RY), r: 0.34, class: 'pa-slot' }); c.style.cursor = 'pointer'; c.addEventListener('click', function () { plant(k); }); gs.append(c); return c; });
       var pT = P.pill('', 'is-green'), pG = P.pill('路被分成 5 段', 'is-amber'), pD = P.pill('', ''); st.append(h('div', { class: 'pl-readout' }, pT, pG, pD));
       function upd() { pT.textContent = '種了 ' + n + ' 棵'; pD.textContent = n === 6 ? '6 棵 ＝ 5 段 ＋ 1' : '還沒種完'; pD.className = 'pl-pill' + (n === 6 ? ' is-ok' : ''); }
