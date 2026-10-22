@@ -133,9 +133,9 @@
       var key = pos[0].toFixed(3) + ',' + pos[1].toFixed(3);
       if (this.marks[key]) { if (this.autoEl === this.marks[key]) this.autoEl = null; return this.marks[key]; }
       var cx = pos[0], cy = this.hh - pos[1];
-      var g = h('g', { class: 'pl-goal' }, h('circle', { cx: cx, cy: cy, r: 1.0, class: 'pl-goal__ring' }),
-        h('circle', { cx: cx + 0.9, cy: cy - 0.9, r: 0.55, class: 'pl-goal__badge' }),
-        h('path', { d: 'M ' + (cx + 0.66) + ' ' + (cy - 0.88) + ' l 0.18 0.2 l 0.36 -0.42', class: 'pl-goal__tick', fill: 'none' }));
+      var g = h('g', { class: 'pl-goal' }, h('circle', { cx: cx, cy: cy, r: 0.22, class: 'pl-goal__ring' }),
+        h('circle', { cx: cx + 0.42, cy: cy - 0.42, r: 0.3, class: 'pl-goal__badge' }),
+        h('path', { d: 'M ' + (cx + 0.29) + ' ' + (cy - 0.41) + ' l 0.1 0.11 l 0.2 -0.24', class: 'pl-goal__tick', fill: 'none' }));
       this.gMark.append(g); this.marks[key] = g; return g;
     },
     /* 暫時的標記：目前這個位置讓某個「✓」小膠囊亮起來時出現，離開就消失（正式的標記由 toast／done／goalMark 留下） */
