@@ -142,12 +142,12 @@
           function dot3(V, P1, P2) { return (P1[0] - V[0]) * (P2[0] - V[0]) + (P1[1] - V[1]) * (P2[1] - V[1]); }
           function unit(V, P1) { var dx = P1[0] - V[0], dy = P1[1] - V[1], L1 = Math.hypot(dx, dy); return [dx / L1, dy / L1]; }
           function draw(C) {
-            bd.setPoly(tri, [A, B, C]); bd.setText(tC, [C[0] + 0.5, C[1] + 0.55]); g.innerHTML = '';
+            bd.setPoly(tri, [A, B, C]); bd.setText(tC, [C[0] + 0.85, C[1] + 0.9]); g.innerHTML = '';
             var s = [d2(B, C), d2(A, C), d2(A, B)].sort(function (x, y) { return x - y; }), who = dot3(A, B, C) === 0 ? 'A' : dot3(B, A, C) === 0 ? 'B' : dot3(C, A, B) === 0 ? 'C' : '';
             pl.textContent = s[0] + ' ＋ ' + s[1] + (s[0] + s[1] === s[2] ? ' ＝ ' : ' ≠ ') + s[2]; pl.className = 'pl-pill' + (who ? ' is-ok' : '');
             if (who) {
               var V = who === 'A' ? A : who === 'B' ? B : C, Q1 = who === 'A' ? B : A, Q2 = who === 'A' ? C : who === 'B' ? C : B; bd.rightMark(V, unit(V, Q1), unit(V, Q2), 0.6, g);
-              found[who] = true; chips[who].className = 'pl-pill is-ok'; chips[who].textContent = '✓ 直角在 ' + who;
+              found[who] = true; bd.goalMark(C); chips[who].className = 'pl-pill is-ok'; chips[who].textContent = '✓ 直角在 ' + who;
             }
             if (found.A && found.B && found.C) { P.toast('三種直角都找到了！'); P.track('aha', { id: 'pythagoras', step: 5 }); done(); }
           }
@@ -164,7 +164,7 @@
           function draw(p) {
             var w = p[0], hh = p[1], d = w * w + hh * hh, ok = isSq(d); bd.setPoly(rect, [[0, 0], [w, 0], [w, hh], [0, hh]]); bd.setLine(dg, [0, 0], p);
             pw.textContent = '長 ' + w; ph.textContent = '寬 ' + hh; pd.className = 'pl-pill' + (ok ? ' is-ok' : ''); pd.textContent = ok ? '✓ 對角線 ＝ ' + Math.round(Math.sqrt(d)) : '對角線 ＝ √' + d;
-            if (ok) { var key = Math.min(w, hh) + ',' + Math.max(w, hh); if (!seen[key]) { seen[key] = 1; n++; pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('找到兩種了！它們都是「畢氏三元數」'); P.track('aha', { id: 'pythagoras', step: 6 }); done(); } } }
+            if (ok) { var key = Math.min(w, hh) + ',' + Math.max(w, hh); if (!seen[key]) { seen[key] = 1; n++; bd.goalMark(p); pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('找到兩種了！它們都是「畢氏三元數」'); P.track('aha', { id: 'pythagoras', step: 6 }); done(); } } }
           }
           var hd = bd.handle({ pos: [7, 5], valid: function (t) { return t[0] >= 1 && t[1] >= 1; }, onMove: draw }); draw([7, 5]);
           setSolve(function () { [[3, 4], [6, 8]].forEach(hd.moveTo); }); b0.append(P.hint('對角線是直角三角形的斜邊，所以 長² ＋ 寬² 要剛好是某個整數的平方。'));
@@ -180,7 +180,7 @@
           function draw(p) {
             var xx = p[0], hh = Math.sqrt(169 - xx * xx), ok = isSq(169 - xx * xx); bd.setLine(lad, p, [0, hh]); gm.innerHTML = ''; bd.rightMark([0, 0], [1, 0], [0, 1], 0.7, gm);
             px.textContent = '離牆 ' + xx + ' 公尺'; py.className = 'pl-pill' + (ok ? ' is-ok' : ' is-pink'); py.textContent = ok ? '✓ 高 ' + Math.round(hh) + ' 公尺' : '高 ' + (Math.round(hh * 100) / 100) + ' 公尺';
-            if (ok && !seen[xx]) { seen[xx] = 1; n++; pk.textContent = '找到 ' + n + ' / 2'; if (n >= 2) { P.toast('5-12-13 就是這樣出現的！'); P.track('aha', { id: 'pythagoras', step: 7 }); done(); } }
+            if (ok && !seen[xx]) { seen[xx] = 1; n++; bd.goalMark(p); pk.textContent = '找到 ' + n + ' / 2'; if (n >= 2) { P.toast('5-12-13 就是這樣出現的！'); P.track('aha', { id: 'pythagoras', step: 7 }); done(); } }
           }
           var hd = bd.handle({ pos: [8, 0], candidates: cand, onMove: draw }); draw([8, 0]);
           setSolve(function () { [[5, 0], [12, 0]].forEach(hd.moveTo); }); b0.append(P.hint('梯腳、牆、梯子圍成直角三角形，斜邊固定是 13。'));

@@ -108,6 +108,13 @@
       if (this.persp) f = this.persp / (this.persp - q[2]);
       return [this.cw / 2 + q[0] * this.k * f, this.ch / 2 - q[1] * this.k * f, q[2]];
     },
+    /* 透視時：面是否朝向鏡頭（鏡頭在視線軸上、距離 persp 處）、與離鏡頭的遠近（越大越近）。沒有透視就用 z。 */
+    _facing: function (vs) {
+      if (!this.persp) { var n = cross(sub(vs[1], vs[0]), sub(vs[2], vs[0])); return n[2] > 0; }
+      var n2 = cross(sub(vs[1], vs[0]), sub(vs[2], vs[0])), c = [0, 0, 0], k; for (k = 0; k < vs.length; k++) { c[0] += vs[k][0]; c[1] += vs[k][1]; c[2] += vs[k][2]; } c = [c[0] / vs.length, c[1] / vs.length, c[2] / vs.length];
+      return n2[0] * (0 - c[0]) + n2[1] * (0 - c[1]) + n2[2] * (this.persp - c[2]) > 0;
+    },
+    _depth: function (q) { return this.persp ? -Math.hypot(q[0], q[1], this.persp - q[2]) : q[2]; },
     view: function (p) { return rotX(rotY([p[0] - this.center[0], p[1] - this.center[1], p[2] - this.center[2]], this.yaw), this.pitch); },
     /* 平滑轉到指定視角 */
     setView: function (yaw, pitch, instant) {
@@ -125,14 +132,14 @@
         f = this.faces[i]; if (f.hidden) continue;
         var vs = f.pts.map(function (p) { return self.view(p); }), n = cross(sub(vs[1], vs[0]), sub(vs[2], vs[0])), nl = Math.hypot(n[0], n[1], n[2]) || 1;
         n = [n[0] / nl, n[1] / nl, n[2] / nl];
-        var facing = n[2] > 0; if (this.cull && !facing && !f.double) continue;
-        var d = 0; for (k = 0; k < vs.length; k++) d += vs[k][2]; d /= vs.length;
+        var facing = this._facing(vs); if (this.cull && !facing && !f.double) continue;
+        var d = 0, cc = [0, 0, 0]; for (k = 0; k < vs.length; k++) { cc[0] += vs[k][0]; cc[1] += vs[k][1]; cc[2] += vs[k][2]; } d = this._depth([cc[0] / vs.length, cc[1] / vs.length, cc[2] / vs.length]);
         items.push({ t: 0, d: d, f: f, n: n, facing: facing });
       }
-      for (i = 0; i < this.lines.length; i++) { var ln = this.lines[i]; if (ln.hidden) continue; items.push({ t: 1, d: (this.view(ln.a)[2] + this.view(ln.b)[2]) / 2 + (ln.bias || 0.02), l: ln }); }
-      for (i = 0; i < this.dots.length; i++) { var dt = this.dots[i]; if (dt.hidden) continue; items.push({ t: 2, d: this.view(dt.p)[2] + 0.04, o: dt }); }
+      for (i = 0; i < this.lines.length; i++) { var ln = this.lines[i]; if (ln.hidden) continue; items.push({ t: 1, d: (this._depth(this.view(ln.a)) + this._depth(this.view(ln.b))) / 2 + (ln.bias || 0.02), l: ln }); }
+      for (i = 0; i < this.dots.length; i++) { var dt = this.dots[i]; if (dt.hidden) continue; items.push({ t: 2, d: this._depth(this.view(dt.p)) + 0.04, o: dt }); }
       var allT = this.extraTexts ? this.texts.concat(this.extraTexts) : this.texts;
-      for (i = 0; i < allT.length; i++) { var tx = allT[i]; if (tx.hidden || tx.skip) continue; items.push({ t: 3, d: tx.top ? 1e6 : this.view(tx.p)[2] + 0.08, x: tx }); }
+      for (i = 0; i < allT.length; i++) { var tx = allT[i]; if (tx.hidden || tx.skip) continue; items.push({ t: 3, d: tx.top ? 1e6 : this._depth(this.view(tx.p)) + 0.08, x: tx }); }
       items.sort(function (a, b) { return a.d - b.d; });
       for (i = 0; i < items.length; i++) {
         var it = items[i];
@@ -174,11 +181,11 @@
       var self = this, best = null, bd = -1e9;
       for (var i = 0; i < this.faces.length; i++) {
         var f = this.faces[i]; if (f.hidden || f.nopick) continue;
-        var vs = f.pts.map(function (p) { return self.view(p); }), n = cross(sub(vs[1], vs[0]), sub(vs[2], vs[0]));
-        if (this.cull && n[2] <= 0 && !f.double) continue;
+        var vs = f.pts.map(function (p) { return self.view(p); });
+        if (this.cull && !this._facing(vs) && !f.double) continue;
         var s = f.pts.map(function (p) { return self.project(p); }), inside = false;
         for (var a = 0, b = s.length - 1; a < s.length; b = a++) { if (((s[a][1] > y) !== (s[b][1] > y)) && (x < (s[b][0] - s[a][0]) * (y - s[a][1]) / (s[b][1] - s[a][1]) + s[a][0])) inside = !inside; }
-        if (inside) { var d = 0; vs.forEach(function (v) { d += v[2]; }); d /= vs.length; if (d > bd) { bd = d; best = f; } }
+        if (inside) { var cc = [0, 0, 0]; vs.forEach(function (v) { cc[0] += v[0]; cc[1] += v[1]; cc[2] += v[2]; }); var d = this._depth([cc[0] / vs.length, cc[1] / vs.length, cc[2] / vs.length]); if (d > bd) { bd = d; best = f; } }
       }
       return best;
     },

@@ -80,6 +80,7 @@
   function pop(el, from) { if (reduce) return; var s = new Spring(from === undefined ? 0 : from, { k: 520, zeta: 0.38, onUpdate: function (v) { el.style.transform = 'scale(' + v + ')'; } }); s.jump(from === undefined ? 0 : from); s.to(1); }
   function shake(el) { if (reduce) return; var s = new Spring(10, { k: 1100, zeta: 0.18, onUpdate: function (v) { el.style.transform = 'translateX(' + v + 'px)'; } }); s.to(0, 0); }
 
+  var moving = null;   /* 正在處理的把手移動（讓 toast／done 知道答對的是哪個畫板的哪個位置） */
   /* ------------------------------------------------------------ 格線畫板（座標單位＝一格；y 向上） */
   function Board(host, o) {
     o = o || {};
@@ -87,7 +88,8 @@
     this.svg = h('svg', { viewBox: (-this.pad) + ' ' + (-this.pad) + ' ' + (this.w + 2 * this.pad) + ' ' + (this.hh + 2 * this.pad), class: 'pl-svg' + (o.cls ? ' ' + o.cls : ''), preserveAspectRatio: 'xMidYMid meet' });
     this.svg.style.touchAction = 'pan-y pinch-zoom';
     this.gGrid = h('g'); this.gMid = h('g'); this.gTop = h('g');
-    this.svg.append(this.gGrid, this.gMid, this.gTop);
+    this.gMark = h('g'); this.marks = {};
+    this.svg.append(this.gGrid, this.gMid, this.gMark, this.gTop);
     host.append(this.svg);
     this.drawGrid(o);
     this._initDeclutter();
@@ -126,6 +128,22 @@
         });
       } finally { this._mo.observe(svg, this._moOpts); this._dcBusy = false; }
     },
+    /* 答對的位置：在那個點畫一個綠圈＋勾勾，留在畫面上（同一個位置不重複畫）。拖曳過程中呼叫 toast／done 會自動標記。 */
+    goalMark: function (pos) {
+      var key = pos[0].toFixed(3) + ',' + pos[1].toFixed(3);
+      if (this.marks[key]) { if (this.autoEl === this.marks[key]) this.autoEl = null; return this.marks[key]; }
+      var cx = pos[0], cy = this.hh - pos[1];
+      var g = h('g', { class: 'pl-goal' }, h('circle', { cx: cx, cy: cy, r: 1.0, class: 'pl-goal__ring' }),
+        h('circle', { cx: cx + 0.9, cy: cy - 0.9, r: 0.55, class: 'pl-goal__badge' }),
+        h('path', { d: 'M ' + (cx + 0.66) + ' ' + (cy - 0.88) + ' l 0.18 0.2 l 0.36 -0.42', class: 'pl-goal__tick', fill: 'none' }));
+      this.gMark.append(g); this.marks[key] = g; return g;
+    },
+    /* 暫時的標記：目前這個位置讓某個「✓」小膠囊亮起來時出現，離開就消失（正式的標記由 toast／done／goalMark 留下） */
+    autoMark: function (pos) {
+      this.clearAuto(); var key = pos[0].toFixed(3) + ',' + pos[1].toFixed(3); if (this.marks[key]) return;
+      this.autoEl = this.goalMark(pos); this.autoKey = key; this.autoEl.setAttribute('class', 'pl-goal is-auto');
+    },
+    clearAuto: function () { if (this.autoEl && this.autoEl.parentNode) { this.autoEl.remove(); delete this.marks[this.autoKey]; } this.autoEl = null; },
     Y: function (y) { return this.hh - y; },
     P: function (p) { return [p[0], this.hh - p[1]]; },
     drawGrid: function (o) {
@@ -159,12 +177,18 @@
       this.gTop.append(ring, g);
       var sx = new Spring(0, { k: 520, zeta: 0.62 }), sy = new Spring(0, { k: 520, zeta: 0.62 });
       var api = { pos: opts.pos.slice(), el: g, active: false };
+      function okCount() { return document.querySelectorAll('.pl-pill.is-ok').length; }
+      function fire(t, raw) {
+        if (!opts.onMove) return; var prev = moving, before = okCount(); moving = { board: self, pos: t.slice() };
+        try { opts.onMove(t, raw); } finally { moving = prev; }
+        var after = okCount(); if (after > before || (after === before && self.autoEl)) self.autoMark(t); else if (after < before) self.clearAuto();
+      }
       function place() { g.setAttribute('transform', 'translate(' + sx.x + ',' + sy.x + ')'); }
       sx.onUpdate = place; sy.onUpdate = place;
       api.set = function (p, instant) { api.pos = p.slice(); if (instant) { sx.jump(p[0]); sy.jump(self.Y(p[1])); } else { sx.to(p[0]); sy.to(self.Y(p[1])); } };
       api.set(opts.pos, true);
       /* 程式代拖（看詳解用）：移到 p，照真的拖曳一樣觸發 onMove／onEnd */
-      api.moveTo = function (p) { api.set(p); opts.onMove && opts.onMove(p.slice(), p.slice()); opts.onEnd && opts.onEnd(api.pos); };
+      api.moveTo = function (p) { api.set(p); fire(p.slice(), p.slice()); opts.onEnd && opts.onEnd(api.pos); };
       api.hide = function (v) { g.style.display = v ? 'none' : ''; ring.style.display = v ? 'none' : ''; };
       function target(raw) {
         var t = raw;
@@ -179,7 +203,7 @@
         e.preventDefault(); try { g.setPointerCapture(e.pointerId); } catch (_) {}
         api.active = true; g.classList.add('is-drag');
         var mv = function (ev) { var raw = self.fromEvent(ev); var t = target(raw); if (opts.valid && !opts.valid(t)) return; ring.setAttribute('cx', t[0]); ring.setAttribute('cy', self.Y(t[1])); ring.style.opacity = 1;
-          if (t[0] !== api.pos[0] || t[1] !== api.pos[1]) { api.pos = t.slice(); sx.to(t[0]); sy.to(self.Y(t[1])); opts.onMove && opts.onMove(t, raw); } };
+          if (t[0] !== api.pos[0] || t[1] !== api.pos[1]) { api.pos = t.slice(); sx.to(t[0]); sy.to(self.Y(t[1])); fire(t, raw); } };
         var up = function () { g.removeEventListener('pointermove', mv); g.removeEventListener('pointerup', up); g.removeEventListener('pointercancel', up); api.active = false; g.classList.remove('is-drag'); ring.style.opacity = 0; opts.onEnd && opts.onEnd(api.pos); };
         g.addEventListener('pointermove', mv); g.addEventListener('pointerup', up); g.addEventListener('pointercancel', up); mv(e);
       });
@@ -210,7 +234,7 @@
   function instr(html) { return h('div', { class: 'pl-instr', html: html }); }
   function hint(html) { return h('div', { class: 'pl-hint', html: html }); }
   function pill(html, cls) { return h('span', { class: 'pl-pill ' + (cls || ''), html: html }); }
-  function toast(msg) { var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+  function toast(msg) { if (moving && !/先做|不行|再|繞遠|要沿|沒回到|必須|相鄰|已經|只淘汰|先標/.test(msg)) moving.board.goalMark(moving.pos); var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
   /* 「看詳解」：題目元件向目前的關卡登記，按下就公布答案並照答對流程走下去 */
   var curLesson = null;
@@ -316,7 +340,7 @@
     function show() {
       box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + tasks.length + ' 關')); var finished = false;
       function done() {
-        if (finished) return; finished = true; api.solve(function () { var b = document.querySelector('.pl-nextq'); if (b) b.click(); }, true);
+        if (finished) return; finished = true; if (moving) moving.board.goalMark(moving.pos); api.solve(function () { var b = document.querySelector('.pl-nextq'); if (b) b.click(); }, true);
         if (k + 1 < tasks.length) later(function () { k++; show(); }); else if (o.onDone) o.onDone();
       }
       tasks[k](box, done, function (fn) { api.solve(fn, true); });

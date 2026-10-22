@@ -73,7 +73,7 @@
             g.innerHTML = ''; var A = [B[0], O[1]], a = B[1] - O[1], b = B[0] - O[0], hy = Math.hypot(a, b), ok = Math.abs(a / hy - 0.6) < 1e-9;
             bd.poly([O, A, B], 'pl-poly pl-poly--amber', g); bd.rightMark(A, [-1, 0], [0, 1], 0.5, g); var w = G.wedge(O, 0, Math.atan2(a, b) / rad, 1.3, Math.atan2(a, b) / rad); bd.poly(w.pts, 'pl-poly pl-poly--blue', g); var tw2 = G.polar(O, 2.1, w.bis); bd.text([tw2[0], tw2[1] - 0.2], f1(Math.atan2(a, b) / rad) + '°', 'pl-text pl-text--blue pl-text--lg', g);
             pr[0].textContent = '對邊 ＝ ' + a; pr[1].textContent = '鄰邊 ＝ ' + b; pr[2].textContent = '斜邊 ＝ ' + f2(hy); pr[3].className = 'pl-pill ' + (ok ? 'is-ok' : 'is-amber'); pr[3].textContent = ok ? '✓ sin θ ＝ ' + a + '/' + f2(hy) + ' ＝ 0.60' : 'sin θ ＝ ' + f2(a / hy);
-            if (ok) { var key = a + ',' + b; if (!seen[key]) { seen[key] = 1; n++; pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('大小不同，角度和比值都一樣：它們是相似三角形'); P.track('aha', { id: 'trig-ratio', step: 4 }); done(); } } }
+            if (ok) { var key = a + ',' + b; if (!seen[key]) { seen[key] = 1; n++; bd.goalMark(B); pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('大小不同，角度和比值都一樣：它們是相似三角形'); P.track('aha', { id: 'trig-ratio', step: 4 }); done(); } } }
           }
           var hd = bd.handle({ pos: [7, 6], candidates: cand, onMove: draw }); draw([7, 6]); setSolve(function () { [[5, 4], [9, 7]].forEach(hd.moveTo); }); b0.append(P.hint('對邊 ÷ 斜邊 ＝ 0.6。想想看有名的 3-4-5 直角三角形，還有它的 2 倍。'));
         },

@@ -12,7 +12,8 @@
   var BODY = '#11141b', BODY_EDGE = '#080a0e', STICKER_EDGE = '#0b0d13';
   var DIRS = [{ k: 'R', n: [1, 0, 0] }, { k: 'L', n: [-1, 0, 0] }, { k: 'U', n: [0, 1, 0] }, { k: 'D', n: [0, -1, 0] }, { k: 'F', n: [0, 0, 1] }, { k: 'B', n: [0, 0, -1] }];
   var POS = { R: '右', L: '左', U: '上', D: '下', F: '前', B: '後' };
-  var HOME = { yaw: -0.75, pitch: 0.55 };
+  var HOME = { yaw: -0.6, pitch: 0.44 };   // 約 34°／25°：和奇幻之旅同一個預設視角
+  var PERSP = 16.7;   // 透視距離（格）：奇幻之旅 perspective 1200px ÷ 方塊 72px ≈ 16.7 格
   var LEVELS = [
     { id: 'warm', name: '暖身', title: '2×2 迷你方塊', N: 2, scr: 4, time: 240, desc: '2×2・洗亂 4 步・<b>4 分鐘</b>倒數<br>只有角塊，最適合練手感' },
     { id: 'mid', name: '中等', title: '3×3 經典方塊', N: 3, scr: 6, time: 360, desc: '3×3・洗亂 6 步・<b>6 分鐘</b>倒數<br>用提示一步一步還原' },
@@ -69,11 +70,11 @@
       D.box(q.c[0] - 0.5, q.c[1] - 0.5, q.c[2] - 0.5, 1, 1, 1, BODY, { flat: true, stroke: BODY_EDGE, lw: 1.4, nopick: true }).forEach(function (f) { f.pts = f.pts.map(tp); faces.push(f); });
       q.st.forEach(function (t, si) {
         var tg = tangents(t.n), key = ci + ':' + si;
-        function quad(k, off) { var ct = add3(q.c, t.n, off); return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(function (sv) { return tp(add3(add3(ct, tg[0], sv[0] * k), tg[1], sv[1] * k)); }); }
-        var f = { pts: quad(0.44, 0.512), fill: t.col, stroke: STICKER_EDGE, lw: 2.6, sticker: { ci: ci, si: si, n: t.n }, hkey: key };
+        function quad(k, off, r) { var ct = add3(q.c, t.n, off), out = []; r = r || 0; [[1, 1, 0], [-1, 1, 90], [-1, -1, 180], [1, -1, 270]].forEach(function (cn) { var cx = cn[0] * (k - r), cy = cn[1] * (k - r), i, a; if (!r) { out.push([cn[0] * k, cn[1] * k]); return; } for (i = 0; i <= 3; i++) { a = (cn[2] + i * 30) * Math.PI / 180; out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } }); return out.map(function (sv) { return tp(add3(add3(ct, tg[0], sv[0]), tg[1], sv[1])); }); }
+        var f = { pts: quad(0.44, 0.512, 0.1), fill: t.col, flat: true, stroke: STICKER_EDGE, lw: 2.6, sticker: { ci: ci, si: si, n: t.n }, hkey: key };
         if (ui.hint === key) { f.glow = t.col; f.glowBig = true; } else if (ui.hover === key) f.glow = t.col;
         faces.push(f);
-        faces.push({ pts: quad(0.34, 0.52), stroke: 'rgba(255,255,255,0.24)', lw: 1, nopick: true });   // 貼紙內側的細亮邊
+        faces.push({ pts: quad(0.35, 0.52, 0.07), stroke: 'rgba(255,255,255,0.24)', lw: 1, nopick: true });   // 貼紙內側的細亮邊
       });
     });
     return faces;
@@ -103,7 +104,7 @@
     var host = h('div', { class: 'pgm-stage pgm-cubestage' }), msg = h('div', { class: 'pgm-msg', 'aria-live': 'polite' }, '小獵：正在洗亂方塊…');
     var faceRow = h('div', { class: 'pgm-faces' }), actRow = h('div', { class: 'pgm-actions' });
     sh.body.append(hud, host, msg, faceRow, actRow);
-    var sc = new D.Scene(host, { aspect: 1.08, scale: lv.N === 2 ? 88 : 58, cull: true, yaw: HOME.yaw, pitch: HOME.pitch, label: '魔術方塊，在貼紙上滑動轉動那一層，在空白處拖曳轉整顆' });
+    var sc = new D.Scene(host, { aspect: 1.08, scale: lv.N === 2 ? 88 : 58, cull: true, persp: PERSP, yaw: HOME.yaw, pitch: HOME.pitch, label: '魔術方塊，在貼紙上滑動轉動那一層，在空白處拖曳轉整顆' });
     sc.light = [-0.3, 0.7, 0.6];
     function redraw(anim) { if (anim !== undefined) curAnim = anim; sc.faces = buildFaces(cube, curAnim, ui); sc.invalidate(); }
     redraw(null);

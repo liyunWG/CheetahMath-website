@@ -154,7 +154,7 @@
             board.setText(tP, [Pp[0] + 1.1 * Math.cos(pa * rad), Pp[1] + 1.1 * Math.sin(pa * rad) - 0.2], 'P：' + vp + '°'); board.setText(tQ, [Qp[0] + 1.1 * Math.cos(qa * rad), Qp[1] + 1.1 * Math.sin(qa * rad) - 0.2], 'Q：' + vq + '°');
             pv.textContent = '∠APB ＝ ' + vp + '°'; qv.textContent = '∠AQB ＝ ' + vq + '°'; var sep = Math.abs(shortest(pa, qa)), ok = vp === 48 && vq === 48 && sep >= 40;
             gl.className = 'pl-pill' + (ok ? ' is-ok' : ''); gl.textContent = ok ? '✓ 兩個都是 48°' : (vp === 132 || vq === 132 ? '在小弧上會是 132° ＝ 180° − 48°' : '兩個都要 48°，且離遠一點');
-            if (ok) { P.toast('同一條弧，圓周角一樣大！'); P.track('aha', { id: 'circle-angles', step: 6 }); done(); }
+            if (ok) { board.goalMark(Pp); board.goalMark(Qp); P.toast('同一條弧，圓周角一樣大！'); P.track('aha', { id: 'circle-angles', step: 6 }); done(); }
           }
           function mk(init, set) { return board.handle({ pos: polar(init), candidates: circlePts(0, 360, 5, [220]), onMove: function (t) { set(norm(dirTo(O, t))); draw(); } }); }
           hp = mk(pa, function (a) { pa = a; }); hq = mk(qa, function (a) { qa = a; }); draw();
@@ -188,7 +188,7 @@
             bd.setPoly(quad, [A, B, C, D]); bd.setText(tD, [D[0] + 0.5, D[1] + 0.55]);
             var ab = angAt(B, A, C), ad = angAt(D, A, C), ok = Math.abs(ab + ad - 180) < 1e-6; pb.textContent = '∠B ＝ ' + Math.round(ab * 10) / 10 + '°'; pd.textContent = '∠D ＝ ' + Math.round(ad * 10) / 10 + '°';
             ps.className = 'pl-pill' + (ok ? ' is-ok' : ''); ps.textContent = ok ? '✓ ∠B ＋ ∠D ＝ 180°' : '∠B ＋ ∠D ＝ ' + Math.round((ab + ad) * 10) / 10 + '°';
-            if (ok) { var key = D.join(','); if (!seen[key]) { seen[key] = 1; n++; pn.textContent = '找到 ' + Math.min(n, 3) + ' / 3'; bd.dot(D, 'pl-dot pl-dot--green', dots, 0.2);
+            if (ok) { var key = D.join(','); if (!seen[key]) { seen[key] = 1; n++; pn.textContent = '找到 ' + Math.min(n, 3) + ' / 3'; bd.dot(D, 'pl-dot pl-dot--green', dots, 0.2); bd.goalMark(D);
               if (n >= 3) { circ.style.opacity = 1; P.toast('三個 D 都在同一個圓上！'); P.track('aha', { id: 'circle-angles', step: 8 }); b0.append(P.ruleBox('找到的 D 全都和 A、B、C <b>在同一個圓上</b>：圓內接四邊形<b>對角互補</b>；反過來，對角互補的四邊形<b>一定四點共圓</b>。', '發現')); done(); } } }
           }
           var cand = []; for (var x = 1; x <= 11; x++) for (var y = 1; y <= 11; y++) if (!((x === 3 && y === 2) || (x === 11 && y === 6) || (x === 10 && y === 9))) cand.push([x, y]);
