@@ -23,16 +23,16 @@
     }
     function cands(i) { var out = [], tk = tasks[i]; tk.lanes.forEach(function (l) { for (var t = 0; t + tk.dur <= T; t++) out.push([X0 + k * (t + tk.dur / 2), HY(l)]); }); return out; }
     var step = T <= 8 ? 1 : T <= 20 ? 2 : T <= 40 ? 5 : 10, i, l;
-    for (l = 0; l < nl; l++) { gBg.append(h('rect', { x: X0 - 0.05, y: b.Y(LY(l)) - 0.62, width: W + 0.1, height: 1.24, rx: 0.15, fill: l % 2 ? '#fbf6e6' : '#eef3fd', stroke: '#e2d8bd', 'stroke-width': 0.04 })); b.text([1.0, LY(l) - 0.18], cfg.lanes[l], 'pl-text pl-text--sm', gBg); }
+    for (l = 0; l < nl; l++) { gBg.append(h('rect', { x: X0 - 0.05, y: b.Y(LY(l)) - 0.62, width: W + 0.1, height: 1.24, rx: 0.15, fill: l % 2 ? '#fbf6e6' : '#eef3fd', stroke: '#e2d8bd', 'stroke-width': 1 })); b.text([1.0, LY(l) - 0.18], cfg.lanes[l], 'pl-text pl-text--sm', gBg); }
     b.line([X0, 1.5], [X0 + W, 1.5], 'pl-line pl-line--thin', gBg);
-    for (i = 0; i <= T; i += step) { gBg.append(h('line', { x1: X0 + k * i, y1: b.Y(1.5), x2: X0 + k * i, y2: b.Y(1.25), stroke: '#6d6250', 'stroke-width': 0.05 })); b.text([X0 + k * i, 0.55], '' + i, 'pl-text pl-text--sm', gBg); }
+    for (i = 0; i <= T; i += step) { gBg.append(h('line', { x1: X0 + k * i, y1: b.Y(1.5), x2: X0 + k * i, y2: b.Y(1.25), stroke: '#6d6250', 'stroke-width': 1 })); b.text([X0 + k * i, 0.55], '' + i, 'pl-text pl-text--sm', gBg); }
     b.text([1.0, 0.55], '分鐘', 'pl-text pl-text--sm pl-text--amber', gBg);
-    var endLine = h('line', { x1: 0, y1: 0, x2: 0, y2: 0, stroke: '#d6336c', 'stroke-width': 0.06, 'stroke-dasharray': '.2 .18' }); gBg.append(endLine);
+    var endLine = h('line', { x1: 0, y1: 0, x2: 0, y2: 0, stroke: '#d6336c', 'stroke-width': 1.5, 'stroke-dasharray': '5 4.5' }); gBg.append(endLine);
     function draw() {
       gB.innerHTML = '';
       tasks.forEach(function (tk, i) {
         var x = X0 + k * st[i].t, y = LY(st[i].lane);
-        gB.append(h('rect', { x: x + 0.03, y: b.Y(y) - 0.5, width: Math.max(0.1, k * tk.dur - 0.06), height: 1.0, rx: 0.14, fill: COLS[tk.kind || 'p'], stroke: '#fff', 'stroke-width': 0.05, style: 'pointer-events:none' }));
+        gB.append(h('rect', { x: x + 0.03, y: b.Y(y) - 0.5, width: Math.max(0.1, k * tk.dur - 0.06), height: 1.0, rx: 0.14, fill: COLS[tk.kind || 'p'], stroke: '#fff', 'stroke-width': 1, style: 'pointer-events:none' }));
         var lab = tk.s && k * tk.dur < tk.label.length * 0.5 + 0.2 ? tk.s : tk.label; b.text([x + k * tk.dur / 2, y + 0.4], lab, 'pl-text pl-text--sm', gB);
       });
       var e = maxEnd(); endLine.setAttribute('x1', X0 + k * e); endLine.setAttribute('x2', X0 + k * e); endLine.setAttribute('y1', b.Y(LY(0) + 0.8)); endLine.setAttribute('y2', b.Y(1.5));
@@ -69,11 +69,11 @@
     function cnt() { return Object.keys(sel).filter(function (k) { return sel[k]; }); }
     function draw() {
       g.innerHTML = ''; var i, pos = { 0: 0, 1: 0 };
-      g.append(h('rect', { x: 0.2, y: b.Y(6.4), width: 3.9, height: 5.4, rx: 0.3, fill: torch === 0 ? '#fff6dc' : '#fbf6e6', stroke: torch === 0 ? '#d29b1f' : '#e2d8bd', 'stroke-width': 0.08 }), h('rect', { x: 4.1, y: b.Y(6.4), width: 3.8, height: 5.4, fill: '#e6efff' }), h('rect', { x: 7.9, y: b.Y(6.4), width: 3.9, height: 5.4, rx: 0.3, fill: torch === 1 ? '#fff6dc' : '#fbf6e6', stroke: torch === 1 ? '#d29b1f' : '#e2d8bd', 'stroke-width': 0.08 }));
+      g.append(h('rect', { x: 0.2, y: b.Y(6.4), width: 3.9, height: 5.4, rx: 0.3, fill: torch === 0 ? '#fff6dc' : '#fbf6e6', stroke: torch === 0 ? '#d29b1f' : '#e2d8bd', 'stroke-width': 2 }), h('rect', { x: 4.1, y: b.Y(6.4), width: 3.8, height: 5.4, fill: '#e6efff' }), h('rect', { x: 7.9, y: b.Y(6.4), width: 3.9, height: 5.4, rx: 0.3, fill: torch === 1 ? '#fff6dc' : '#fbf6e6', stroke: torch === 1 ? '#d29b1f' : '#e2d8bd', 'stroke-width': 2 }));
       b.text([2.15, 0.35], torch === 0 ? '手電筒在這邊' : '出發的岸', 'pl-text pl-text--sm pl-text--amber', g); b.text([9.85, 0.35], torch === 1 ? '手電筒在這邊' : '要到達的岸', 'pl-text pl-text--sm pl-text--amber', g); b.text([6, 3.4], '橋', 'pl-text pl-text--sm pl-text--blue', g);
       PPL.forEach(function (p, i) {
         var s = side[i], x = (s === 0 ? 1.2 : 8.9) + (pos[s] % 2) * 1.9, y = 5.0 - Math.floor(pos[s] / 2) * 2.2; pos[s]++;
-        var c = h('g', { style: 'cursor:pointer' }, h('circle', { cx: x, cy: b.Y(y), r: 0.62, fill: sel[i] ? '#5fe3b4' : '#fff', stroke: sel[i] ? '#1f9d55' : '#122548', 'stroke-width': 0.09 }));
+        var c = h('g', { style: 'cursor:pointer' }, h('circle', { cx: x, cy: b.Y(y), r: 0.62, fill: sel[i] ? '#5fe3b4' : '#fff', stroke: sel[i] ? '#1f9d55' : '#122548', 'stroke-width': 2 }));
         c.addEventListener('click', function () { tap(i); }); g.append(c); b.text([x, y - 0.17], '' + p.m, 'pl-text', g); b.text([x, y - 1.15], p.n, 'pl-text pl-text--sm', g);
       });
       var sc = cnt().length; btn.textContent = torch === 0 ? '過橋 →' : '← 回去送手電筒'; btn.disabled = !(sc >= 1 && sc <= 2) || fin;

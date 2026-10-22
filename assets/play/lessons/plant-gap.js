@@ -47,12 +47,12 @@
     function (st, api) {
       st.append(P.instr('用滑桿把路<b>捲成一圈</b>（頭和尾接起來）。那兩棵頭尾的樹會怎麼樣？'));
       var b = PA.board(st, 12, 7), gs = h('g'), gt = h('g'), n = 5, u = 0, seen = {}, done = false, C = [6, 3.5], R = 2.6; b.gMid.append(gs, gt);
-      var ring = h('circle', { cx: C[0], cy: b.Y(C[1]), r: R, fill: 'none', stroke: '#e2d8bd', 'stroke-width': 0.06, 'stroke-dasharray': '.2 .2' }); gs.append(ring);
+      var ring = h('circle', { cx: C[0], cy: b.Y(C[1]), r: R, fill: 'none', stroke: '#e2d8bd', 'stroke-width': 1.5, 'stroke-dasharray': '5 5' }); gs.append(ring);
       var pT = P.pill('', 'is-green'), pG = P.pill('', 'is-amber'), pD = P.pill('', ''); var sn;
       function pos(i) { var th = 2 * Math.PI * i / n, L = [lerp(1, 11, i / n), C[1]], c = [C[0] + R * Math.sin(th), C[1] - R * Math.cos(th)]; return [lerp(L[0], c[0], u), lerp(L[1], c[1], u)]; }
       function draw() {
         gt.innerHTML = ''; ring.style.opacity = u; var i, merged = u >= 0.99;
-        for (i = 0; i < n; i++) { var a = pos(i), c = pos(i + 1); gt.append(h('line', { x1: a[0], y1: b.Y(a[1]), x2: c[0], y2: b.Y(c[1]), class: 'pa-seg', style: 'stroke:' + SEGC[i % 2].replace(/[.\d]+\)$/, '1)') + ';stroke-width:.28;opacity:.55' })); }
+        for (i = 0; i < n; i++) { var a = pos(i), c = pos(i + 1); gt.append(h('line', { x1: a[0], y1: b.Y(a[1]), x2: c[0], y2: b.Y(c[1]), class: 'pa-seg', style: 'stroke:' + SEGC[i % 2].replace(/[.\d]+\)$/, '1)') + ';stroke-width:7;opacity:.55' })); }
         var s = Math.min(1, 10 / n / 1.5);
         for (i = 0; i <= n; i++) { if (merged && i === n) continue; var p = pos(i); PA.tree(b, p[0], p[1] - 0.05, s, gt, merged && i === 0 ? 'is-end' : ''); }
         var trees = merged ? n : n + 1; pT.textContent = '樹 ' + trees + ' 棵'; pG.textContent = '空隙 ' + n + ' 段'; pD.textContent = merged ? '頭尾疊成一棵：棵數 ＝ 段數' : '還是一條路：棵數 ＝ 段數 ＋ 1'; pD.className = 'pl-pill' + (merged ? ' is-ok' : '');
@@ -77,7 +77,7 @@
           cfg.ds.forEach(function (d, j) { b.dot([RX(j), RYY], 'pl-dot', null, 0.1); b.text([RX(j), RYY - 1.4], '' + d, 'pl-text pl-text--sm'); });
           function draw() {
             g.innerHTML = ''; var d = cfg.ds[idx], gaps = cfg.len / d, trees = cfg.ring ? gaps : gaps + 1, i, s;
-            if (cfg.ring) { var C = [6, 4.7], R = 1.85; g.append(h('circle', { cx: C[0], cy: b.Y(C[1]), r: R, fill: 'none', stroke: '#e2d8bd', 'stroke-width': 0.2 })); s = Math.min(1, (2 * Math.PI * R / gaps) / 1.3); for (i = 0; i < gaps; i++) { var th = 2 * Math.PI * i / gaps; PA.tree(b, C[0] + R * Math.sin(th), C[1] - R * Math.cos(th) - 0.05, s, g); } }
+            if (cfg.ring) { var C = [6, 4.7], R = 1.85; g.append(h('circle', { cx: C[0], cy: b.Y(C[1]), r: R, fill: 'none', stroke: '#e2d8bd', 'stroke-width': 5 })); s = Math.min(1, (2 * Math.PI * R / gaps) / 1.3); for (i = 0; i < gaps; i++) { var th = 2 * Math.PI * i / gaps; PA.tree(b, C[0] + R * Math.sin(th), C[1] - R * Math.cos(th) - 0.05, s, g); } }
             else { g.append(h('rect', { x: 1, y: b.Y(4.7) - 0.15, width: 10, height: 0.3, rx: 0.15, fill: '#e2d8bd' })); s = Math.min(1, (10 * d / cfg.len) / 1.3); for (i = 0; i <= gaps; i++) PA.tree(b, 1 + 10 * i / gaps, 4.7, s, g); }
             pD.textContent = '間隔 ' + d + ' 公尺'; pS.textContent = '共 ' + gaps + ' 段'; pT.textContent = '樹 ' + trees + ' 棵'; var ok = trees === cfg.target; pT.className = 'pl-pill' + (ok ? ' is-ok' : ' is-green');
             if (ok && !fin) { fin = true; P.toast(cfg.msg); done(); }
@@ -95,7 +95,7 @@
           function cuts() { return MK.filter(function (x) { return cut[x]; }); }
           function draw() {
             g.innerHTML = ''; var cs = cuts(), edges = [1].concat(cs, [11]), i, k = cs.length;
-            for (i = 0; i < edges.length - 1; i++) g.append(h('rect', { x: edges[i] + (i ? 0.1 : 0), y: b.Y(LY) - 0.55, width: edges[i + 1] - edges[i] - (i ? 0.1 : 0) - (i < edges.length - 2 ? 0.1 : 0), height: 1.1, rx: 0.2, fill: i % 2 ? '#d9b27c' : '#c89a5e', stroke: '#fff', 'stroke-width': 0.06 }));
+            for (i = 0; i < edges.length - 1; i++) g.append(h('rect', { x: edges[i] + (i ? 0.1 : 0), y: b.Y(LY) - 0.55, width: edges[i + 1] - edges[i] - (i ? 0.1 : 0) - (i < edges.length - 2 ? 0.1 : 0), height: 1.1, rx: 0.2, fill: i % 2 ? '#d9b27c' : '#c89a5e', stroke: '#fff', 'stroke-width': 1.5 }));
             MK.forEach(function (x) { if (!cut[x]) g.append(h('circle', { cx: x, cy: b.Y(LY + 0.95), r: 0.17, class: 'pa-slot' })); });
             pK.textContent = '鋸了 ' + k + ' 刀'; pS.textContent = '木頭變成 ' + (k + 1) + ' 段'; pS.className = 'pl-pill' + (k + 1 === 5 ? ' is-ok' : ' is-green');
             if (k + 1 === 5 && !fin) { fin = true; P.toast('4 刀 ＝ 5 段'); done(); }

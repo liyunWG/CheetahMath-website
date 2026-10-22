@@ -15,9 +15,9 @@
       function widths() { var e = [0].concat(cuts, [12]); return e.slice(1).map(function (v, i) { return v - e[i]; }); }
       function draw() {
         g.innerHTML = ''; var e = [0].concat(cuts, [12]), w = widths(), i, eq = w.every(function (v) { return v === w[0]; });
-        for (i = 1; i < 12; i++) g.append(h('line', { x1: 1 + i, y1: b.Y(3.8), x2: 1 + i, y2: b.Y(2.2), stroke: '#e6dcc2', 'stroke-width': 0.04 }));
-        for (i = 0; i < 4; i++) { g.append(h('rect', { x: 1 + e[i] + 0.04, y: b.Y(3.8), width: w[i] - 0.08, height: 1.6, rx: 0.15, fill: FILL[i], stroke: '#fff', 'stroke-width': 0.06 })); b.text([1 + (e[i] + e[i + 1]) / 2, 2.8], w[i] + ' 格', 'pl-text pl-text--sm', g); }
-        cuts.forEach(function (c) { g.append(h('line', { x1: 1 + c, y1: b.Y(3.8), x2: 1 + c, y2: b.Y(4.6), stroke: '#8a7d5c', 'stroke-width': 0.06, 'stroke-dasharray': '.15 .12' })); });
+        for (i = 1; i < 12; i++) g.append(h('line', { x1: 1 + i, y1: b.Y(3.8), x2: 1 + i, y2: b.Y(2.2), stroke: '#e6dcc2', 'stroke-width': 1 }));
+        for (i = 0; i < 4; i++) { g.append(h('rect', { x: 1 + e[i] + 0.04, y: b.Y(3.8), width: w[i] - 0.08, height: 1.6, rx: 0.15, fill: FILL[i], stroke: '#fff', 'stroke-width': 1.5 })); b.text([1 + (e[i] + e[i + 1]) / 2, 2.8], w[i] + ' 格', 'pl-text pl-text--sm', g); }
+        cuts.forEach(function (c) { g.append(h('line', { x1: 1 + c, y1: b.Y(3.8), x2: 1 + c, y2: b.Y(4.6), stroke: '#8a7d5c', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' })); });
         pW.textContent = '4 塊：' + w.join('、') + ' 格'; pS.className = 'pl-pill' + (eq ? ' is-ok' : ' is-pink'); pS.textContent = eq ? '✓ 一樣大：每塊是整個的 1/4' : '大小不一樣，不是 1/4';
         if (eq && !done && !gate.on) { done = true; P.track('aha', { id: 'fraction-split', step: 1 }); P.toast(api.ctx.p1 === 1 ? '你猜對了！要平分才行' : '要平分才能叫 1/4'); st.append(P.ruleBox('分數的前提是「<b>平分</b>」：把 1 個整體<b>平分成 4 份</b>，每一份才是 <b>1/4</b>。<br>切得大小不同，就不能叫 1/4。', '平分')); api.unlock('平分，才有 1/n'); }
       }
@@ -39,13 +39,13 @@
         g.innerHTML = ''; var w = 12 / n, i, k = cnt();
         for (i = 0; i < n; i++) {
           (function (i) {
-            var r = h('rect', { x: 1 + i * w + 0.04, y: b.Y(4.8), width: w - 0.08, height: 1.7, rx: 0.15, fill: sel[i] ? 'rgba(214,51,108,.5)' : 'rgba(47,111,220,.14)', stroke: sel[i] ? '#d6336c' : '#2f6fdc', 'stroke-width': 0.07, style: 'cursor:pointer' });
+            var r = h('rect', { x: 1 + i * w + 0.04, y: b.Y(4.8), width: w - 0.08, height: 1.7, rx: 0.15, fill: sel[i] ? 'rgba(214,51,108,.5)' : 'rgba(47,111,220,.14)', stroke: sel[i] ? '#d6336c' : '#2f6fdc', 'stroke-width': 2, style: 'cursor:pointer' });
             r.addEventListener('click', function () { sel[i] = !sel[i]; draw(); }); g.append(r);
           })(i);
           if (w > 1.5) b.text([1 + (i + 0.5) * w, 3.75], '1/' + n, 'pl-text pl-text--sm', g);
         }
         b.line([1, 1.6], [13, 1.6], 'pl-line pl-line--thin', g);
-        for (i = 0; i <= n; i++) g.append(h('line', { x1: 1 + i * w, y1: b.Y(1.8), x2: 1 + i * w, y2: b.Y(1.4), stroke: '#6d6250', 'stroke-width': 0.06 }));
+        for (i = 0; i <= n; i++) g.append(h('line', { x1: 1 + i * w, y1: b.Y(1.8), x2: 1 + i * w, y2: b.Y(1.4), stroke: '#6d6250', 'stroke-width': 1.5 }));
         b.text([1, 0.7], '0', 'pl-text pl-text--sm', g); b.text([13, 0.7], '1', 'pl-text pl-text--sm', g);
         if (k > 0) { b.dot([1 + 12 * k / n, 1.6], 'pl-dot pl-dot--green', g, 0.24); b.text([1 + 12 * k / n, 2.35], fracTxt(k, n), 'pl-text pl-text--green', g); }
         pA.textContent = '平分成 ' + n + ' 份（分母）'; pB.textContent = '取了 ' + k + ' 份（分子）'; pF.textContent = k ? '取了 ' + k + ' 個 1/' + n + ' ＝ ' + k + '/' + n : '點一點要取的份數'; pF.className = 'pl-pill' + (k ? ' is-ok' : '');
@@ -65,10 +65,10 @@
         g.innerHTML = ''; var per = total / 3, gi, j;
         for (gi = 0; gi < 3; gi++) {
           (function (gi) {
-            var x0 = 1 + gi * 4.3, rect = h('rect', { x: x0, y: b.Y(6.2), width: 3.7, height: 4.4, rx: 0.4, fill: pick === gi ? 'rgba(210,155,31,.38)' : '#fff', stroke: pick === gi ? '#d29b1f' : '#cfc6ad', 'stroke-width': 0.09, style: 'cursor:pointer' });
+            var x0 = 1 + gi * 4.3, rect = h('rect', { x: x0, y: b.Y(6.2), width: 3.7, height: 4.4, rx: 0.4, fill: pick === gi ? 'rgba(210,155,31,.38)' : '#fff', stroke: pick === gi ? '#d29b1f' : '#cfc6ad', 'stroke-width': 2, style: 'cursor:pointer' });
             rect.addEventListener('click', function () { pick = gi; seen[total] = 1; draw(); if (Object.keys(seen).length >= 3 && !done) { done = true; P.track('aha', { id: 'fraction-split', step: 3 }); st.append(P.ruleBox('分數是「整體的幾分之幾」：<b>同樣是 1/3，整體越大，1/3 的個數越多</b>。<br>12 個的 1/3 是 4 個，6 個的 1/3 只有 2 個。', '整體')); api.unlock('整體不同，個數就不同'); } });
             g.append(rect);
-            for (j = 0; j < per; j++) { var cx = x0 + 0.95 + Math.floor(j / 3) * 1.25, cy = 5.3 - (j % 3) * 1.15; g.append(h('circle', { cx: cx, cy: b.Y(cy), r: 0.44, fill: '#8b5a2b', stroke: '#fff', 'stroke-width': 0.05, style: 'pointer-events:none' })); }
+            for (j = 0; j < per; j++) { var cx = x0 + 0.95 + Math.floor(j / 3) * 1.25, cy = 5.3 - (j % 3) * 1.15; g.append(h('circle', { cx: cx, cy: b.Y(cy), r: 0.44, fill: '#8b5a2b', stroke: '#fff', 'stroke-width': 1, style: 'pointer-events:none' })); }
           })(gi);
         }
         pT.textContent = '一共 ' + total + ' 個'; pU.textContent = '平分成 3 份，每份 ' + per + ' 個'; pR.textContent = pick >= 0 ? '1/3 ＝ ' + per + ' 個' : '點一份看看'; pR.className = 'pl-pill' + (pick >= 0 ? ' is-ok' : '');
@@ -87,8 +87,8 @@
           b0.append(h('div', { class: 'pl-q', html: '每一條數線都是從 0 到 1。最上面那條已經標好 <b>1/2</b>，把下面三條的點拖到<b>同一個位置</b>。' }));
           var b = PA.board(b0, 15, 7, 'pl-svg--sm'), g = h('g'), rows = [{ d: 4, y: 4.2, k: 1 }, { d: 6, y: 2.7, k: 1 }, { d: 12, y: 1.2, k: 3 }], fin = false, hs = [], labs = []; b.gMid.append(g);
           function X(k, d) { return 1 + 12 * k / d; }
-          g.append(h('line', { x1: 7, y1: b.Y(6.4), x2: 7, y2: b.Y(0.5), stroke: '#d6336c', 'stroke-width': 0.07, 'stroke-dasharray': '.22 .2' }));
-          [{ d: 2, y: 5.7 }].concat(rows).forEach(function (r) { b.line([1, r.y], [13, r.y], 'pl-line pl-line--thin', g); for (var k = 0; k <= r.d; k++) g.append(h('line', { x1: X(k, r.d), y1: b.Y(r.y + 0.18), x2: X(k, r.d), y2: b.Y(r.y - 0.18), stroke: '#6d6250', 'stroke-width': 0.06 })); });
+          g.append(h('line', { x1: 7, y1: b.Y(6.4), x2: 7, y2: b.Y(0.5), stroke: '#d6336c', 'stroke-width': 2, 'stroke-dasharray': '5.5 5' }));
+          [{ d: 2, y: 5.7 }].concat(rows).forEach(function (r) { b.line([1, r.y], [13, r.y], 'pl-line pl-line--thin', g); for (var k = 0; k <= r.d; k++) g.append(h('line', { x1: X(k, r.d), y1: b.Y(r.y + 0.18), x2: X(k, r.d), y2: b.Y(r.y - 0.18), stroke: '#6d6250', 'stroke-width': 1.5 })); });
           b.dot([7, 5.7], 'pl-dot pl-dot--green', g, 0.3); b.text([14.2, 5.45], '1/2', 'pl-text pl-text--sm pl-text--green', g);
           function upd() { var all = true; rows.forEach(function (r, i) { labs[i].textContent = r.k + '/' + r.d; labs[i].setAttribute('class', 'pl-text pl-text--sm' + (2 * r.k === r.d ? ' pl-text--green' : '')); if (2 * r.k !== r.d) all = false; }); if (all && !fin) { fin = true; P.toast('2/4 ＝ 3/6 ＝ 6/12 ＝ 1/2'); done(); } }
           rows.forEach(function (r, i) {
@@ -106,12 +106,12 @@
           function draw() {
             g.innerHTML = ''; var ok = 12 % n === 0, per = 12 / n, j, gi, picked = 0;
             for (j = 0; j < 12; j++) { var gi2 = ok ? Math.floor(j / per) : 0; }
-            if (!ok) { for (j = 0; j < 12; j++) g.append(h('circle', { cx: 1.7 + (j % 6) * 1.9, cy: b.Y(4.4 - Math.floor(j / 6) * 1.6), r: 0.5, fill: '#8b5a2b', stroke: '#fff', 'stroke-width': 0.05 })); b.text([7, 1.2], '12 個不能平分成 ' + n + ' 份', 'pl-text pl-text--sm pl-text--pink', g); }
+            if (!ok) { for (j = 0; j < 12; j++) g.append(h('circle', { cx: 1.7 + (j % 6) * 1.9, cy: b.Y(4.4 - Math.floor(j / 6) * 1.6), r: 0.5, fill: '#8b5a2b', stroke: '#fff', 'stroke-width': 1 })); b.text([7, 1.2], '12 個不能平分成 ' + n + ' 份', 'pl-text pl-text--sm pl-text--pink', g); }
             else for (gi = 0; gi < n; gi++) (function (gi) {
-              var w = 12.4 / n, x0 = 0.8 + gi * (12.4 / n) + 0.1, rc = h('rect', { x: x0, y: b.Y(5.4), width: w - 0.2, height: 3.8, rx: 0.3, fill: sel[gi] ? 'rgba(214,51,108,.28)' : '#fff', stroke: sel[gi] ? '#d6336c' : '#cfc6ad', 'stroke-width': 0.08, style: 'cursor:pointer' });
+              var w = 12.4 / n, x0 = 0.8 + gi * (12.4 / n) + 0.1, rc = h('rect', { x: x0, y: b.Y(5.4), width: w - 0.2, height: 3.8, rx: 0.3, fill: sel[gi] ? 'rgba(214,51,108,.28)' : '#fff', stroke: sel[gi] ? '#d6336c' : '#cfc6ad', 'stroke-width': 2, style: 'cursor:pointer' });
               rc.addEventListener('click', function () { sel[gi] = !sel[gi]; draw(); }); g.append(rc);
               var cols = Math.ceil(per / 3);
-              for (var q = 0; q < per; q++) g.append(h('circle', { cx: x0 + (w - 0.2) / 2 + (Math.floor(q / 3) - (cols - 1) / 2) * 0.95, cy: b.Y(4.5 - (q % 3) * 0.95), r: 0.36, fill: '#8b5a2b', stroke: '#fff', 'stroke-width': 0.05, style: 'pointer-events:none' }));
+              for (var q = 0; q < per; q++) g.append(h('circle', { cx: x0 + (w - 0.2) / 2 + (Math.floor(q / 3) - (cols - 1) / 2) * 0.95, cy: b.Y(4.5 - (q % 3) * 0.95), r: 0.36, fill: '#8b5a2b', stroke: '#fff', 'stroke-width': 1, style: 'pointer-events:none' }));
             })(gi);
             if (ok) Object.keys(sel).forEach(function (k) { if (sel[k]) picked += per; });
             pA.textContent = '平分成 ' + n + ' 份'; pB.textContent = ok ? '選了 ' + picked + ' 個' : '先換一個能平分的份數'; pB.className = 'pl-pill' + (ok && picked === 8 ? ' is-ok' : ' is-amber');
@@ -127,8 +127,8 @@
           var pA = P.pill('', 'is-blue'), pB = P.pill('', ''); b0.append(h('div', { class: 'pl-readout' }, pA, pB));
           function draw() {
             g.innerHTML = ''; var w = 12 / n, i, ok = 1 / n < 1 / 5 && 1 / n > 1 / 7;
-            for (i = 0; i < n; i++) g.append(h('rect', { x: 1 + i * w + 0.03, y: b.Y(4.4), width: w - 0.06, height: 1.4, rx: 0.12, fill: i === 0 ? 'rgba(214,51,108,.5)' : 'rgba(47,111,220,.14)', stroke: i === 0 ? '#d6336c' : '#2f6fdc', 'stroke-width': 0.06 }));
-            [[12 / 5, '1/5 的長度', '#2f6fdc', 'pl-text--l'], [12 / 7, '1/7 的長度', '#1f9d55', 'pl-text--r']].forEach(function (m) { g.append(h('line', { x1: 1 + m[0], y1: b.Y(5.3), x2: 1 + m[0], y2: b.Y(1.9), stroke: m[2], 'stroke-width': 0.09, 'stroke-dasharray': '.2 .16' })); b.text([1 + m[0] + (m[3] === 'pl-text--l' ? 0.12 : -0.12), 5.55], m[1], 'pl-text pl-text--sm ' + m[3], g); });
+            for (i = 0; i < n; i++) g.append(h('rect', { x: 1 + i * w + 0.03, y: b.Y(4.4), width: w - 0.06, height: 1.4, rx: 0.12, fill: i === 0 ? 'rgba(214,51,108,.5)' : 'rgba(47,111,220,.14)', stroke: i === 0 ? '#d6336c' : '#2f6fdc', 'stroke-width': 1.5 }));
+            [[12 / 5, '1/5 的長度', '#2f6fdc', 'pl-text--l'], [12 / 7, '1/7 的長度', '#1f9d55', 'pl-text--r']].forEach(function (m) { g.append(h('line', { x1: 1 + m[0], y1: b.Y(5.3), x2: 1 + m[0], y2: b.Y(1.9), stroke: m[2], 'stroke-width': 2, 'stroke-dasharray': '5 4' })); b.text([1 + m[0] + (m[3] === 'pl-text--l' ? 0.12 : -0.12), 5.55], m[1], 'pl-text pl-text--sm ' + m[3], g); });
             pA.textContent = '平分成 ' + n + ' 份，每份是 1/' + n; pB.className = 'pl-pill' + (ok ? ' is-ok' : ''); pB.textContent = ok ? '✓ 比 1/5 小、比 1/7 大' : (1 / n >= 1 / 5 ? '還太大了' : '太小了');
             if (ok && !fin) { fin = true; P.toast('1/7 ＜ 1/6 ＜ 1/5'); done(); }
           }

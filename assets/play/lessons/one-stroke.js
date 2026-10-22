@@ -7,7 +7,7 @@
   /* 圖：V={id:[x,y]}（數學座標）、E=[[a,b]…]。筆（把手）一次走一條「還沒走過」的線；
      cfg: {showDeg, remove(能不能點線拿掉), maxRemove, add(點兩個點加一條線), maxAdd, disabled(), onChange(g), onFinish(g), onStuck(g)} */
   function makeGraph(board, cfg) {
-    var gE = h('g'), gV = h('g'), V = cfg.V, E = [], path = [], cur = null, finished = false, sel = null, hd, self = {};
+    var gE = h('g'), gV = h('g'), V = cfg.V, E = [], path = [], cur = null, finished = false, sel = null, seen = {}, hd, self = {};
     board.gMid.append(gE, gV);
     cfg.E.forEach(function (e) { E.push({ a: e[0], b: e[1], removed: false, used: false, added: false }); });
     function idxAll() { E.forEach(function (e, i) { e.i = i; }); var grp = {}; E.forEach(function (e) { var k = [e.a, e.b].sort().join('-'); (grp[k] = grp[k] || []).push(e); }); Object.keys(grp).forEach(function (k) { grp[k].forEach(function (e, j) { e.off = grp[k].length > 1 ? (j - (grp[k].length - 1) / 2) * 1.5 : 0; }); }); }
@@ -22,14 +22,23 @@
     function render() {
       idxAll(); gE.innerHTML = ''; gV.innerHTML = '';
       E.forEach(function (e) {
-        gE.append(h('path', { d: dpath(e), class: 'pa-edge' + (e.removed ? ' is-off' : e.used ? ' is-used' : '') }));
+        /* 顏色與粗細直接寫在屬性上（不依賴樣式表）：還沒走＝深褐色、走過＝粗綠色、拆掉＝淡色虛線 */
+        gE.append(h('path', { d: dpath(e), fill: 'none', 'stroke-linecap': 'round', stroke: e.removed ? '#cbbf9f' : e.used ? '#1f9d55' : '#5a4f3c', 'stroke-width': e.removed ? 2 : e.used ? 6.5 : 4, 'stroke-dasharray': e.removed ? '5 5' : null, class: 'pa-edge' + (e.removed ? ' is-off' : e.used ? ' is-used' : '') }));
         if (cfg.remove && !e.added) { var ht = h('path', { d: dpath(e), class: 'pa-hit' }); ht.addEventListener('click', function () { toggleRemove(e); }); gE.append(ht); }
       });
+      /* 拆橋按鈕：每條可以拆的線中間有一顆粉紅色 ✕（拆掉後變成綠色 ＋，可以還原）；開始走之後就不能改了 */
+      if (cfg.remove && !path.length) E.forEach(function (e) {
+        if (e.added) return; var a = V[e.a], b = V[e.b], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, mx = (a[0] + b[0]) / 2 - dy / L * e.off * 0.5, my = (a[1] + b[1]) / 2 + dx / L * e.off * 0.5, cy = board.Y(my), col = e.removed ? '#1f9d55' : '#d6336c', r = 0.42, k = 0.17;
+        var bt = h('g', { style: 'cursor:pointer' }, h('circle', { cx: mx, cy: cy, r: 0.75, fill: 'transparent' }), h('circle', { cx: mx, cy: cy, r: r, fill: '#fff', stroke: col, 'stroke-width': 2.5 }),
+          e.removed ? [h('line', { x1: mx - k, y1: cy, x2: mx + k, y2: cy, stroke: col, 'stroke-width': 3, 'stroke-linecap': 'round' }), h('line', { x1: mx, y1: cy - k, x2: mx, y2: cy + k, stroke: col, 'stroke-width': 3, 'stroke-linecap': 'round' })]
+            : [h('line', { x1: mx - k, y1: cy - k, x2: mx + k, y2: cy + k, stroke: col, 'stroke-width': 3, 'stroke-linecap': 'round' }), h('line', { x1: mx - k, y1: cy + k, x2: mx + k, y2: cy - k, stroke: col, 'stroke-width': 3, 'stroke-linecap': 'round' })]);
+        bt.addEventListener('click', function () { toggleRemove(e); }); gE.append(bt);
+      });
       Object.keys(V).forEach(function (v) {
-        var p = V[v], g = h('g', { style: 'cursor:pointer' }, h('circle', { cx: p[0], cy: board.Y(p[1]), r: 0.5, fill: 'transparent' }), h('circle', { cx: p[0], cy: board.Y(p[1]), r: 0.4, class: 'pa-node' + (cfg.showDeg && deg(v) % 2 === 1 ? ' is-odd' : '') + (sel === v ? ' is-cur' : '') }));
+        var p = V[v], g = h('g', { style: 'cursor:pointer' }, h('circle', { cx: p[0], cy: board.Y(p[1]), r: 0.5, fill: 'transparent' }), h('circle', { cx: p[0], cy: board.Y(p[1]), r: 0.4, fill: sel === v ? '#5fe3b4' : seen[v] ? '#c9efd7' : (cfg.showDeg && deg(v) % 2 === 1 ? '#ffe8f0' : '#fff'), stroke: seen[v] || sel === v ? '#1f9d55' : (cfg.showDeg && deg(v) % 2 === 1 ? '#d6336c' : '#122548'), 'stroke-width': seen[v] ? 3.5 : 2.5, class: 'pa-node' }));
         g.addEventListener('click', function () { tapVertex(v); }); gV.append(g);
         board.text([p[0], p[1] - 1.5], v, 'pl-text pl-text--sm pl-text--blue', gV);
-        if (cfg.showDeg) { var d = deg(v), bx = p[0] + 0.62, by = p[1] + 0.55; gV.append(h('circle', { cx: bx, cy: board.Y(by), r: 0.3, fill: d % 2 ? '#ffe8f0' : '#e6f6ec', stroke: d % 2 ? '#d6336c' : '#1f9d55', 'stroke-width': 0.06 })); board.text([bx, by - 0.17], '' + d, 'pl-text pl-text--sm' + (d % 2 ? ' pl-text--pink' : ' pl-text--green'), gV); }
+        if (cfg.showDeg) { var d = deg(v), bx = p[0] + 0.62, by = p[1] + 0.55; gV.append(h('circle', { cx: bx, cy: board.Y(by), r: 0.3, fill: d % 2 ? '#ffe8f0' : '#e6f6ec', stroke: d % 2 ? '#d6336c' : '#1f9d55', 'stroke-width': 1.5 })); board.text([bx, by - 0.17], '' + d, 'pl-text pl-text--sm' + (d % 2 ? ' pl-text--pink' : ' pl-text--green'), gV); }
       });
     }
     function toggleRemove(e) {
@@ -40,8 +49,8 @@
     function tapVertex(v) {
       if (cfg.add) {
         if (path.length) { P.toast('先按「重來」，再修改圖形'); return; }
-        if (sel === null) { sel = v; render(); return; }
-        if (sel === v) { sel = null; render(); return; }
+        if (sel === null) { sel = v; render(); note(); return; }
+        if (sel === v) { sel = null; render(); note(); return; }
         var ex = E.filter(function (e) { return e.added && ((e.a === sel && e.b === v) || (e.a === v && e.b === sel)); })[0];
         if (ex) E.splice(E.indexOf(ex), 1);
         else { if (cfg.maxAdd !== undefined && E.filter(function (e) { return e.added; }).length >= cfg.maxAdd) { P.toast('這一關只能加 ' + cfg.maxAdd + ' 條線；再點一次已加的線兩端可以拿掉'); sel = null; render(); return; } E.push({ a: sel, b: v, removed: false, used: false, added: true }); }
@@ -57,17 +66,17 @@
     }
     function go(t) {
       var v = vertexAt(t); if (v === null || finished) return;
-      if (cur === null) { if (!active().length) return; cur = v; path = [v]; render(); note(); check(); return; }
+      if (cur === null) { if (!active().length) return; cur = v; path = [v]; seen[v] = 1; render(); note(); check(); return; }
       if (v === cur) return;
       var e = active().filter(function (x) { return !x.used && ((x.a === cur && x.b === v) || (x.a === v && x.b === cur)); })[0];
       if (!e) { P.toast('要沿著還沒走過的線走'); hd.set(V[cur]); return; }
-      e.used = true; path.push(v); cur = v; render(); note(); check();
+      e.used = true; path.push(v); cur = v; seen[v] = 1; render(); note(); check();
     }
     var cands = Object.keys(V).map(function (k) { return V[k]; }).concat([TRAY]);
     hd = board.handle({ pos: TRAY, candidates: cands, disabled: function () { if (cfg.disabled && cfg.disabled()) { P.toast('先做上面的預測'); return true; } return false; }, onMove: function (t) { if (cur !== null) go(t); }, onEnd: function (p) { if (cur === null) { if (vertexAt(p) !== null) go(p); else hd.set(TRAY); } else if (!finished) hd.set(V[cur]); } });
-    self.pen = hd; self.V = V; self.E = E; self.deg = deg; self.odd = odd; self.path = function () { return path; }; self.finished = function () { return finished; }; self.removedCount = function () { return E.filter(function (e) { return e.removed; }).length; };
+    self.sel = function () { return sel; }; self.pen = hd; self.V = V; self.E = E; self.deg = deg; self.odd = odd; self.path = function () { return path; }; self.finished = function () { return finished; }; self.removedCount = function () { return E.filter(function (e) { return e.removed; }).length; };
     self.addedCount = function () { return E.filter(function (e) { return e.added; }).length; }; self.used = function () { return E.filter(function (e) { return e.used; }).length; }; self.total = function () { return active().length; };
-    self.reset = function () { E.forEach(function (e) { e.used = false; }); path = []; cur = null; finished = false; sel = null; hd.set(TRAY, true); render(); note(); };
+    self.reset = function () { E.forEach(function (e) { e.used = false; }); path = []; cur = null; finished = false; sel = null; seen = {}; hd.set(TRAY, true); render(); note(); };
     /* 歐拉路徑（Hierholzer）：圖能一筆畫就回傳頂點順序，否則 null；from 指定起點（要是奇點才行） */
     self.euler = function (from) {
       var act = active(); if (!act.length) return null; var od = odd(); if (od.length !== 0 && od.length !== 2) return null;
@@ -86,18 +95,18 @@
     /* 1. 預測＋一筆畫 */
     function (st, api) {
       var gate = { on: true }, done = false, g;
-      P.choice(st, api, { id: 'os-p1', predict: true, label: '先猜猜看', prompt: '筆<b>不離開紙</b>、每條線<b>只走一次</b>，這個圖能一筆畫完嗎？', row: true, options: [{ t: '能' }, { t: '不能' }, { t: '不確定' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把筆拖到一個點，再沿著線一個點一個點走'); } });
+      P.choice(st, api, { id: 'os-p1', predict: true, label: '先猜猜看', prompt: '筆<b>不離開紙</b>、每條線<b>只走一次</b>（點可以重複經過），這個圖能一筆畫完嗎？', row: true, options: [{ t: '能' }, { t: '不能' }, { t: '不確定' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把綠色的筆拖到一個點出發'); } });
       var b = PA.board(st, 11, 10), pU = P.pill('', 'is-blue'), pS = P.pill('', ''); st.append(h('div', { class: 'pl-readout' }, pU, pS));
-      g = makeGraph(b, Object.assign({ disabled: function () { return gate.on; }, showDeg: false, onChange: function (gg) { pU.textContent = '走了 ' + gg.used() + ' / ' + gg.total() + ' 條線'; if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = gg.path().length ? '從 ' + gg.path()[0] + ' 出發，繼續走…' : '把筆拖到任一個點出發'; } },
+      g = makeGraph(b, Object.assign({ disabled: function () { return gate.on; }, showDeg: false, onChange: function (gg) { pU.textContent = '走過 ' + gg.used() + ' / ' + gg.total() + ' 條線'; if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = gg.path().length ? '從 ' + gg.path()[0] + ' 出發，繼續走…' : '把筆拖到任一個點出發'; } },
         onFinish: function (gg) { var p = gg.path(); pS.className = 'pl-pill is-ok'; pS.textContent = '✓ 一筆畫完：' + p[0] + ' 出發，' + p[p.length - 1] + ' 結束'; if (!done) { done = true; P.track('aha', { id: 'one-stroke', step: 1 }); P.toast(api.ctx.p1 === 0 ? '你猜對了！能一筆畫' : '一筆畫成功！'); st.append(P.hint('你是從哪一個點出發、在哪一個點結束的？下一步來找原因。')); api.unlock('一筆畫成功！'); } },
         onStuck: function (gg) { pS.className = 'pl-pill is-pink'; pS.textContent = '卡住了：這個點的線都走過了。按「重來」再試試'; } }, ENV));
       PA.resetBtn(st, '重來', function () { if (!done || true) g.reset(); });
       api.solve(function () { gate.on = false; g.reset(); g.walk(g.euler()); });
-      st.append(P.hint('也可以直接點圖上的點。走過的線會變綠。')); api.lock('先做上面的預測');
+      st.append(P.hint('<b>綠色圓點是「筆」</b>：先把它拖到一個點出發，再沿著線拖到下一個點（也可以直接點圖上的點）。走過的線會變成粗綠線、走過的點會變淺綠色。<b>每條線只能走一次，點可以重複經過。</b>')); api.lock('先做上面的預測');
     },
     /* 2. 換不同的起點 */
     function (st, api) {
-      st.append(P.instr('同一個圖，<b>換不同的點出發</b>試試看。哪些點出發能一筆畫完？哪些會卡住？旁邊的小圓圈是這個點連著幾條線。'));
+      st.append(P.instr('同一個圖，<b>換不同的點出發</b>試試看（先拖綠色的筆到一個點，再沿著線走；每條線只能走一次）。哪些點出發能一筆畫完？哪些會卡住？旁邊的小圓圈是這個點連著幾條線。'));
       var tries = {}, done = false, b = PA.board(st, 11, 10), chips = h('div', { class: 'pl-readout' }), pS = P.pill('', ''), g;
       st.append(chips, h('div', { class: 'pl-readout' }, pS));
       function ruleCheck() { var ok = tries.A === 'ok' && tries.B === 'ok' && ['C', 'D', 'E'].some(function (v) { return tries[v] === 'x'; }); if (ok && !done) { done = true; P.track('aha', { id: 'one-stroke', step: 2 }); st.append(P.ruleBox('能一筆畫完的圖，起點和終點只能是「連著<b>奇數條</b>線的點」（<b>奇點</b>，粉紅色的點）。<br>從「偶點」出發，不管怎麼走都會卡住。', '奇點')); api.unlock('起點要是奇點！'); } }
@@ -111,25 +120,25 @@
     },
     /* 3. 拿掉一條線，修好圖 */
     function (st, api) {
-      st.append(P.instr('這個圖<b>四個點都連著 3 條線</b>，沒辦法一筆畫。<b>點一條線把它拿掉</b>，再試著一筆畫完。'));
+      st.append(P.instr('這個圖<b>四個點都連著 3 條線</b>，沒辦法一筆畫。<b>① 點線中間的粉紅色 ✕ 把一條線拿掉　② 再把綠色的筆拖到粉紅色的點出發</b>，沿著線一筆畫完（每條線只能走一次）。'));
       var done = false, b = PA.board(st, 11, 10), pO = P.pill('', 'is-pink'), pS = P.pill('', ''), g;
       var K4 = { V: { P: [3, 2.5], Q: [8, 2.5], R: [8, 8], S: [3, 8] }, E: [['P', 'Q'], ['Q', 'R'], ['R', 'S'], ['S', 'P'], ['P', 'R'], ['Q', 'S']] };
-      g = makeGraph(b, Object.assign({ showDeg: true, remove: true, onChange: function (gg) { var o = gg.odd().length; pO.textContent = '奇點 ' + o + ' 個'; pO.className = 'pl-pill ' + (o === 0 || o === 2 ? 'is-ok' : 'is-pink'); if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = (o === 0 || o === 2) ? '奇點只有 ' + o + ' 個，可以一筆畫了！' : '奇點太多（4 個），先拿掉一條線'; } },
+      g = makeGraph(b, Object.assign({ showDeg: true, remove: true, onChange: function (gg) { var o = gg.odd().length; pO.textContent = '奇點 ' + o + ' 個'; pO.className = 'pl-pill ' + (o === 0 || o === 2 ? 'is-ok' : 'is-pink'); if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = (o === 0 || o === 2) ? '奇點只有 ' + o + ' 個，可以一筆畫了！' : '奇點太多（4 個）：先點粉紅色 ✕ 拿掉一條線'; } },
         onFinish: function (gg) { pS.className = 'pl-pill is-ok'; pS.textContent = '✓ 一筆畫完！'; if (!done && gg.removedCount() >= 1) { done = true; P.track('aha', { id: 'one-stroke', step: 3 }); st.append(P.ruleBox('拿掉一條線，那條線兩端的點各少一條，<b>從奇點變成偶點</b>，奇點就只剩 2 個。<br>只要奇點是 <b>0 個或 2 個</b>，而且圖連在一起，就能一筆畫。', '奇點個數')); api.unlock('奇點 0 或 2 個，就能一筆畫！'); } },
         onStuck: function () { pS.className = 'pl-pill is-pink'; pS.textContent = '卡住了，按「重來」再試試（起點要選奇點）'; } }, K4));
       st.insertBefore(h('div', { class: 'pl-readout' }, pO, pS), b.host.nextSibling); PA.resetBtn(st, '重來', function () { g.reset(); });
       api.solve(function () { g.reset(); var e = g.E[0]; if (!e.removed) { e.removed = true; } g.reset(); g.walk(g.euler()); });
-      st.append(P.hint('先拿掉一條線，再把筆拖到粉紅色的點出發。')); api.lock('拿掉一條線，再一筆畫完');
+      st.append(P.hint('拿掉的線會變成淡色虛線，可以點綠色 ＋ 還原。')); api.lock('拿掉一條線，再一筆畫完');
     },
     /* 4. 操作關卡 */
     function (st, api) {
       var box = h('div', {}); st.append(box);
       function graphTask(cfg) {
         return function (b0, done, setSolve) {
-          b0.append(h('div', { class: 'pl-q', html: cfg.prompt }));
-          var b = PA.board(b0, 11, 10, 'pl-svg--sm'), pO = P.pill('', 'is-pink'), pS = P.pill('', ''), fin = false, g;
+          b0.append(h('div', { class: 'pl-q', html: cfg.prompt }), h('div', { class: 'pl-caption', html: '綠色圓點是「筆」：拖到一個點出發，再沿著線走。<b>每條線（橋）只能走一次，點可以重複經過。</b>' }));
+          var b = PA.board(b0, 11, 10), pO = P.pill('', 'is-pink'), pS = P.pill('', ''), fin = false, g;
           b0.append(h('div', { class: 'pl-readout' }, pO, pS));
-          g = makeGraph(b, Object.assign({ showDeg: true, onChange: function (gg) { var o = gg.odd().length; pO.textContent = '奇點 ' + o + ' 個'; pO.className = 'pl-pill ' + (o === 0 || o === 2 ? 'is-ok' : 'is-pink'); if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = cfg.say ? cfg.say(gg) : '走了 ' + gg.used() + ' / ' + gg.total() + ' 條'; } },
+          g = makeGraph(b, Object.assign({ showDeg: true, onChange: function (gg) { var o = gg.odd().length; pO.textContent = '奇點 ' + o + ' 個'; pO.className = 'pl-pill ' + (o === 0 || o === 2 ? 'is-ok' : 'is-pink'); if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = cfg.say ? cfg.say(gg) : (gg.path().length ? '走過 ' + gg.used() + ' / ' + gg.total() + ' 條線' : '把綠色的筆拖到一個點出發'); } },
             onFinish: function (gg) { pS.className = 'pl-pill is-ok'; pS.textContent = '✓ 一筆畫完！'; if (!fin && (!cfg.need || cfg.need(gg))) { fin = true; P.toast(cfg.msg); done(); } else if (!fin) { pS.className = 'pl-pill is-pink'; pS.textContent = cfg.needMsg; } },
             onStuck: function () { pS.className = 'pl-pill is-pink'; pS.textContent = '卡住了，按「重來」再試試'; } }, cfg.graph));
           PA.resetBtn(b0, '重來', function () { if (!fin) g.reset(); });
@@ -138,8 +147,8 @@
       }
       var tasks = [
         graphTask({ prompt: '這個梯形圖能一筆畫嗎？找出該從哪裡出發，一筆畫完。', graph: { V: { a: [2, 7], b: [5.5, 7], c: [9, 7], d: [2, 3.5], e: [5.5, 3.5], f: [9, 3.5] }, E: [['a', 'b'], ['b', 'c'], ['d', 'e'], ['e', 'f'], ['a', 'd'], ['b', 'e'], ['c', 'f']] }, msg: '從奇點出發，一筆畫完', hint: '先看哪些點是奇點（粉紅色）。' }),
-        graphTask({ prompt: '哥尼斯堡有 <b>7 座橋</b>（4 塊陸地 A～D）。沒有人能每座橋只走一次。<b>只拆掉 1 座橋</b>（點橋拆掉），就能走完了。', graph: { V: { A: [3.5, 5], B: [5.5, 8.5], C: [5.5, 1.8], D: [9, 5] }, E: [['A', 'B'], ['A', 'B'], ['A', 'C'], ['A', 'C'], ['A', 'D'], ['B', 'D'], ['C', 'D']], remove: true, maxRemove: 1 }, need: function (gg) { return gg.removedCount() === 1; }, needMsg: '要先拆掉 1 座橋', msg: '拆掉 1 座橋，奇點剩 2 個', hint: '要讓奇點只剩 2 個，要拆哪一座橋？', say: function (gg) { return '拆了 ' + gg.removedCount() + ' 座橋，走了 ' + gg.used() + ' / ' + gg.total(); }, prep: function (g) { var e = g.E[0]; e.removed = true; } }),
-        graphTask({ prompt: '星形圖有 <b>4 個奇點</b>。只加 <b>1 條線</b>（先點一個點，再點另一個點），就能一筆畫完。', graph: { V: { O: [5.5, 5], P: [2.2, 8.5], Q: [8.8, 8.5], R: [5.5, 1.8] }, E: [['O', 'P'], ['O', 'Q'], ['O', 'R']], add: true, maxAdd: 1 }, need: function (gg) { return gg.addedCount() === 1; }, needMsg: '要先加上 1 條線', msg: '加 1 條線，4 個奇點變成 2 個', hint: '加一條線，會讓哪兩個點的條數同時加 1？加好後，把筆拖到粉紅色的點出發。', say: function (gg) { return gg.addedCount() ? '已加 1 條線，走了 ' + gg.used() + ' / ' + gg.total() : '先點兩個點，加一條線'; }, prep: function (g) { g.E.push({ a: 'P', b: 'Q', removed: false, used: false, added: true }); } })];
+        graphTask({ prompt: '哥尼斯堡有 <b>7 座橋</b>（4 塊陸地 A～D）。沒有人能每座橋只走一次。<b>只拆掉 1 座橋</b>，就能走完了。<br><b>① 先點橋中間的粉紅色 ✕ 拆掉 1 座橋　② 再把筆拖到一塊陸地出發，沿著橋走，每座橋只走一次。</b>', graph: { V: { A: [3.5, 5], B: [5.5, 8.5], C: [5.5, 1.8], D: [9, 5] }, E: [['A', 'B'], ['A', 'B'], ['A', 'C'], ['A', 'C'], ['A', 'D'], ['B', 'D'], ['C', 'D']], remove: true, maxRemove: 1 }, need: function (gg) { return gg.removedCount() === 1; }, needMsg: '要先拆掉 1 座橋', msg: '拆掉 1 座橋，奇點剩 2 個', hint: '要讓奇點只剩 2 個，要拆哪一座橋？拆掉的橋會變成淡色虛線，可以點綠色 ＋ 還原。', say: function (gg) { return gg.removedCount() === 0 ? '① 先點粉紅色 ✕ 拆掉 1 座橋' : gg.path().length ? '拆了 1 座橋，走過 ' + gg.used() + ' / ' + gg.total() + ' 座橋' : '② 把綠色的筆拖到一塊陸地出發'; }, prep: function (g) { var e = g.E[0]; e.removed = true; } }),
+        graphTask({ prompt: '星形圖有 <b>4 個奇點</b>。只加 <b>1 條線</b>，就能一筆畫完。<br><b>① 先點一個點、再點另一個點，在它們之間加 1 條線　② 再把綠色的筆拖到一個點出發，一筆畫完。</b>', graph: { V: { O: [5.5, 5], P: [2.2, 8.5], Q: [8.8, 8.5], R: [5.5, 1.8] }, E: [['O', 'P'], ['O', 'Q'], ['O', 'R']], add: true, maxAdd: 1 }, need: function (gg) { return gg.addedCount() === 1; }, needMsg: '要先加上 1 條線', msg: '加 1 條線，4 個奇點變成 2 個', hint: '加一條線，會讓哪兩個點的條數同時加 1？加好後，把筆拖到粉紅色的點出發。', say: function (gg) { return gg.addedCount() ? (gg.path().length ? '已加 1 條線，走過 ' + gg.used() + ' / ' + gg.total() + ' 條線' : '② 把綠色的筆拖到一個點出發') : (gg.sel() ? '已選 ' + gg.sel() + '，再點另一個點，加上一條線' : '① 先點一個點，再點另一個點，加一條線'); }, prep: function (g) { g.E.push({ a: 'P', b: 'Q', removed: false, used: false, added: true }); } })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'one-stroke' }); } });
     },
     /* 5. 完成 */

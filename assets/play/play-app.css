@@ -1,14 +1,14 @@
 /* 獵豹玩中學｜應用問題單元共用樣式 */
-.pa-tree__trunk{fill:#8b6a3e}.pa-tree__crown{fill:#34a853;stroke:#1f7a3d;stroke-width:.05}
+.pa-tree__trunk{fill:#8b6a3e}.pa-tree__crown{fill:#34a853;stroke:#1f7a3d;stroke-width:1}
 .pa-tree.is-ghost{opacity:.28}.pa-tree.is-end .pa-tree__crown{fill:#1f9d55}
 .pa-seg{stroke-linecap:round;fill:none}
-.pa-btn{cursor:pointer;touch-action:manipulation}.pa-btn__c{fill:#fff;stroke:var(--navy);stroke-width:.07}.pa-btn__t{font-size:.46px;font-weight:900;fill:var(--navy);text-anchor:middle;pointer-events:none}
+.pa-btn{cursor:pointer;touch-action:manipulation}.pa-btn__c{fill:#fff;stroke:var(--navy);stroke-width:2}.pa-btn__t{font-size:.46px;font-weight:900;fill:var(--navy);text-anchor:middle;pointer-events:none}
 .pa-btn.is-on .pa-btn__c{fill:var(--pl-green)}.pa-btn.is-on .pa-btn__t{fill:#fff}.pa-btn.is-off .pa-btn__c{fill:#fff}
-.pa-slot{fill:#fffbe8;stroke:#8a7d5c;stroke-width:.1;stroke-dasharray:.18 .14}.pa-slot.is-full{stroke:var(--pl-green);stroke-dasharray:none}
-.pa-cell{fill:#fff;stroke:#cfc6ad;stroke-width:.05;cursor:pointer}.pa-cell.is-on{fill:rgba(214,51,108,.55)}.pa-cell.is-hi{fill:rgba(47,111,220,.5)}.pa-cell.is-ok{fill:rgba(31,157,85,.6)}
-.pa-block{stroke:#fff;stroke-width:.06;rx:.12}
-.pa-node{fill:#fff;stroke:var(--navy);stroke-width:.07}.pa-node.is-odd{fill:#ffe8f0;stroke:var(--pl-pink)}.pa-node.is-cur{fill:#5fe3b4}
-.pa-edge{stroke:#6d6250;stroke-width:.14;stroke-linecap:round;fill:none}.pa-edge.is-used{stroke:var(--pl-green);stroke-width:.2}.pa-edge.is-off{stroke:#d7d0bb;stroke-dasharray:.2 .25;stroke-width:.1}
-.pa-hit{stroke:transparent;stroke-width:.9;fill:none;cursor:pointer}
-.pa-bar{fill:var(--pl-blue-soft);stroke:var(--pl-blue);stroke-width:.05}.pa-bar.is-hi{fill:var(--pl-blue)}
-.pa-whole{fill:#fff;stroke:var(--navy);stroke-width:.08}
+.pa-slot{fill:#fffbe8;stroke:#8a7d5c;stroke-width:2.5;stroke-dasharray:4.5 3.5}.pa-slot.is-full{stroke:var(--pl-green);stroke-dasharray:none}
+.pa-cell{fill:#fff;stroke:#cfc6ad;stroke-width:1;cursor:pointer}.pa-cell.is-on{fill:rgba(214,51,108,.55)}.pa-cell.is-hi{fill:rgba(47,111,220,.5)}.pa-cell.is-ok{fill:rgba(31,157,85,.6)}
+.pa-block{stroke:#fff;stroke-width:1.5;rx:.12}
+.pa-node{fill:#fff;stroke:var(--navy);stroke-width:2}.pa-node.is-odd{fill:#ffe8f0;stroke:var(--pl-pink)}.pa-node.is-cur{fill:#5fe3b4}
+.pa-edge{stroke:#6d6250;stroke-width:3.5;stroke-linecap:round;fill:none}.pa-edge.is-used{stroke:var(--pl-green);stroke-width:5}.pa-edge.is-off{stroke:#d7d0bb;stroke-dasharray:5 6;stroke-width:2.5}
+.pa-hit{stroke:transparent;stroke-width:22.5;fill:none;cursor:pointer}
+.pa-bar{fill:var(--pl-blue-soft);stroke:var(--pl-blue);stroke-width:1}.pa-bar.is-hi{fill:var(--pl-blue)}
+.pa-whole{fill:#fff;stroke:var(--navy);stroke-width:2}
