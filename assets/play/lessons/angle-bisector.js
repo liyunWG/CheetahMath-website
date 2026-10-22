@@ -173,7 +173,7 @@
           [[[3, 3], '甲'], [[5, 4], '乙'], [[2, 2], '丙']].forEach(function (q) { b.dot(q[0], 'pl-dot pl-dot--pink', null, 0.2); b.text([q[0][0] + 0.55, q[0][1] + 0.6], q[1], 'pl-text pl-text--pink'); });
           P.choice(box, {}, { id: 'ab-t4', prompt: '三條路圍成三角形，消防站要到<b>三條路一樣遠</b>，蓋在哪一點？', row: true, options: [{ t: '甲', ok: true, fb: '對！甲是三個角的角平分線的交點（內心），到三邊都是 2。' }, { t: '乙', fb: '乙是斜邊的中點，到三個「頂點」一樣遠，不是到三條邊。' }, { t: '丙', fb: '丙只到下邊、左邊一樣遠，離斜邊比較近。' }], onAnswer: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'angle-bisector' }); } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 4 題');
     },
     /* 7. 完成 */

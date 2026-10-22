@@ -5,18 +5,19 @@
 
   /* ---------------------------------------------------------------- 展開圖場景 */
   function NetScene(host, o) {
-    o = o || {}; this.sc = PS.scene(host, { scale: 80, aspect: o.aspect || 1.5, maxH: o.maxH || 190, yaw: -0.4, pitch: 0.85 }); this.net = null; this.t = 0; this.labels = o.labels !== false;
+    o = o || {}; this.sc = PS.scene(host, { fitR: 2, twoCol: !!(o.aspect && o.aspect < 1.3), yaw: -0.4, pitch: 0.85 }); this.net = null; this.t = 0; this.labels = o.labels !== false;
   }
   NetScene.prototype = {
-    setNet: function (net, colors) {
-      this.net = net; this.colors = colors || null; var self = this;
-      function rad(t) { var R = 0, c = self.centerAt(t); net.all(t).forEach(function (F) { F.forEach(function (p) { R = Math.max(R, V3.len(V3.sub(p, c))); }); }); return R; }
-      this.sFlat = Math.min(100 / Math.max(rad(0), 0.5), 110); this.sFold = Math.min(74 / Math.max(rad(1), 0.5), 120); this.setT(0);
-    },
+    setNet: function (net, colors) { this.net = net; this.colors = colors || null; this.setT(0); },
     centerAt: function (t) { var mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9]; this.net.all(t).forEach(function (F) { F.forEach(function (p) { for (var i = 0; i < 3; i++) { mn[i] = Math.min(mn[i], p[i]); mx[i] = Math.max(mx[i], p[i]); } }); }); return [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2]; },
     setT: function (t) {
-      var net = this.net, self = this; this.t = t; this.sc.center = this.centerAt(t); this.sc.scale = this.sFlat + (this.sFold - this.sFlat) * Math.max(0, Math.min(1, t)); this.sc.k = this.sc.scale * Math.min(1, this.sc.cw / 330);
-      this.sc.faces = net.all(t).map(function (pts, i) { var f = net.faces[i]; return { pts: pts, fill: f.color || (self.colors ? self.colors[i % self.colors.length] : CUBECOL[i % 6]), alpha: 0.88, stroke: '#122548', lw: 1.6, label: self.labels && f.label ? f.label : '', labelSize: 18, double: true }; });
+      var net = this.net, self = this, F = net.all(t), mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9]; this.t = t;
+      F.forEach(function (pts) { pts.forEach(function (p) { for (var i = 0; i < 3; i++) { mn[i] = Math.min(mn[i], p[i]); mx[i] = Math.max(mx[i], p[i]); } }); });
+      var c = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2], R = 0.3; F.forEach(function (pts) { pts.forEach(function (p) { R = Math.max(R, V3.len(V3.sub(p, c))); }); });
+      this.sc.center = c; this.sc.fit(R);
+      this.sc.faces = F.map(function (pts, i) { var f = net.faces[i]; return { pts: pts, fill: f.color || (self.colors ? self.colors[i % self.colors.length] : CUBECOL[i % 6]), alpha: 0.88, stroke: '#122548', lw: 1.6, label: self.labels && f.label ? f.label : '', labelSize: 18, double: true }; });
+      /* 摺線：每個面和它的父面共用的那條邊（虛線，跟著摺）。面太多（圓柱、圓錐）就不畫 */
+      this.sc.lines = net.n <= 8 ? net.faces.map(function (f, i) { var hg = net.hinge(i, t); return hg ? { a: hg[0], b: hg[1], color: '#d6336c', w: 3, dash: [6, 4], bias: 4 } : null; }).filter(Boolean) : [];
       this.sc.invalidate();
     },
     /* 彈簧摺到 t1 */
@@ -76,17 +77,17 @@
       var sl = P.slider(0, 100, 0, function (v) { ns.setT(v / 100); var t = v / 100; pr.textContent = t < 0.02 ? '攤平' : t > 0.98 ? '摺好了！' : '摺到 ' + Math.round(v) + '%'; pr.className = 'pl-pill' + (t > 0.98 ? ' is-ok' : ''); if (t > 0.98 && !done) { done = true; P.track('aha', { id: 'solid-nets', step: 1 }); st.append(P.ruleBox('展開圖的 <b>6 個正方形</b>，摺起來剛好變成正方體的 <b>6 個面</b>。<br>數字相同的面，攤平和摺起來是同一面（可以拖動轉轉看）。', '名稱')); api.unlock('摺成正方體了！'); } });
       sl.addEventListener('change', function () { if (+sl.value > 90 && +sl.value < 100) { sl.value = 100; sl.dispatchEvent(new Event('input')); } });
       api.solve(function () { sl.value = 100; sl.dispatchEvent(new Event('input')); });
-      st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤平'), h('span', {}, '摺起來 →')), ro, P.hint('也可以用手指拖動畫面，轉到不同角度看。')); api.lock('把滑桿拉到最右邊');
+      st.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤平'), h('span', {}, '摺起來 →')), ro, P.hint('數字是面的編號，粉紅虛線是摺線。也可以用手指拖動畫面，轉到不同角度看。')); api.lock('把滑桿拉到最右邊');
     },
     /* 2 能摺還是不能摺 */
     function (st, api) {
-      st.append(h('div', { class: 'pl-label' }, '能不能摺成正方體？'), P.instr('每個都由 <b>6 個正方形</b>連成。先<b>猜</b>能不能摺成正方體，再看它怎麼摺。'));
+      st.append(h('div', { class: 'pl-label' }, '能不能摺成正方體？'), P.instr('每個都由 <b>6 個正方形</b>連成。先<b>猜</b>能不能摺成正方體，再看它怎麼摺。數字是面的編號，粉紅虛線是<b>摺線</b>。'));
       var info = hexInfo(), seq = PS.shuffle(PS.shuffle(info.valid).slice(0, 4).map(function (c) { return { c: c, ok: true }; }).concat(PS.shuffle(info.bad).slice(0, 3).map(function (c) { return { c: c, ok: false }; }))), i = 0, right = 0, tried = 0, locked = false;
-      var row = PS.stage(st), left = h('div', { class: 'ps-col ps-netcol' }); row.append(left); var ns = new NetScene(row, { aspect: 1.15, maxH: Math.max(130, Math.min(170, window.innerHeight - 600)), labels: false });
+      var row = PS.stage(st), left = h('div', { class: 'ps-col ps-netcol' }); row.append(left); var ns = new NetScene(row, { aspect: 1.15, maxH: Math.max(130, Math.min(170, window.innerHeight - 600)) });
       var pr = P.pill('', ''), pc = P.pill('', 'is-blue'), ro = h('div', { class: 'pl-readout' }, pr, pc);
       var br = PS.btnRow(st, [{ k: 'y', t: '✓ 能摺', cls: 'is-green', fn: function () { judge(true); } }, { k: 'n', t: '✗ 不能摺', cls: 'is-pink', fn: function () { judge(false); } }, { k: 'next', t: '下一個 ▶', fn: function () { next(); } }]);
       br.b.next.style.display = 'none';
-      function load() { var q = seq[i % seq.length]; left.innerHTML = ''; left.append(PS.netSvg(q.c, { u: 24 })); ns.setNet(PS.cubeNet(q.c), null); locked = false; br.b.y.disabled = br.b.n.disabled = false; br.b.next.style.display = 'none'; pr.className = 'pl-pill'; pr.textContent = '第 ' + (i + 1) + ' 個：你覺得呢？'; pc.textContent = '答對 ' + right + ' / ' + tried; }
+      function load() { var q = seq[i % seq.length]; left.innerHTML = ''; left.append(PS.netSvg(q.c, { u: 24, numbers: true })); ns.setNet(PS.cubeNet(q.c), null); locked = false; br.b.y.disabled = br.b.n.disabled = false; br.b.next.style.display = 'none'; pr.className = 'pl-pill'; pr.textContent = '第 ' + (i + 1) + ' 個：你覺得呢？'; pc.textContent = '答對 ' + right + ' / ' + tried; }
       function judge(says) {
         if (locked) return; locked = true; var q = seq[i % seq.length], ok = says === q.ok; tried++; if (ok) right++; br.b.y.disabled = br.b.n.disabled = true;
         pr.className = 'pl-pill ' + (ok ? 'is-ok' : 'is-pink'); pr.textContent = (ok ? '✓ 答對了：' : '✗ 答錯了：') + (q.ok ? '它能摺成正方體' : '它摺不成正方體（紅色的兩個面疊在一起）'); pc.textContent = '答對 ' + right + ' / ' + tried;
@@ -100,7 +101,7 @@
     /* 3 11 種 */
     function (st, api) {
       st.append(h('div', { class: 'pl-label' }, '正方體的展開圖'), P.instr('6 個正方形連起來共有 35 種，其中<b>只有 11 種</b>能摺成正方體。把 11 種都<b>點開看一遍</b>。'));
-      var info = hexInfo(), V = info.valid, seen = {}, n = 0, cur = 0, ns = new NetScene(st, { aspect: 1.9, maxH: Math.max(130, Math.min(170, window.innerHeight - 590)), labels: false });
+      var info = hexInfo(), V = info.valid, seen = {}, n = 0, cur = 0, ns = new NetScene(st, { aspect: 1.9, maxH: Math.max(130, Math.min(170, window.innerHeight - 590)) });
       var pr = P.pill('已看 0 / 11', 'is-blue'), pg = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pr, pg), pick = h('div', { class: 'ps-netpick' }), btns = [];
       V.forEach(function (c, k) { var b = h('button', { type: 'button', 'aria-label': '第 ' + (k + 1) + ' 種' }); b.append(PS.netSvg(c, { u: 9 })); b.addEventListener('click', function () { show(k); }); btns.push(b); pick.append(b); });
       function show(k) {
@@ -110,7 +111,7 @@
         if (n >= 11 && !st.querySelector('.pl-rule')) { var g4 = V.filter(function (x) { return info.run(x) === 4; }).length, g3 = V.filter(function (x) { return info.run(x) === 3; }).length, g2 = V.length - g4 - g3; P.track('aha', { id: 'solid-nets', step: 3 }); st.append(P.ruleBox('正方體的展開圖<b>共 11 種</b>：<b>一排 4 個</b>的 ' + g4 + ' 種、<b>最長一排 3 個</b>的 ' + g3 + ' 種、<b>階梯形</b>的 ' + g2 + ' 種。', '共 11 種')); api.unlock('11 種都看過了！'); }
       }
       api.solve(function () { V.forEach(function (c, k) { if (!seen[k]) show(k); }); });
-      st.append(pick, ro, P.hint('點一個縮圖，看它怎麼摺；綠色＝已看過。')); show(0); api.lock('把 11 種都點開看過');
+      st.append(pick, ro, P.hint('點一個縮圖，看它怎麼摺；數字＝面的編號、粉紅虛線＝摺線；綠色＝已看過。')); show(0); api.lock('把 11 種都點開看過');
     },
     /* 4 柱體與錐體 */
     function (st, api) {
@@ -131,14 +132,15 @@
     function (st, api) {
       var gate = { on: true };
       P.choice(st, api, { id: 'sn-p5', predict: true, label: '先猜猜看', prompt: '螞蟻從 <b>A</b> 爬到對角的 <b>G</b>。沿著稜走要 3 格。<b>爬過面</b>能更短嗎？', row: true, options: [{ t: '3 格最短' }, { t: '可以更短' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('調整路線，再把上面攤平'); } });
-      var sc = PS.scene(st, { scale: 76, aspect: 1.6, maxH: Math.max(140, Math.min(200, window.innerHeight - 580)), yaw: -0.55, pitch: 0.5, center: [0, 0.4, 0] });
+      var sc = PS.scene(st, { fitR: 1.75, yaw: -0.55, pitch: 0.5, center: [0, 0.4, 0] });
       var t = 0.2, psi = 0, done = false, A = [-.5, -.5, .5], G = [.5, .5, -.5], hinge = [0, .5, .5];
       var CF = D.cubeFaces(-.5, -.5, -.5, 1, '#fff'), cols = ['#9db7ee', '#f3a6c3', '#9ad9b3', '#f0d58b', '#c5b0ef', '#f4b78e'];
       function draw() {
         var X = [-.5 + t, .5, .5], rot = function (p) { var o = [p[0] - hinge[0], p[1] - hinge[1], p[2] - hinge[2]], r = D.rotAxis(o, [1, 0, 0], psi * PI / 180); return [r[0] + hinge[0], r[1] + hinge[1], r[2] + hinge[2]]; };
         sc.faces = CF.map(function (f, i) { var top = i === 4; return { pts: top ? f.pts.map(rot) : f.pts, fill: cols[i], alpha: top ? 0.62 : 0.3, stroke: '#122548', lw: 1.3, flat: true, double: true, nopick: true }; });
         var G2 = rot(G), len1 = Math.hypot(t, 1), len2 = Math.hypot(1 - t, 1), tot = len1 + len2;
-        sc.lines = [{ a: A, b: X, color: '#e8590c', w: 4.5, bias: 3 }, { a: X, b: G2, color: '#e8590c', w: 4.5, bias: 3 }];
+        sc.lines = [{ a: A, b: X, color: '#e8590c', w: 4.5, bias: 3 }, { a: X, b: G2, color: '#e8590c', w: 4.5, bias: 3 }, { a: [-.5, .5, .5], b: [.5, .5, .5], color: '#d6336c', w: 3, dash: [6, 4], bias: 4 }];
+        sc.texts = [{ p: [0, -0.05, .5], t: '前面', color: '#122548', size: 14, halo: true, top: true }, { p: rot([0, .5, -.05]), t: '上面', color: '#122548', size: 14, halo: true, top: true }, { p: [0, .5, .5], t: '摺線', color: '#d6336c', size: 13, dy: 13, halo: true, top: true }];
         sc.dots = [{ p: A, r: 6, color: '#122548', label: 'A', dy: 16 }, { p: G2, r: 6, color: '#122548', label: 'G', dy: -14 }, { p: X, r: 5, color: '#e8590c' }];
         sc.invalidate(); var straight = psi > 88 && Math.abs(t - 0.5) < 0.001;
         pl.textContent = '全長 ＝ ' + (Math.round(tot * 100) / 100) + '（沿稜走是 3）'; pl.className = 'pl-pill ' + (tot < 2.3 ? 'is-ok' : '');
@@ -174,7 +176,7 @@
           var sl = P.slider(0, 100, 0, function (v) { ns.setT(v / 100); }); box.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← 攤平'), h('span', {}, '摺起來 →')));
           P.choice(box, {}, { id: 'sn-t3', prompt: '把圓柱的側面剪開攤平成<b>長方形</b>。長方形的<b>長邊</b>等於底圓的什麼？', row: true, options: [{ t: '直徑', fb: '直徑是 2r，不是繞一圈的長度。' }, { t: '周長', ok: true, fb: '對！側面繞底圓一圈，所以長邊＝底圓周長 2πr。' }, { t: '面積', fb: '長度不是面積喔。' }], onAnswer: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-nets' }); } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 7 完成 */

@@ -34,7 +34,7 @@ ENTRIES = [
               '<g stroke="#122548" stroke-width="3" stroke-linejoin="round"><polygon points="215,110 245,110 245,85 215,85" fill="rgba(47,111,220,.3)"/><polygon points="245,110 275,95 275,70 245,85" fill="rgba(214,51,108,.3)"/></g></svg>')),
     dict(slug='solid-views', title='各種角度觀察', grade='國中', area='立體幾何', mins='約 9 分鐘',
          blurb='從前、上、右三個方向看積木堆，認識三視圖；再用視圖搭出積木，還要找出只看兩個視圖時最少與最多要幾塊。',
-         see='可拖動的 3D 積木、前上右視角一鍵切換、由三視圖搭積木、最少最多推理', deep='最少最多的系統解法、等角投影、影子與光源、由截面還原立體', classes='J71S／J91S／PK3C',
+         see='可拖動的 3D 積木（標有前後左右）、前上右視角一鍵切換、由三視圖搭積木（可放可拿）、最少最多推理、14 題基礎與挑戰題', deep='最少最多的系統解法、等角投影、影子與光源、由截面還原立體', classes='J71S／J91S／PK3C',
          desc='從三個方向觀察積木堆，認識三視圖，由視圖搭出積木，並推理最少與最多塊數——國中立體幾何互動單元。',
          art=('<svg viewBox="0 0 320 130" aria-hidden="true"><g stroke="#122548" stroke-width="2.5" stroke-linejoin="round"><polygon points="40,70 70,70 70,100 40,100" fill="rgba(47,111,220,.35)"/><polygon points="70,70 100,70 100,100 70,100" fill="rgba(47,111,220,.35)"/><polygon points="40,40 70,40 70,70 40,70" fill="rgba(47,111,220,.55)"/>'
               '<polygon points="140,70 170,70 170,100 140,100" fill="rgba(47,111,220,.35)"/><polygon points="140,40 170,40 170,70 140,70" fill="rgba(47,111,220,.35)"/><polygon points="230,70 260,70 260,100 230,100" fill="rgba(47,111,220,.35)"/><polygon points="260,70 290,70 290,100 260,100" fill="rgba(47,111,220,.35)"/></g>'
@@ -59,5 +59,5 @@ SOON = [
 ]
 
 for _e in ENTRIES:
-    _e['libs'] = LIBS
+    _e['libs'] = LIBS + (['assets/play/solid-views-bank.js'] if _e['slug'] == 'solid-views' else [])
     _e['css'] = CSS

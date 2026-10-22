@@ -62,7 +62,7 @@
         for (var i = 0; i < n; i++) { (function (i) { var g = sv('g', { class: 'pc-tap' }); g.addEventListener('click', function () { if (gate.on) { P.toast('先做上面的預測'); return; } state[i] = 1 - state[i]; draw(); }); g.append(sv('circle', { cx: x0 + i * gap, cy: 44, r: 20, fill: state[i] ? '#ffd84d' : '#e3dccd', stroke: '#6d6250', 'stroke-width': 2.5 }), PC.text(x0 + i * gap, 44, state[i] ? '亮' : '暗', 13, state[i] ? '' : 'pm-ghost')); svg.append(g); })(i); }
         var items = []; for (var j = 0; j < n; j++) items.push({ n: 2, label: '第 ' + (j + 1) + ' 燈' }); bx.set(items, undefined);
         var total = Math.pow(2, n); bx.el.lastChild.textContent = String(total); pill.textContent = '信號 ' + state.slice(0, n).join('') + (val() === 0 ? '：全暗，不算' : '');
-        cap.innerHTML = n + ' 個燈泡：2 ^ ' + n + ' ＝ ' + total + ' 種，扣掉全暗 1 種 ＝ <b>' + (total - 1) + ' 種信號</b>';
+        cap.innerHTML = n + ' 個燈泡：2' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(n) + ' ＝ ' + total + ' 種，扣掉全暗 1 種 ＝ <b>' + (total - 1) + ' 種信號</b>';
         if (n === 6 && !reached && !gate.on) { reached = true; P.track('aha', { id: 'count-multiply', step: 3 }); st.append(P.ruleBox('每個燈泡「亮、暗」2 選 1，6 個燈泡連乘：<b>2⁶ ＝ 64</b>。<br>其中「全暗」不算信號，所以是 <b>64 − 1 ＝ 63 種</b>。', '乘法原理')); P.toast(api.ctx.p3 === 2 ? '你猜對了！63 種' : '63 種'); api.unlock('2 的 6 次方，扣掉 1！'); }
       }
       var stp = P.stepper('燈泡數', 2, 6, 2, function (v) { if (gate.on) { stp.set(2, true); return; } n = v; draw(); }, function (v) { return v + ' 個'; });
@@ -79,9 +79,9 @@
         list.innerHTML = ''; var items = [], i, total = Math.pow(nP, nC);
         for (i = 1; i <= nC; i++) items.push({ n: nP, label: '糖果 ' + i, cls: 'is-pink' }); bx.set(items); bx.el.lastChild.textContent = String(total);
         var rec = function (pre) { if (pre.length === nC) { list.append(PC.chip(pre.join(''), 'is-amber')); return; } P_.slice(0, nP).forEach(function (p) { rec(pre.concat(p)); }); }; rec([]);
-        cap.innerHTML = nC + ' 顆糖各自決定給誰（每顆 ' + nP + ' 種）：' + nP + ' ^ ' + nC + ' ＝ <b>' + total + '</b><br><small>每個字依序是糖果 1、2…的主人</small>';
+        cap.innerHTML = nC + ' 顆糖各自決定給誰（每顆 ' + nP + ' 種）：' + nP + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(nC) + ' ＝ <b>' + total + '</b><br><small>每個字依序是糖果 1、2…的主人</small>';
         seen[nC + ',' + nP] = 1;
-        if (seen['2,3'] && seen['3,2'] && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-multiply', step: 4 }); st.append(P.ruleBox('每一顆糖都要分出去，所以<b>以糖果為主角</b>：每顆糖有「人數」種去處，連乘 → <b>人數 ^ 糖果數</b>。<br>5 種糖給 3 人：3⁵ ＝ <b>243</b>（不是 5³ ＝ 125）。看 2 顆糖給 3 人是 9，3 顆糖給 2 人是 8，不一樣！', '常見錯誤')); P.toast(api.ctx.p4 === 2 ? '你猜對了！243 種' : '3⁵ ＝ 243 種'); api.unlock('底數是人數，指數是糖果數！'); }
+        if (seen['2,3'] && seen['3,2'] && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'count-multiply', step: 4 }); st.append(P.ruleBox('每一顆糖都要分出去，所以<b>以糖果為主角</b>：每顆糖有「人數」種去處，連乘 → <b>人數<sup>糖果數</sup></b>。<br>5 種糖給 3 人：3⁵ ＝ <b>243</b>（不是 5³ ＝ 125）。看 2 顆糖給 3 人是 9，3 顆糖給 2 人是 8，不一樣！', '常見錯誤')); P.toast(api.ctx.p4 === 2 ? '你猜對了！243 種' : '3⁵ ＝ 243 種'); api.unlock('底數是人數，指數是糖果數！'); }
       }
       var sc = P.stepper('糖果', 1, 3, 2, function (v) { if (gate.on) { sc.set(2, true); return; } nC = v; draw(); }, function (v) { return v + ' 顆'; }), sp = P.stepper('人數', 2, 3, 2, function (v) { if (gate.on) { sp.set(2, true); return; } nP = v; draw(); }, function (v) { return v + ' 人'; });
       api.solve(function () { gate.on = false; nC = 2; nP = 3; sc.set(2, true); sp.set(3, true); draw(); nC = 3; nP = 2; sc.set(3, true); sp.set(2, true); draw(); });
@@ -93,7 +93,7 @@
       P.choice(st, api, { id: 'cm-p5', predict: true, label: '先猜猜看', prompt: '504 ＝ 2³ × 3² × 7。504 有幾個正因數？', row: true, options: [{ t: '12 個' }, { t: '24 個' }, { t: '504 個' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('組出 8 個不同因數'); } });
       var cur = P.pill('', 'is-blue'), btn = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '收集這個因數'), q = h('div', {}), rows = h('div', {});
       function val() { return Math.pow(2, ex[0]) * Math.pow(3, ex[1]) * Math.pow(7, ex[2]); }
-      function draw() { cur.textContent = '2^' + ex[0] + ' × 3^' + ex[1] + ' × 7^' + ex[2] + ' ＝ ' + val(); }
+      function draw() { cur.textContent = '2' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(ex[0]) + ' × 3' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(ex[1]) + ' × 7' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(ex[2]) + ' ＝ ' + val(); }
       function mk(i, lab, max) {
         var row = h('div', { class: 'pc-tabs pc-tabs--s' }, h('span', { class: 'pc-lab' }, lab));
         for (var v = 0; v <= max; v++) (function (v) { var b = h('button', { type: 'button', class: 'pc-tab pc-tab--s' + (v === 0 ? ' is-on' : '') }, String(v)); b.addEventListener('click', function () { if (gate.on) { P.toast('先做上面的預測'); return; } ex[i] = v; row.querySelectorAll('.pc-tab').forEach(function (x) { x.classList.toggle('is-on', x === b); }); draw(); }); row.append(b); })(v);
@@ -131,8 +131,8 @@
       }
       function draw() {
         badges.innerHTML = '';
-        if (paint.face !== undefined) regs.forEach(function (r) { if (r.id !== 'face') { var t = PC.text(r.bx, r.by, '4 種', 11, 'pm-amber'); if (paint[r.id] === undefined) badges.append(t); } });
-        if (Object.keys(paint).length === 7 && !shown) { shown = true; var items = [{ n: 5, label: '臉', cls: 'is-blue' }]; for (var i = 0; i < 6; i++) items.push({ n: 4, label: ['角', '左耳', '右耳', '左眼', '右眼', '嘴'][i] }); pal.style.display = 'none'; cap.style.display = 'none'; svg.style.maxHeight = '140px'; var bb = PC.boxes(q, items, { result: false }); bb.el.classList.add('pc-boxes--tight'); q.append(bb.el, h('div', { class: 'pc-note', html: '臉 5 種，其餘 6 個區域各 4 種（只要和臉不同色）' })); P.numBox(q, { answer: 20480, okMsg: '對！5 × 4⁶ ＝ 5 × 4096 ＝ 20480。', onOk: function () { P.track('aha', { id: 'count-multiply', step: 6 }); st.append(P.ruleBox('塗色要先塗<b>鄰居最多</b>的區域（臉）：它有 5 種；其他 6 個區域只需要「和臉不同色」，各 <b>4 種</b>，彼此不相鄰。<br><b>5 × 4⁶ ＝ 20480</b>。', '塗色')); P.toast(api.ctx.p6 === 1 ? '你猜對了！先塗臉' : '先塗臉最好'); api.unlock('先塗鄰居最多的！'); }, wrong: function (v) { return v === 5 * 4 * 6 ? '4 要連乘 6 次：4⁶ ＝ 4096。' : '提示：臉 5 種，其餘 6 個區域各 4 種，連乘。'; } }); } }
+        if (paint.face !== undefined) regs.forEach(function (r) { if (r.id !== 'face') { var t = PC.text(r.bx, r.by, '4 種', 12, 'pm-amber'); if (paint[r.id] === undefined) badges.append(t); } });
+        if (Object.keys(paint).length === 7 && !shown) { shown = true; var items = [{ n: 5, label: '臉', cls: 'is-blue' }]; for (var i = 0; i < 6; i++) items.push({ n: 4, label: ['角', '左耳', '右耳', '左眼', '右眼', '嘴'][i] }); pal.style.display = 'none'; cap.style.display = 'none'; PC.shrink(svg, 140); var bb = PC.boxes(q, items, { result: false }); bb.el.classList.add('pc-boxes--tight'); q.append(bb.el, h('div', { class: 'pc-note', html: '臉 5 種，其餘 6 個區域各 4 種（只要和臉不同色）' })); P.numBox(q, { answer: 20480, okMsg: '對！5 × 4⁶ ＝ 5 × 4096 ＝ 20480。', onOk: function () { P.track('aha', { id: 'count-multiply', step: 6 }); st.append(P.ruleBox('塗色要先塗<b>鄰居最多</b>的區域（臉）：它有 5 種；其他 6 個區域只需要「和臉不同色」，各 <b>4 種</b>，彼此不相鄰。<br><b>5 × 4⁶ ＝ 20480</b>。', '塗色')); P.toast(api.ctx.p6 === 1 ? '你猜對了！先塗臉' : '先塗臉最好'); api.unlock('先塗鄰居最多的！'); }, wrong: function (v) { return v === 5 * 4 * 6 ? '4 要連乘 6 次：4⁶ ＝ 4096。' : '提示：臉 5 種，其餘 6 個區域各 4 種，連乘。'; } }); } }
       COLS.forEach(function (c, i) { var b = h('button', { type: 'button', class: 'pc-tab', style: { background: c, color: '#fff', borderColor: c } }, COLN[i]); b.addEventListener('click', function () { brush = i; pal.querySelectorAll('.pc-tab').forEach(function (x, k) { x.style.outline = k === i ? '3px solid #122548' : 'none'; }); }); pal.append(b); });
       pal.firstChild.style.outline = '3px solid #122548';
       api.solve(function () { gate.on = false; regs.forEach(function (r) { if (paint[r.id] === undefined) { brush = r.id === 'face' ? 0 : 1 + (paint.face === 1 ? 1 : 0); tap(r); } }); });
@@ -143,14 +143,14 @@
       PC.quiz(st, api, 'count-multiply', [
         function (box, done) { routeSvg(PC.stage(box), [3, 4, 2], null); PC.num(box, 'A 到 B 有 3 條路，B 到 C 有 4 條，C 到 D 有 2 條。每段都必須走，A 到 D 共有幾種走法？', 24, done, '對！3 × 4 × 2 ＝ 24（每一段都要走 → 連乘）。', function (v) { return v === 9 ? '3 ＋ 4 ＋ 2 ＝ 9 是把三段「二選一」；這裡每段都要走，應該連乘。' : '提示：每一段都是一個選項盒子，連乘。'; }); },
         function (box, done) {
-          var host = PC.stage(box), svg = PC.svg(host, 320, 150, 'pl-svg--sm'), pos = [[160, 70], [160, 22], [62, 112], [258, 112]], names = ['中心', '①', '②', '③'], col = [-1, -1, -1, -1], BC = ['#2f6fdc', '#d6336c', '#1f9d55', '#d29b1f'];
+          var host = PC.stage(box), svg = PC.svg(host, 320, 150, 'pl-svg--sm'), pos = [[160, 82], [160, 22], [60, 118], [260, 118]], names = ['中心', '①', '②', '③'], col = [-1, -1, -1, -1], BC = ['#2f6fdc', '#d6336c', '#1f9d55', '#d29b1f'];
           [1, 2, 3].forEach(function (i) { svg.append(sv('line', { x1: pos[0][0], y1: pos[0][1], x2: pos[i][0], y2: pos[i][1], class: 'pl-line pl-line--soft' })); });
-          pos.forEach(function (p, i) { var g = sv('g', { class: 'pc-tap' }), c = sv('circle', { cx: p[0], cy: p[1], r: i ? 22 : 28, fill: '#fff', stroke: '#122548', 'stroke-width': 2.5 }); g.append(c, PC.text(p[0], p[1], names[i], 13)); g.addEventListener('click', function () { col[i] = (col[i] + 1) % 4; c.setAttribute('fill', BC[col[i]]); c.setAttribute('fill-opacity', 0.55); }); svg.append(g); });
+          pos.forEach(function (p, i) { var g = sv('g', { class: 'pc-tap' }), c = sv('circle', { cx: p[0], cy: p[1], r: i ? 19 : 26, fill: '#fff', stroke: '#122548', 'stroke-width': 2.5 }); g.append(c, PC.text(p[0], p[1], names[i], 13)); g.addEventListener('click', function () { col[i] = (col[i] + 1) % 4; c.setAttribute('fill', BC[col[i]]); c.setAttribute('fill-opacity', 0.55); }); svg.append(g); });
           PC.num(box, '中心區域和 ①②③ 三個區域都相鄰，①②③ 彼此不相鄰。用 4 種顏色（可重複使用），相鄰不同色，共有幾種塗法？（點圓圈可以試塗）', 108, done, '對！先塗中心 4 種，①②③ 各剩 3 種：4 × 3 × 3 × 3 ＝ 108。', function (v) { return v === 4 * 3 * 2 * 1 ? '①②③ 彼此不相鄰，可以重複用同一種顏色，各有 3 種。' : '提示：先塗鄰居最多的中心。'; });
         },
         function (box, done) {
           var host = PC.stage(box), svg = PC.svg(host, 320, 100, 'pl-svg--sm'), st6 = [0, 0, 0, 0, 0, 0], cnt = h('div', { class: 'pl-readout' }), pill = P.pill('', 'is-green'); cnt.append(pill); var seen = {};
-          function draw() { svg.innerHTML = ''; for (var i = 0; i < 6; i++) { (function (i) { var g = sv('g', { class: 'pc-tap' }); g.addEventListener('click', function () { st6[i] = 1 - st6[i]; seen[st6.join('')] = 1; draw(); }); g.append(sv('circle', { cx: 36 + i * 50, cy: 40, r: 20, fill: st6[i] ? '#e6f6ec' : '#ffe8f0', stroke: st6[i] ? '#1f9d55' : '#d6336c', 'stroke-width': 2.5 }), PC.text(36 + i * 50, 40, st6[i] ? '○' : '✕', 18), PC.text(36 + i * 50, 80, '第' + (i + 1) + '題', 11, 'pm-ghost')); svg.append(g); })(i); } pill.textContent = '你寫過 ' + Object.keys(seen).length + ' 種答案卷'; }
+          function draw() { svg.innerHTML = ''; for (var i = 0; i < 6; i++) { (function (i) { var g = sv('g', { class: 'pc-tap' }); g.addEventListener('click', function () { st6[i] = 1 - st6[i]; seen[st6.join('')] = 1; draw(); }); g.append(sv('circle', { cx: 36 + i * 50, cy: 40, r: 20, fill: st6[i] ? '#e6f6ec' : '#ffe8f0', stroke: st6[i] ? '#1f9d55' : '#d6336c', 'stroke-width': 2.5 }), PC.text(36 + i * 50, 40, st6[i] ? '○' : '✕', 18), PC.text(36 + i * 50, 80, '第' + (i + 1) + '題', 12, 'pm-ghost')); svg.append(g); })(i); } pill.textContent = '你寫過 ' + Object.keys(seen).length + ' 種答案卷'; }
           draw(); box.append(cnt);
           PC.num(box, '6 題是非題，每題只能填 ○ 或 ✕。（點圓圈試填）不同的答案卷共有幾種？', 64, done, '對！每題 2 種，連乘：2⁶ ＝ 64。', function () { return '提示：每題 2 種選擇，6 題連乘。'; });
         }]);

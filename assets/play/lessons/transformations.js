@@ -137,7 +137,7 @@
           P.numBox(box, { answer: 4, okMsg: '對！旋轉 90°：(x, y) → (−y, x)，所以 (4, 1) → (−1, 4)。', onOk: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'transformations' }); }, wrong: function () { return '提示：按 ＋ 轉 90°，看看粉紅點的座標。'; } });
         }
       ];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 4 題');
     },
     /* 5 完成 */

@@ -18,10 +18,23 @@
   /* ---------------------------------------------------------------- 場景 */
   PS.scene = function (host, o) {
     o = o || {};
-    var mh = o.maxH || Math.max(170, Math.min(300, window.innerHeight - 450));
-    var cfg = { aspect: o.aspect || 1.3, maxH: mh, scale: o.scale || 80, yaw: o.yaw === undefined ? -0.6 : o.yaw, pitch: o.pitch === undefined ? 0.45 : o.pitch, cull: !!o.cull, center: o.center || [0, 0, 0], persp: o.persp || 0, drag: o.drag, lockPitch: o.lockPitch, scroll: o.scroll, label: o.label };
-    ['onTap', 'onDrag', 'onDragStart', 'onDragEnd'].forEach(function (k) { if (o[k]) cfg[k] = o[k]; });
-    var sc = new D.Scene(host, cfg); sc.onDragEnd = o.onDragEnd; (PS.scenes = PS.scenes || []).push(sc); if (PS.scenes.length > 8) PS.scenes.shift(); return sc;
+    /* 自動合適大小：fitR＝物件以 center 為中心的外接半徑（世界座標）。畫布高度由引擎依螢幕決定（電腦 340–420、手機 250–320），twoCol＝與別的畫布並排（較矮） */
+    var sc, cfg = { aspect: o.twoCol ? 1 : 0.7, maxH: 0, autoH: true, autoFit: true, hFrac: o.hFrac || 1, fitR: o.fitR || 1.2, yaw: o.yaw === undefined ? -0.6 : o.yaw, pitch: o.pitch === undefined ? 0.45 : o.pitch, cull: !!o.cull, center: o.center || [0, 0, 0], persp: o.persp || 0, drag: o.drag, lockPitch: o.lockPitch, scroll: o.scroll, label: o.label };
+    ['onTap', 'onDrag', 'onHover', 'onDragEnd'].forEach(function (k) { if (o[k]) cfg[k] = o[k]; });
+    cfg.onDragStart = function (pos, e) { sc._camTok = (sc._camTok || 0) + 1; return o.onDragStart ? o.onDragStart(pos, e) : undefined; };
+    sc = new D.Scene(host, cfg); sc.onDragEnd = o.onDragEnd; (PS.scenes = PS.scenes || []).push(sc); if (PS.scenes.length > 10) PS.scenes.shift(); return sc;
+  };
+  var REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* 鏡頭平順轉到指定視角（連續可見）。期間若使用者拖動或又按別的視角，會接手；done 只在轉完時呼叫 */
+  PS.camTo = function (sc, yaw, pitch, done, ms) {
+    var tok = sc._camTok = (sc._camTok || 0) + 1; sc.vx = sc.vy = 0;
+    if (REDUCE && !PS.forceMotion) { sc.yaw = yaw; sc.pitch = pitch; sc.invalidate(); if (done) done(); return; }
+    var TWO = Math.PI * 2, dy = (((yaw - sc.yaw) % TWO) + TWO + Math.PI) % TWO - Math.PI, y0 = sc.yaw, p0 = sc.pitch, t = 0, dur = ms || 1200;
+    P.run(function (dt) {
+      if (sc._camTok !== tok) return false; t += dt * 1000; var u = Math.min(1, t / dur), e = P.ease.inOut(u);
+      sc.yaw = y0 + dy * e; sc.pitch = p0 + (pitch - p0) * e; sc.invalidate();
+      if (u >= 1) { if (done) done(); return false; }
+    });
   };
   /* 彈簧：減少動態（prefers-reduced-motion）時 Play.Spring 會直接跳到終點、不會呼叫 onRest，這裡補上 */
   PS.spring = function (x0, o) {
@@ -115,11 +128,11 @@
   };
   PS.sameGrid = function (a, b) { return JSON.stringify(a) === JSON.stringify(b); };
   PS.viewSvg = function (g, o) {
-    o = o || {}; var rows = g.length, cols = g[0].length, u = o.u || 24, w = cols * u + 4, hh = rows * u + 4, svg = h('svg', { viewBox: '0 0 ' + w + ' ' + hh, class: 'ps-viewsvg', width: w, height: hh }), r, c;
+    o = o || {}; var rows = g.length, cols = g[0].length, u = 24, w = cols * u + 4, hh = rows * u + 4, svg = h('svg', { viewBox: '0 0 ' + w + ' ' + hh, class: 'ps-viewsvg' + (o.opt ? ' ps-viewsvg--opt' : '') }), r, c;
     for (r = 0; r < rows; r++) for (c = 0; c < cols; c++) svg.append(h('rect', { x: c * u + 2, y: r * u + 2, width: u, height: u, class: g[r][c] ? 'ps-vfill' : 'ps-vempty' }));
     return svg;
   };
-  PS.viewSvgHtml = function (g, u) { var d = h('div'); d.append(PS.viewSvg(g, { u: u || 14 })); return d.innerHTML; };
+  PS.viewSvgHtml = function (g) { var d = h('div'); d.append(PS.viewSvg(g, { opt: true })); return d.innerHTML; };
 
   /* ---------------------------------------------------------------- 展開圖模型 */
   /* faces: [{p:[[x,y],…] 2D 展開座標, parent:-1 或索引, a:[x,y], b:[x,y]（與父面共用的邊）, phi:摺角（弧度）, label, color}] */
@@ -137,6 +150,13 @@
     /* 摺到進度 t（0＝攤平，1＝摺好）時，第 i 面的 3D 頂點 */
     pts: function (i, t) {
       var f = this.faces[i], q = f.p.map(function (p) { return [p[0], p[1], 0]; }), cur = f;
+      while (cur && cur.parent >= 0) { var c2 = cur; q = q.map(function (v) { return rotLine(v, c2.a, c2.b, c2.s * c2.phi * t); }); cur = this.faces[cur.parent]; }
+      return q;
+    },
+    /* 第 i 面與父面共用的摺線（摺到進度 t 時的兩個 3D 端點）；根面回傳 null */
+    hinge: function (i, t) {
+      var f = this.faces[i]; if (f.parent < 0) return null;
+      var q = [[f.a[0], f.a[1], 0], [f.b[0], f.b[1], 0]], cur = this.faces[f.parent];
       while (cur && cur.parent >= 0) { var c2 = cur; q = q.map(function (v) { return rotLine(v, c2.a, c2.b, c2.s * c2.phi * t); }); cur = this.faces[cur.parent]; }
       return q;
     },
@@ -201,8 +221,81 @@
     o = o || {}; var u = o.u || 14, mx = Math.max.apply(null, cells.map(function (c) { return c[0]; })) + 1, my = Math.max.apply(null, cells.map(function (c) { return c[1]; })) + 1;
     var svg = h('svg', { viewBox: '0 0 ' + (mx * u + 4) + ' ' + (my * u + 4), width: mx * u + 4, height: my * u + 4, class: 'ps-netsvg' });
     cells.forEach(function (c, i) { svg.append(h('rect', { x: c[0] * u + 2, y: c[1] * u + 2, width: u, height: u, class: 'ps-netcell' })); });
+    if (o.numbers) { var nt = PS.cubeNet(cells); nt.faces.forEach(function (f) { var c = cells[f.cell], tx = h('text', { x: c[0] * u + 2 + u / 2, y: c[1] * u + 2 + u / 2 + 5, 'text-anchor': 'middle', 'font-size': Math.round(u * 0.6), 'font-weight': 800, fill: '#122548' }); tx.textContent = f.label; svg.append(tx); }); }
     return svg;
   };
+
+  /* ---------------------------------------------------------------- 方向標示（前／後／左／右、視角小標、軸） */
+  PS.DIRCOL = { front: '#c2255c', back: '#5a5140', left: '#1c6bd8', right: '#17803f' };
+  /* 方向標籤的動態處理（每次繪製前）：
+     1) 近的標籤（靠近觀看者）放在地板高度、遠的標籤抬高到外框上緣——積木最高只到上緣，所以遠的標籤不會被積木擋住；介於中間的平順過渡。
+     2) 兩個標籤在畫面上疊在一起（正對著看時前／後、左／右會重合）→ 只畫比較靠近觀看者的那一個。
+     這些都不影響 autoFit（fit 把標籤的上下兩端都算進去） */
+  PS.dirDedupe = function (sc) {
+    var prev = sc.onPreRender;
+    sc.onPreRender = function (c, s) {
+      if (prev) prev(c, s); var T = (s.extraTexts || []).filter(function (t) { return t.dir; }), i, j;
+      T.forEach(function (t) {
+        if (t.yLo === undefined) return;
+        var d = D.rotY([t.p[0] - t.c[0], 0, t.p[2] - t.c[1]], s.yaw)[2], k = Math.max(0, Math.min(1, (d + 0.4) / 0.8)); t.p[1] = t.yHi + (t.yLo - t.yHi) * k;
+      });
+      var q = T.map(function (t) { return { t: t, p: s.project(t.p), d: s.view(t.p)[2] }; });
+      q.forEach(function (a) { a.t.skip = false; });
+      for (i = 0; i < q.length; i++) for (j = i + 1; j < q.length; j++) { if (Math.abs(q[i].p[0] - q[j].p[0]) < 18 && Math.abs(q[i].p[1] - q[j].p[1]) < 18) { if (q[i].d < q[j].d) q[i].t.skip = true; else q[j].t.skip = true; } }
+    };
+  };
+  /* 四邊外框的「前／後／左／右」。box＝{x0,x1,z0,z1,y（地板高度）,lo（近處標籤高度，放在地板下方一點，側面看時才不會壓在積木上）,ly（遠處標籤高度＝外框上緣）}（x 向右、z 朝向觀看者＝前面，z1 是前邊）。
+     標籤是跟著積木轉的 3D 文字，永遠正面朝向螢幕、畫在最上層。 */
+  PS.dirLabels = function (sc, box, o) {
+    o = o || {}; var m = o.margin === undefined ? 0.6 : o.margin, yLo = box.lo !== undefined ? box.lo : (box.y || 0), yHi = box.ly !== undefined ? box.ly : yLo, cx = (box.x0 + box.x1) / 2, cz = (box.z0 + box.z1) / 2, sz = o.size || 16, C = PS.DIRCOL;
+    function T(x, z, t, col) { return { p: [x, yLo, z], p2: [x, yHi, z], c: [cx, cz], yLo: yLo, yHi: yHi, t: t, color: col, size: sz, halo: true, top: true, dir: true }; }
+    sc.extraTexts = (o.up ? [{ p: [cx, o.up, cz], t: '上', color: '#6b4a00', size: sz, halo: true, top: true }] : []).concat([
+      T(cx, box.z1 + m, '前', C.front), T(cx, box.z0 - m, '後', C.back), T(box.x0 - m, cz, '左', C.left), T(box.x1 + m, cz, '右', C.right)]);
+    PS.dirDedupe(sc); sc.invalidate();
+  };
+  /* 地板：畫在所有東西後面（不參與遮擋排序）。前邊用粉紅粗線標出 */
+  PS.floor = function (sc, box) {
+    var y = box.y || 0, P4 = [[box.x0, y, box.z1], [box.x1, y, box.z1], [box.x1, y, box.z0], [box.x0, y, box.z0]];
+    sc.onPreRender = function (c, s) {
+      var q = P4.map(function (p) { return s.project(p); }); c.save(); c.beginPath(); c.moveTo(q[0][0], q[0][1]); for (var i = 1; i < 4; i++) c.lineTo(q[i][0], q[i][1]); c.closePath(); c.fillStyle = 'rgba(236,225,196,.55)'; c.fill(); c.strokeStyle = 'rgba(160,130,70,.55)'; c.lineWidth = 1.4; c.stroke();
+      c.beginPath(); c.moveTo(q[0][0], q[0][1]); c.lineTo(q[1][0], q[1][1]); c.strokeStyle = PS.DIRCOL.front; c.lineWidth = 3.2; c.lineCap = 'round'; c.stroke(); c.restore();
+    };
+  };
+  /* 視角小標：轉到前視／上視／右視…時，在畫布左上角寫「從哪個方向看」。轉動中途不顯示 */
+  PS.viewTag = function (sc) {
+    sc.tagFn = function (s) {
+      var TWO = Math.PI * 2, y = ((s.yaw % TWO) + TWO) % TWO, p = s.pitch, e = 0.07;
+      if (p > Math.PI / 2 - e) return '從上面看（上視圖）';
+      if (Math.abs(p) > e) return '';
+      function near(a) { return Math.abs(((y - a + Math.PI) % TWO + TWO) % TWO - Math.PI) < e; }
+      if (near(0)) return '從前面看（前視圖）'; if (near(TWO - Math.PI / 2)) return '從右邊看（右視圖）'; if (near(Math.PI / 2)) return '從左邊看（左視圖）'; if (near(Math.PI)) return '從後面看（後視圖）';
+      return '';
+    };
+    sc.invalidate();
+  };
+  /* 座標軸（含箭頭與正負標示）：回傳 {lines, texts}。len＝軸半長 */
+  PS.axisSet = function (len, o) {
+    o = o || {}; var cols = ['#e03131', '#2b8a3e', '#1971c2'], nm = ['x', 'y', 'z'], lines = [], texts = [], sz = o.size || 15;
+    (o.only || [0, 1, 2]).forEach(function (a) {
+      var u = [0, 0, 0], v = [0, 0, 0], w = [0, 0, 0], T = V3.mul(u, len), hs = 0.3, hw = 0.11; u[a] = 1; v[(a + 1) % 3] = 1; w[(a + 2) % 3] = 1; T = V3.mul(u, len);
+      lines.push({ a: V3.mul(u, -len), b: T, color: cols[a], w: o.w || 2.5, bias: -2 });
+      [v, w].forEach(function (q) { [1, -1].forEach(function (sg) { lines.push({ a: T, b: V3.add(V3.sub(T, V3.mul(u, hs)), V3.mul(q, hw * sg)), color: cols[a], w: o.w || 2.5, bias: -2 }); }); });
+      texts.push({ p: V3.mul(u, len + 0.32), t: '+' + nm[a], color: cols[a], size: sz, halo: true, top: true, dir: true }, { p: V3.mul(u, -len - 0.32), t: '−' + nm[a], color: cols[a], size: sz - 2, halo: true, top: true, dir: true });
+    });
+    return { lines: lines, texts: texts };
+  };
+
+  /* ---------------------------------------------------------------- 視圖小圖（全單元共用大小：手機 92px、電腦 132px；由 CSS 變數 --vw 決定） */
+  PS.VIEWSUB = { front: '前視圖', top: '上視圖', right: '右視圖' };
+  PS.VIEWHINT = { front: '從前面看', top: '下方＝前', right: '左邊＝前' };
+  PS.viewFig = function (g, key, o) {
+    o = o || {}; var d = h('figure', { class: 'ps-vfig' + (o.cls ? ' ' + o.cls : '') });
+    d.append(PS.viewSvg(g, { u: 24 }), h('figcaption', {}, h('b', {}, o.name || PS.VIEWSUB[key] || key), o.hint === false ? null : h('small', {}, o.hint || PS.VIEWHINT[key] || '')));
+    return d;
+  };
+  PS.viewFigRow = function (host, items) { var row = h('div', { class: 'ps-viewrow ps-viewrow--figs' }); items.forEach(function (it) { row.append(PS.viewFig(it.g, it.k, it)); }); host.append(row); return row; };
+  /* 俯視格（每格的方塊數）的小圖：plan[r][c]，上＝後面 */
+  PS.planHtml = function (plan) { var d = h('div', { class: 'ps-plan' }); d.style.gridTemplateColumns = 'repeat(' + plan[0].length + ',1fr)'; plan.forEach(function (r) { r.forEach(function (v) { d.append(h('span', { 'data-n': v }, v ? String(v) : '')); }); }); var w = h('div'); w.append(d); return w.innerHTML; };
   PS.shuffle = function (a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
   PS.rand = function (n) { return Math.floor(Math.random() * n); };
 })();

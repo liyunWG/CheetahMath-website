@@ -49,3 +49,101 @@
 
 .ps-netcol{flex:0 0 128px;align-items:center;justify-content:center}
 .pl-caption{min-height:40px}
+
+/* ===== v2：視圖小圖放大、積木搭建版面、較大的操作元件 ===== */
+:root{--vw:92px;--vwo:80px}
+@media (min-width:900px){:root{--vw:132px;--vwo:108px}}
+.ps-viewsvg{width:var(--vw);height:auto;display:block}
+.ps-viewsvg--opt{width:var(--vwo)}
+.ps-viewrow{gap:14px;flex-wrap:wrap}
+.ps-viewbox{font-size:13px}
+.ps-build{display:flex;flex-direction:column;gap:8px}
+.ps-build>.pl-stage{flex:0 0 auto}
+.ps-gridcol{flex:0 0 auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ps-gridcol .ps-cellgrid{width:min(100%,204px)}
+.ps-cell{min-height:56px;font-size:22px;border-radius:10px}
+.ps-cell--static{min-height:50px;width:auto;font-size:19px}
+.ps-cellgrid--static{width:min(100%,168px)}
+@media (min-width:900px){
+  .ps-build{flex-direction:row;align-items:flex-start;gap:14px}
+  .ps-build>.pl-stage{flex:1 1 0;min-width:0}
+  .ps-gridcol{flex:0 0 232px;width:232px}
+  .ps-gridcol .ps-cellgrid{width:216px}
+  .ps-cell{min-height:66px;font-size:24px}
+}
+.ps-seg .pl-opt{min-height:44px}
+.ps-cap{font-size:13px}
+
+.ps-netpick button{min-height:46px}
+.ps-pills .pl-pill{font-size:14px}
+
+/* 手機文字不小於 12px（覆蓋核心的小標籤，只影響立體幾何頁） */
+.pl-rule__lb,.pl-sol__tag,.pl-teaser__lv,.pl-label,.pl-ruler__mk b{font-size:12px}
+.ps-seg small{font-size:12px!important}
+.pl-lesson .pl-stepper__b{width:44px;height:44px}
+/* 手機：並排的畫布改成上下排，每個畫布寬度占滿，才有足夠大小 */
+@media (max-width:700px){
+  .ps-row{flex-direction:column;align-items:stretch;gap:6px}
+  .ps-row>.ps-col,.ps-row>.pl-stage{flex:none;width:100%;min-width:0}
+  .ps-netcol{flex:none!important;width:100%!important}
+}
+
+/* ===== v3：視圖小圖共用大小（所有題目一致）、放／拿工具列、方向標示 ===== */
+.ps-viewrow--figs{display:flex;flex-wrap:wrap;gap:10px 14px;justify-content:center;align-items:flex-start;margin:6px 0}
+.ps-vfig{flex:none;width:var(--vw);margin:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ps-vfig .ps-viewsvg{width:100%;height:auto}
+.ps-vfig figcaption{display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.ps-vfig figcaption b{font-size:13px;font-weight:900;color:var(--navy)}
+.ps-vfig figcaption small{font-size:12px;font-weight:700;color:var(--muted)}
+.ps-plan{display:grid;gap:2px;width:var(--vwo);margin:0 auto}
+.ps-plan span{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;line-height:1;color:var(--navy);background:#fff;border:1px solid #cdbf9d;border-radius:4px}
+.ps-plan span[data-n="1"]{background:#e6efff}.ps-plan span[data-n="2"]{background:#cfe0ff}.ps-plan span[data-n="3"]{background:#b3ceff}
+.pl-opt .ps-viewsvg--opt{width:var(--vwo)}
+@media (min-width:900px){.ps-plan span{font-size:18px}}
+
+.ps-gridcol{gap:6px}
+.ps-gridcol .ps-cellgrid{width:168px;flex:none;margin:0 auto}
+.ps-gridcol .ps-cell{min-height:48px;font-size:22px}
+.ps-tools{order:-1;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:100%;max-width:none}
+.ps-modes{display:flex;gap:4px}
+.ps-tools .ps-btn{padding:4px 11px;min-height:44px;border-radius:14px;font-size:14px;width:auto;line-height:1.2;white-space:nowrap}
+.ps-tools .ps-btn.is-on{background:linear-gradient(135deg,#d9f4e3,#eefbf2);border-color:rgba(31,157,85,.8);color:var(--pl-green)}
+.ps-tools .ps-btn.is-on.ps-mode--del{background:linear-gradient(135deg,#ffe0ea,#fff1f5);border-color:rgba(214,51,108,.8);color:var(--pl-pink)}
+.ps-cellgrid.is-del .ps-cell{border-color:rgba(214,51,108,.6)}
+.ps-cap.is-warn{color:var(--pl-pink)}
+.ps-cell.is-shake{animation:ps-shk .3s}
+@keyframes ps-shk{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@media (min-width:900px){
+  .ps-gridcol .ps-cellgrid{width:216px}
+  .ps-gridcol .ps-cell{min-height:60px;font-size:24px}
+  .ps-tools{order:0;width:216px;max-width:216px;margin-top:4px}
+}
+.ps-seg--views{margin:6px 0 4px}
+.ps-seg--views .pl-opt{min-height:44px}
+.ps-prog{display:flex;gap:6px;justify-content:center;margin:4px 0 6px}
+.ps-prog i{width:22px;height:6px;border-radius:3px;background:#e6dfd0}
+.ps-prog i.on{background:var(--pl-green)}.ps-prog i.cur{background:var(--gold)}
+.ps-slot{min-height:calc(var(--vw) + 40px)}
+.ps-vfig.is-ok svg{outline:3px solid var(--pl-green);outline-offset:2px;border-radius:3px}
+.ps-vfig.is-ok figcaption b::after{content:' ✓';color:var(--pl-green)}
+.ps-qwrap{display:block}
+@media (min-width:900px){
+  .ps-qwrap{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+  .ps-qwrap .ps-qfig .ps-viewrow--figs{margin-top:14px}
+  .ps-qwrap--stack{display:block}
+  .ps-qwrap--stack .ps-qfig .ps-viewrow--figs{margin-top:6px}
+}
+.ps-ro{margin:2px 0 4px;min-height:30px}
+.ps-ro .pl-pill{padding:3px 12px}
+
+/* v4：手機（≤520px）搭積木版面——場景在左、3×3 俯視格在右（每格 44px 寬），放／拿／返回／清除一列在下，提示文字再下一行；三視圖小圖＋這一整組不用捲動就全在同一屏 */
+@media (max-width:520px){
+  .ps-build{display:grid;grid-template-columns:minmax(0,1fr) 138px;grid-template-areas:"sc gr" "tl tl" "cp cp";gap:6px 8px;align-items:start}
+  .ps-build>.pl-stage{grid-area:sc;min-width:0}
+  .ps-gridcol{display:contents}
+  .ps-gridcol .ps-cellgrid{grid-area:gr;width:138px;margin:0}
+  .ps-gridcol .ps-cell{min-height:48px;font-size:20px;border-radius:8px}
+  .ps-tools{grid-area:tl}
+  .ps-gridcol .ps-cap{grid-area:cp;text-align:center;margin:0;min-height:18px}
+  .ps-ro{margin:0 0 4px}
+}

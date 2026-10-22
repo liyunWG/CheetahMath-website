@@ -120,7 +120,8 @@
     handle: function (opts) {
       var self = this, r = opts.r || 0.46;
       var ring = h('circle', { r: 0.5, class: 'pl-ring', cx: 0, cy: 0 }); ring.style.opacity = 0;
-      var g = h('g', { class: 'pl-handle' + (opts.cls ? ' ' + opts.cls : '') }, h('circle', { r: 1.0, fill: 'transparent' }), h('circle', { r: r, class: 'pl-hd' }));
+      var bw = this.svg.getBoundingClientRect().width || 330, hit = Math.max(1.0, 24 / (bw / (this.w + 2 * this.pad)));   /* 小螢幕：觸控範圍至少半徑 24px */
+      var g = h('g', { class: 'pl-handle' + (opts.cls ? ' ' + opts.cls : '') }, h('circle', { r: hit, fill: 'transparent' }), h('circle', { r: r, class: 'pl-hd' }));
       this.gTop.append(ring, g);
       var sx = new Spring(0, { k: 520, zeta: 0.62 }), sy = new Spring(0, { k: 520, zeta: 0.62 });
       var api = { pos: opts.pos.slice(), el: g, active: false };
@@ -181,6 +182,15 @@
   var curLesson = null;
   function solvable(el, o) { if (curLesson) curLesson.solvers.push(Object.assign({ el: el }, o)); }
   var SOLVED = '<span class="pl-sol__tag">詳解</span>';
+  /* 測驗序列的「下一題」：自己答對時 0.9 秒後自動換題；按「看詳解」公布答案時不自動換，改放一顆「下一題 ▶」讓使用者看完解釋再按 */
+  var revealing = false;
+  function later(fn, ms) {
+    if (!revealing || !curLesson) { setTimeout(fn, ms === undefined ? 900 : ms); return; }
+    var b = h('button', { type: 'button', class: 'button button--primary pl-nextq' }, '下一題 ▶');
+    b.addEventListener('click', function () { b.remove(); fn(); });
+    curLesson.stage.append(b);
+    b.style.scrollMarginBottom = '110px'; try { b.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {}
+  }
 
   function choice(host, api, cfg) {
     var box = h('div', { class: 'pl-choice' });
@@ -326,8 +336,8 @@
     root.append(this.card);
     document.title = cfg.title + '｜獵豹玩中學｜獵豹科教';
     track('start', { id: cfg.id }); this.go(0, true);
-    if (window.innerWidth <= 900) {
-      /* 手機：頁首載入後版面還會位移，幾次校正到卡片頂端（使用者自己捲動過就不再動） */
+    if (window.innerWidth <= 900 || window.innerHeight < 1000) {
+      /* 手機／矮視窗：頁首載入後版面還會位移，幾次校正到卡片頂端（使用者自己捲動過就不再動） */
       var fixTop = function () { if (self.i === 0 && Math.abs(window.scrollY - (self._y || 0)) < 3) self.toTop(true); };
       window.addEventListener('load', fixTop); setTimeout(fixTop, 500); setTimeout(fixTop, 1400);
     }
@@ -337,13 +347,15 @@
     lock: function (m) { this.next.disabled = true; this.msg.textContent = m || ''; this.next.classList.remove('is-ready'); this.sol.hidden = false; },
     /* 看詳解：先公布目前畫面上還沒答的題目（預測題直接跳過）；沒有題目就跑這一步自己的示範（api.solve）；都沒有就直接放行 */
     solve: function () {
-      var i0 = this.i; track('solve', { id: this.cfg.id, n: i0 });
+      var i0 = this.i; track('solve', { id: this.cfg.id, n: i0 }); revealing = true;
+      try {
       for (var guard = 0; guard < 8 && this.next.disabled && this.i === i0; guard++) {
         var s = this.solvers.filter(function (o) { return !o.done() && o.el.isConnected && o.el.getClientRects().length; })[0];
         if (s) { s.reveal(); if (!s.predict) break; continue; }
         if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.stepSolve(); continue; }
         this.unlock('已略過這一步，按「繼續」往下走'); break;
       }
+      } finally { revealing = false; }
       var shown = this.stage.querySelectorAll('.pl-rule, .pl-fb--sol'), el = shown[shown.length - 1];
       if (el) { el.style.scrollMarginBottom = '110px'; try { el.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {} }
     },
@@ -356,10 +368,10 @@
       this.solvers = []; this.stepSolve = null; this.stepSolved = false; curLesson = this;
       track('step', { id: this.cfg.id, n: n });
       this.cfg.steps[n](this.stage, api);
-      if (!first || window.innerWidth <= 900) this.toTop(first);
+      if (!first || window.innerWidth <= 900 || window.innerHeight < 1000) this.toTop(first);
     },
     toTop: function (instant) { var top = this.card.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: top, behavior: (reduce || instant) ? 'auto' : 'smooth' }); this._y = instant ? Math.max(0, top) : this._y; }
   };
 
-  window.Play = { h: h, store: store, track: track, Spring: Spring, run: run, ease: ease, pop: pop, shake: shake, Board: Board, snapSwitch: snapSwitch, ruleBox: ruleBox, instr: instr, hint: hint, pill: pill, toast: toast, choice: choice, numBox: numBox, fillSlots: fillSlots, slider: slider, stepper: stepper, complete: complete, Lesson: Lesson, askTeacher: askTeacher, LINE_URL: LINE_URL };
+  window.Play = { h: h, store: store, track: track, Spring: Spring, run: run, ease: ease, pop: pop, shake: shake, Board: Board, snapSwitch: snapSwitch, ruleBox: ruleBox, instr: instr, hint: hint, pill: pill, toast: toast, choice: choice, numBox: numBox, fillSlots: fillSlots, slider: slider, stepper: stepper, complete: complete, Lesson: Lesson, askTeacher: askTeacher, later: later, LINE_URL: LINE_URL };
 })();

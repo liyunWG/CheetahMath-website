@@ -4,10 +4,10 @@
 
   /* 路口標數格：cols×rows 個路口，missH=[[c,r]] 缺少 (c,r)→(c+1,r) 的橫街，missV 缺少 (c,r)→(c,r+1) 的縱街 */
   function makeGrid(host, o) {
-    var cols = o.cols, rows = o.rows, W = 320, dx = (W - 70) / (cols - 1), dy = 50, H = 58 + (rows - 1) * dy, svg = PC.svg(host, W, H, 'pl-svg--sm'), g = sv('g', {}), val = {}, miss = {};
+    var cols = o.cols, rows = o.rows, W = 320, dx = (W - 70) / (cols - 1), dy = 50, H = 68 + (rows - 1) * dy, svg = PC.svg(host, W, H, 'pl-svg--sm'), g = sv('g', {}), val = {}, miss = {};
     svg.append(g); (o.missH || []).forEach(function (m) { miss['H' + m] = 1; }); (o.missV || []).forEach(function (m) { miss['V' + m] = 1; });
     val['0,0'] = 1;
-    function X(c) { return 35 + c * dx; } function Y(r) { return H - 24 - r * dy; }
+    function X(c) { return 35 + c * dx; } function Y(r) { return H - 36 - r * dy; }
     function hasH(c, r) { return c >= 0 && c < cols - 1 && !miss['H' + [c, r]]; } function hasV(c, r) { return r >= 0 && r < rows - 1 && !miss['V' + [c, r]]; }
     function pre(c, r) { var p = []; if (hasH(c - 1, r)) p.push([c - 1, r]); if (hasV(c, r - 1)) p.push([c, r - 1]); return p; }
     function ready(c, r) { var p = pre(c, r); return p.length > 0 && p.every(function (q) { return val[q.join()] !== undefined; }); }
@@ -94,7 +94,7 @@
         sum.innerHTML = lines.join('<br>');
       }
       function check() {
-        if (nrev === 4 && !asked) { asked = true; var tot = total(); tabs.style.display = 'none'; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '四類互不重複、也沒有遺漏。把四類的種數<b>加起來</b>，A 到 D 共有幾種？' })); P.numBox(qb, { answer: tot, okMsg: '對！' + cats.map(function (x) { return x.f().reduce(function (a, b) { return a * b; }, 1); }).join(' ＋ ') + ' ＝ ' + tot + '。每一類裡面用乘法，類和類之間用加法。', onOk: function () { P.track('aha', { id: 'count-add', step: 2 }); setTimeout(function () { qb.style.display = 'none'; }, 1500); st.append(P.ruleBox('先依「<b>經過哪些中間站</b>」分類（加法），每一類裡面各段連乘（乘法）。<br>只有 B、C 兩個中間站：有沒有經過 B、有沒有經過 C，共 4 類，不重複不遺漏。', '分類')); P.toast(api.ctx.p2 === 1 ? '你猜對了！24 種' : '分類加起來是 24 種'); api.unlock('分類相加，類內連乘！'); } }); }
+        if (nrev === 4 && !asked) { asked = true; var tot = total(); tabs.style.display = 'none'; var qb = h('div', {}); q.append(qb); qb.append(h('div', { class: 'pl-q', html: '四類互不重複、也沒有遺漏。把四類的種數<b>加起來</b>，A 到 D 共有幾種？' })); P.numBox(qb, { answer: tot, okMsg: '對！' + cats.map(function (x) { return x.f().reduce(function (a, b) { return a * b; }, 1); }).join(' ＋ ') + ' ＝ ' + tot + '。每一類裡面用乘法，類和類之間用加法。', onOk: function () { P.track('aha', { id: 'count-add', step: 2 }); PC.tuck(qb); st.append(P.ruleBox('先依「<b>經過哪些中間站</b>」分類（加法），每一類裡面各段連乘（乘法）。<br>只有 B、C 兩個中間站：有沒有經過 B、有沒有經過 C，共 4 類，不重複不遺漏。', '分類')); P.toast(api.ctx.p2 === 1 ? '你猜對了！24 種' : '分類加起來是 24 種'); api.unlock('分類相加，類內連乘！'); } }); }
       }
       var stepper = P.stepper('A–B 路數', 1, 4, 3, function (v) { if (gate.on) { stepper.set(3, true); return; } nAB = v; draw(); }, function (v) { return v + ' 條'; });
       api.solve(function () { gate.on = false; Array.prototype.forEach.call(tabs.children, function (b) { b.click(); }); });
@@ -145,7 +145,7 @@
         function (box, done) {
           var host = PC.stage(box), gr = makeGrid(host, { cols: 4, rows: 3, missH: [[1, 1]], missV: [] });
           var ans = 0; (function () { var v = {}; v['0,0'] = 1; for (var r = 0; r < 3; r++) for (var c = 0; c < 4; c++) { if (c === 0 && r === 0) continue; var s = 0; if (c > 0 && !(c - 1 === 1 && r === 1)) s += v[(c - 1) + ',' + r]; if (r > 0) s += v[c + ',' + (r - 1)]; v[c + ',' + r] = s; } ans = v['3,2']; })();
-          PC.num(box, '點路口標數（缺了一小段橫街）。從 A 走捷徑到 B，共有幾條？', ans, done, '對！B 處 ＝ 左邊 ＋ 下面，共 ' + ans + ' 條。', function () { return '提示：每個路口 ＝ 左邊的數 ＋ 下面的數（有街相連才加）。'; });
+          PC.num(box, '點路口標數（缺了一小段橫街）。從 A 走捷徑到 B，共有幾條？', ans, function () { gr.fillAll(); done(); }, '對！B 處 ＝ 左邊 ＋ 下面，共 ' + ans + ' 條。', function () { return '提示：每個路口 ＝ 左邊的數 ＋ 下面的數（有街相連才加）。'; });
         },
         function (box, done) {
           var host = PC.stage(box), fr = stones(host, 3, function () { });

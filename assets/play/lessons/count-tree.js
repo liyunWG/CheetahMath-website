@@ -95,7 +95,7 @@
     function (st, api) {
       PC.quiz(st, api, 'count-tree', [
         function (box, done) {
-          var bx = PC.boxes(box, [1, 2, 3, 4, 5].map(function (i) { return { n: '？', label: '第 ' + i + ' 位' }; }), { result: false }); bx.el.classList.add('pc-boxes--tight');
+          var bx = PC.boxes(box, [1, 2, 3, 4, 5].map(function (i) { return { n: '？', label: '第 ' + i + ' 位' }; }), { result: false }); box.insertBefore(h('div', { class: 'pc-people' }, '甲乙丙丁戊'.split('').map(function (p) { return PC.chip(p, 'pc-big'); })), bx.el);
           PC.num(box, '甲、乙、丙、丁、戊 5 個人排成一列，每個位置依序選人，共有幾種排法？', 120, done, '對！5 × 4 × 3 × 2 × 1 ＝ 5！＝ 120。', function () { return '提示：第 1 位 5 種，第 2 位剩 4 種……全部連乘。'; });
         },
         function (box, done) {

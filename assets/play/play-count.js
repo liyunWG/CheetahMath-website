@@ -58,7 +58,7 @@
         if (nd.ended) ended++; else if (can) pending++;
         var gr = PC.sv('g', { class: 'pc-node' + (can ? ' is-pending' : '') + (nd.ended ? ' is-end' : ''), transform: 'translate(' + X(nd) + ',' + Y(nd) + ')' });
         if (can) gr.append(PC.sv('circle', { r: 16, fill: 'transparent' }));
-        gr.append(PC.sv('circle', { r: 10, class: 'pc-c pc-c--' + col }), PC.text(0, 1, isRoot && !start ? (cfg.rootLabel || '開始') : last, isRoot && !start ? 9 : 11.5, 'pc-tw'));
+        gr.append(PC.sv('circle', { r: isRoot && !start ? 14 : 10, class: 'pc-c pc-c--' + col }), PC.text(0, 1, isRoot && !start ? (cfg.rootLabel || '開始') : last, isRoot && !start ? 12 : 12, 'pc-tw'));
         if (nd.ended) gr.append(PC.sv('circle', { r: 12.5, class: 'pc-endring' }));
         if (can) gr.addEventListener('click', function () { if (cfg.locked && cfg.locked()) { P.toast('先做上面的預測'); return; } expand(nd.seq); });
         g.append(gr);
@@ -79,9 +79,13 @@
   PC.quiz = function (st, api, id, qs) {
     var box = h('div', {}), k = 0; st.append(box);
     function show() { box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + qs.length + ' 題')); qs[k](box, done); }
-    function done() { if (k >= qs.length - 1) { api.unlock('全部完成！'); P.track('transfer_ok', { id: id }); return; } setTimeout(function () { k++; show(); }, 900); }
+    function done() { if (k >= qs.length - 1) { api.unlock('全部完成！'); P.track('transfer_ok', { id: id }); return; } P.later(function () { k++; show(); }, 900); }
     api.lock('完成 ' + qs.length + ' 題'); show();
   };
+  /* 答對後把數字輸入列收起來（留下題目與解釋，不清掉），省出手機畫面空間 */
+  PC.tuck = function (qb) { [].forEach.call(qb.querySelectorAll('.pl-numbox,.pl-row'), function (e) { e.style.display = 'none'; }); };
+  /* 手機（寬 ≤520px）或畫面高度不足時才把圖縮小；電腦版維持原大小 */
+  PC.shrink = function (svg, px) { if (svg && (window.innerWidth <= 520 || window.innerHeight < 700)) svg.style.maxHeight = px + 'px'; };
   PC.num = function (box, html, answer, done, okMsg, wrong) {
     box.append(h('div', { class: 'pl-q', html: html }));
     P.numBox(box, { answer: answer, okMsg: okMsg, onOk: done, wrong: wrong });
@@ -92,5 +96,15 @@
     function pick(i) { btns.forEach(function (b, k) { b.classList.toggle('is-on', k === i); }); onPick(i, items[i]); }
     host.append(row); if (first !== null) pick(first || 0); return { el: row, pick: pick };
   };
+  /* 規則框或數字框出現在畫面下方時，自動捲到看得見的位置（手機上避免被底部按鈕列蓋住） */
+  (function () {
+    var root = document.getElementById('play-root'), timer; if (!root || !window.MutationObserver) return;
+    new MutationObserver(function (ms) {
+      ms.forEach(function (m) { [].forEach.call(m.addedNodes, function (n) {
+        if (n.nodeType !== 1) return; var el = n.matches && n.matches('.pl-rule,.pl-numbox') ? n : (n.querySelector && n.querySelector('.pl-rule,.pl-numbox'));
+        if (el) { clearTimeout(timer); timer = setTimeout(function () { if (!el.isConnected || !el.getClientRects().length) return; el.style.scrollMarginBottom = '100px'; try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }, 150); }
+      }); });
+    }).observe(root, { childList: true, subtree: true });
+  })();
   window.PC = PC;
 })();

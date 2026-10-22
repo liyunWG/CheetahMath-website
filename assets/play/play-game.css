@@ -77,3 +77,77 @@
 .pgm-vsvg{display:block}
 
 .pgm-build--4{grid-template-columns:minmax(0,1fr) auto}.pgm-build--4 .pgm-cell{min-width:44px;min-height:44px;font-size:20px}
+
+/* ---- 三視圖（移植自奇幻之旅 L13；手機一屏版面）---- */
+.pgv-card .pl-head{padding:6px 12px}
+.pgv-card .pl-body.pgm-body{padding:6px 8px 8px;gap:6px;min-height:0}
+.pgv-top{display:flex;gap:6px;align-items:stretch}
+.pgv-vw{display:flex;gap:5px;flex:none}
+.pgv-vw svg{display:block;width:74px;height:92px;background:#fff;border-radius:8px}
+.pgv-info{flex:1;min-width:0;display:grid;gap:4px;align-content:space-between}
+.pgv-q{font-size:13px;font-weight:900;color:var(--pl-blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgv-time{display:flex;align-items:center;justify-content:center;min-height:32px;padding:2px 6px;border-radius:999px;background:var(--navy);color:#fff;font-weight:900;font-size:14px;white-space:nowrap}
+.pgv-time.is-low{background:var(--pl-pink)}
+.pgv-info2{display:flex;gap:4px;align-items:center;justify-content:space-between}
+.pgv-cnt{font-size:12.5px;color:#555;font-weight:700;white-space:nowrap}
+.pgv-more{appearance:none;min-width:44px;min-height:40px;padding:0 8px;border-radius:12px;border:2px solid var(--line);background:#fff;font:inherit;font-weight:900;font-size:18px;color:var(--navy);cursor:pointer}
+.pgv-scwrap{position:relative;display:flex;justify-content:center;height:clamp(170px,calc(100svh - 400px),290px);background:#f1ede4;border-radius:12px;overflow:hidden}
+.pgv-sc{height:100%;width:auto;max-width:100%;aspect-ratio:1/1;display:block;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.pgv-sc.dragging{cursor:grabbing}
+.pgv-vbtns{position:absolute;left:4px;top:4px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.pgv-view{appearance:none;width:54px;min-height:34px;border:0;border-radius:9px;color:#fff;font:inherit;font-weight:900;font-size:13px;cursor:pointer;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.pgv-view.vF{background:#2da44e}.pgv-view.vR{background:#1677d6}.pgv-view.vT{background:#e0a000}.pgv-view.vO{background:#8e5bd0}
+.pgv-pop{position:absolute;right:6px;top:6px;z-index:6;display:grid;gap:6px;padding:10px;width:min(250px,calc(100% - 12px));border-radius:14px;background:#fff;border:2px solid var(--line-strong,#d8cdb4);box-shadow:0 10px 26px rgba(18,37,72,.28)}
+.pgv-pop[hidden]{display:none}
+.pgv-pop small{font-size:12px;line-height:1.5;color:#555}
+.pgv-pop button{appearance:none;min-height:44px;border:1px solid #bbb;border-radius:10px;background:#fff;font:inherit;font-weight:800;font-size:15px;color:var(--navy);cursor:pointer}
+.pgv-pop button:disabled{opacity:.45}
+.pgv-ov{position:absolute;inset:0;z-index:8;display:grid;align-content:center;justify-items:center;gap:6px;padding:8px 10px;text-align:center;background:rgba(255,255,255,.96);overflow:auto}
+.pgv-ov .hd{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.pgv-ov h3{margin:0;font-size:19px;color:var(--navy)}
+.pgv-ov .st{font-size:22px;letter-spacing:3px;color:var(--pl-amber)}
+.pgv-ov p{margin:0;font-size:13.5px;line-height:1.5;color:#333}
+.pgv-ov .btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+.pgv-ov .btns button{appearance:none;min-height:44px;border-radius:12px;border:1px solid #bbb;background:#fff;font:inherit;font-weight:900;font-size:15px;color:var(--navy);cursor:pointer}
+.pgv-ov .btns .go{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pgv-pad{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:6px}
+.pgv-keys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.pgv-side{display:grid;grid-template-rows:repeat(3,46px);gap:5px}
+.pgv-key{appearance:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;border:2px solid #bbb;background:#fff;border-radius:10px;padding:2px;height:46px;font:inherit;cursor:pointer;min-width:0}
+.pgv-key b{font-size:22px}.pgv-key small{font-size:11px;color:#666}
+.pgv-key.has{background:#fffaf0}.pgv-key.rem{background:#fff1f1}.pgv-key.sel{outline:3px solid #e8a600;background:#fff6d6}
+.pgv-m,.pgv-clr{appearance:none;border:2px solid #bbb;background:#fff;border-radius:10px;font:inherit;font-weight:900;font-size:14px;cursor:pointer;color:var(--navy);padding:0 2px}
+.pgv-m.on{border-color:#1f3a5f;background:#dcebfa}.pgv-m.rem.on{border-color:#b3261e;background:#fcebeb;color:#b3261e}
+.pgv-acts{display:grid;grid-template-columns:1fr 1.3fr;gap:6px}
+.pgv-btn{appearance:none;min-height:48px;border:1px solid #bbb;border-radius:12px;background:#fff;font:inherit;font-weight:900;font-size:16px;color:var(--navy);cursor:pointer}
+.pgv-undo{border-color:#8251b6;color:#623493;background:#f6edff}.pgv-sub{border-color:var(--navy);color:#fff;background:var(--navy)}
+.pgv-msg{min-height:24px;padding:3px 8px;border-radius:8px;background:#f1ede4;line-height:1.5;font-size:13.5px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.pgv-msg.is-bad{background:#fcebeb;color:#b3261e}.pgv-msg.is-good{background:#eaf3de;color:#1b7a3d}
+.pgv-btn:disabled,.pgv-key:disabled,.pgv-m:disabled,.pgv-clr:disabled,.pgv-pop button:disabled{opacity:.45;cursor:default}
+@media (max-width:380px){.pgv-vw svg{width:70px;height:87px}.pgv-view{width:50px}}
+
+/* ---- 魔術方塊：奇幻之旅風格的深色舞台（#31425e → #101827、深色粗邊框、圓角、底下柔和陰影）---- */
+.pgm-cubestage{position:relative}
+.pgm-cubestage .pl-stage{background:radial-gradient(ellipse at 42% 39%,#31425e,#101827 72%);border:4px solid #20283a;border-radius:24px;padding:2px;box-shadow:0 10px 26px rgba(16,24,39,.28);position:relative;overflow:hidden}
+.pgm-cubestage .pl-stage::after{content:"";position:absolute;width:54%;height:9%;left:42%;bottom:7%;transform:translateX(-50%);border-radius:50%;background:#02050b99;filter:blur(13px);pointer-events:none;z-index:0}
+.pgm-cubestage canvas{position:relative;z-index:1;display:block}
+.pgm-dial{position:absolute;right:12px;bottom:10px;width:84px;z-index:5;display:flex;flex-direction:column;align-items:center;gap:2px;color:#d8f7ff;text-align:center;pointer-events:none}
+.pgm-dial__svg{width:68px;height:68px;overflow:visible;touch-action:none;cursor:grab;pointer-events:auto}
+.pgm-dial__svg.dragging{cursor:grabbing}
+.pgm-dial__track{fill:#11243a99;stroke:#64dfff;stroke-width:5;stroke-dasharray:4 5}
+.pgm-dial__svg:hover .pgm-dial__track{fill:#1a3854;stroke:#b7f4ff}
+.pgm-dial__arrow{fill:none;stroke:#b7f4ff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.pgm-dial__cap{font-size:12px;font-weight:900;line-height:1.2}.pgm-dial__cap small{display:block;color:#aabbd1;font-size:11px;font-weight:600}
+.pgv-mode,.pgv-mini{min-height:44px}
+/* 三視圖：電腦版改左右兩欄（左：場景，右：號碼鍵與操作），目標視圖放大 */
+@media (min-width:900px){
+  .pgv-card .pl-body.pgm-body{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,1fr);grid-template-rows:auto auto auto auto 1fr;gap:10px 14px;align-items:start;padding:10px 14px 14px}
+  .pgv-card .pgv-top{grid-column:1 / -1}
+  .pgv-card .pgv-scwrap{grid-column:1;grid-row:2 / span 4;height:clamp(330px,calc(100svh - 300px),470px)}
+  .pgv-card .pgv-pad{grid-column:2;grid-row:2}
+  .pgv-card .pgv-acts{grid-column:2;grid-row:3}
+  .pgv-card .pgv-msg{grid-column:2;grid-row:4}
+  .pgv-vw svg{width:104px;height:128px}
+  .pgv-key{min-height:56px}
+}
+@media (min-width:1000px){.play-wrap:has(.pgv-card){width:min(calc(100% - 20px),980px)}}

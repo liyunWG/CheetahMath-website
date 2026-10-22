@@ -55,16 +55,16 @@
       function draw() {
         var A = a * u, B = b * u, C = (a - b) * u; g.innerHTML = '';
         rect(g, ox, oy, A, A, 'blue', phase === 0 ? 'a² = 25' : '', 18);
-        if (phase >= 1) { strip(ox + C, oy, B, A); g.append(txt(ox + C + B / 2, oy + C / 2 - 12, '長條①', 12), txt(ox + C + B / 2, oy + C / 2 + 4, 'a×b', 12), txt(ox + C + B / 2, oy + C / 2 + 20, '= 10', 12)); }
+        if (phase >= 1) { strip(ox + C, oy, B, A); g.append(txt(ox + C + B / 2, oy + C / 2 - 12, '長條①', 13), txt(ox + C + B / 2, oy + C / 2 + 4, 'a×b', 13), txt(ox + C + B / 2, oy + C / 2 + 20, '= 10', 13)); }
         if (phase >= 2) {
-          strip(ox, oy + C, A, B); g.append(txt(ox + C / 2, oy + C + B / 2, '長條② a×b = 10', 11));
+          strip(ox, oy + C, A, B); g.append(txt(ox + C / 2, oy + C + B / 2, '長條② ab＝10', 13));
           g.append(h('rect', { x: ox + C, y: oy + C, width: B, height: B, class: 'pl-poly pl-poly--amber' }), txt(ox + C + B / 2, oy + C + B / 2, 'b²', 17));
           g.append(h('rect', { x: ox, y: oy, width: C, height: C, class: 'pl-poly pl-poly--blue', 'fill-opacity': 0.9 }), txt(ox + C / 2, oy + C / 2 - 8, '(a−b)²', 16), txt(ox + C / 2, oy + C / 2 + 12, '＝3×3＝9', 14));
           brace(g, ox + C, ox + A, oy + A + 14, 'b', 'pm-amber'); braceV(g, oy + C, oy + A, ox + A + 14, 'b', 'pm-amber');
         }
         brace(g, ox, ox + A, oy - 22, 'a = 5', 'pm-blue'); braceV(g, oy, oy + A, ox - 6, 'a', 'pm-blue');
         if (phase >= 1) brace(g, ox + C, ox + A, oy - 6, 'b', 'pm-pink');
-        if (phase === 2) g.append(txt(ox + C / 2, oy + A + 14, 'a − b = 3', 12, 'pm-blue'));
+        if (phase === 2) g.append(txt(ox + C / 2, oy + A + 14, 'a − b = 3', 13, 'pm-blue'));
         pr.textContent = phase === 0 ? 'a² = 25' : phase === 1 ? 'a² − ab = 25 − 10 = 15' : 'a² − ab − ab = 25 − 10 − 10 = 5';
         pn.textContent = phase < 2 ? '' : '藍色真正的 (a−b)² ＝ 3×3 ＝ 9'; pn.style.display = phase < 2 ? 'none' : '';
         cap.innerHTML = ['先看 a×a 的大正方形：邊長 a ＝ 5，面積 25。', '拿掉右邊一條：<b>長 a、寬 b</b>，面積 ab ＝ 10。', '再拿掉下面一條（也是長 a、寬 b）。右下角 <b>b×b</b> 的小方塊被兩條都蓋到，<b>拿了兩次</b>！'][phase];
@@ -152,7 +152,7 @@
           rect(g, 40, 90, 3 * 24, 3 * 24, 'blue', '(a−b)² ＝ 9', 13); rect(g, 190, 90, 3 * 24, 3 * 24, 'pink', '(b−a)² ＝ 9', 13);
           P.choice(box, {}, { id: 'mf-t3', prompt: '(a − b)² 和 (b − a)² 相等嗎？', options: [{ t: '相等，都是邊長 3 的正方形面積', ok: true, fb: '對！(b − a) ＝ −3 只是方向反了，邊長還是 3，平方後一樣。' }, { t: '不相等，一個正一個負', fb: '平方永遠不會是負的喔。' }], onAnswer: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'multiplication' }); } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 7 完成 */

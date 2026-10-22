@@ -53,3 +53,17 @@
 .pc-block{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:2px 14px;border-radius:12px;border:2px solid var(--pl-pink);background:var(--pl-pink-soft);font-size:18px;font-weight:900;color:var(--pl-pink)}
 .pc-scene{margin:6px 0}.pc-who{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:4px 0}
 .pc-box.is-set{box-shadow:0 0 0 3px rgba(31,157,85,.35)}
+/* ====== 電腦版（≥900px）：圖形隨內容寬度放大、晶片與按鈕放大一點 ====== */
+@media (min-width:900px){
+  .pc-tbl{max-width:520px;margin:8px auto}
+  .pl-stage .pl-svg{max-width:560px;margin:0 auto;max-height:400px}
+  .pl-stage .pl-svg--sm{max-height:360px}
+  .pc-chip{font-size:15px;min-height:32px;padding:3px 12px}
+  .pc-tab{font-size:16px;min-height:48px;padding:8px 18px}.pc-tab--s{min-height:44px}
+  .pc-box{min-width:60px;padding:8px 12px}.pc-box b{font-size:28px}.pc-box i{font-size:12.5px}.pc-op{font-size:24px}.pc-res{font-size:32px}
+  .pc-seatbtn{min-width:80px;min-height:56px;font-size:22px}.pc-big{min-height:48px;min-width:48px;font-size:22px}.pc-block{min-height:48px;font-size:22px;padding:2px 20px}
+  .pc-found{max-height:130px}.pc-tbl{font-size:16px}.pc-tbl td,.pc-tbl th{padding:8px}
+  .pc-card__t{font-size:17px}.pc-calc{font-size:16px}.pc-note{font-size:15px}
+  .pc-boxes{gap:10px}.pc-boxes--tight .pc-box{min-width:44px}.pc-boxes--tight .pc-box b{font-size:22px}
+}
+.pc-who .pc-op{white-space:nowrap;font-size:14px;width:auto}

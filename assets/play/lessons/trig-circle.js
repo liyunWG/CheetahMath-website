@@ -49,13 +49,13 @@
       var pe = P.pill('', 'is-blue'), ro = h('div', { class: 'pl-readout' }, pe), seen = {}, n = 0, ask = h('div', {});
       function draw(p) {
         g.innerHTML = ''; var cs = (p[0] - C[0]) / R, sn = (p[1] - C[1]) / R;
-        b.poly([C, [p[0], C[1]], p], 'pl-poly pl-poly--amber', g); thetaMark(b, p, g); b.text([(C[0] + p[0]) / 2, C[1] - (sn >= 0 ? 0.55 : -0.4)], 'cos θ', 'pl-text pl-text--blue pl-text--sm', g); b.text([p[0] + (cs >= 0 ? 0.55 : -0.55), (C[1] + p[1]) / 2], 'sin θ', 'pl-text pl-text--pink pl-text--sm', g); b.text([(C[0] + p[0]) / 2 + (cs >= 0 ? -0.5 : 0.5), (C[1] + p[1]) / 2 + (sn >= 0 ? 0.5 : -0.5)], '1', 'pl-text pl-text--sm', g);
+        b.poly([C, [p[0], C[1]], p], 'pl-poly pl-poly--amber', g); thetaMark(b, p, g); b.text([(C[0] + p[0]) / 2, C[1] - (sn >= 0 ? 0.55 : -0.4)], 'cos θ', 'pl-text pl-text--blue pl-text--lg', g); b.text([p[0] + (cs >= 0 ? 0.55 : -0.55), (C[1] + p[1]) / 2], 'sin θ', 'pl-text pl-text--pink pl-text--lg', g); b.text([(C[0] + p[0]) / 2 + (cs >= 0 ? -0.5 : 0.5), (C[1] + p[1]) / 2 + (sn >= 0 ? 0.5 : -0.5)], '1', 'pl-text pl-text--lg', g);
         pe.textContent = 'cos²θ ＋ sin²θ ＝ ' + f2(cs * cs) + ' ＋ ' + f2(sn * sn) + ' ＝ ' + f2(cs * cs + sn * sn);
       }
       var hd = circleHandle(b, [9, 10], function (t) { draw(t); var k = t.join(); if (!seen[k]) { seen[k] = 1; n++; } if (n >= 3 && !ask.firstChild) showAsk(); });
       api.solve(function () { hd.set([9, 10]); draw([9, 10]); if (!ask.firstChild) showAsk(); });
       function showAsk() {
-        var sv = host.querySelector('svg'); if (sv) sv.style.maxHeight = '215px';
+        var sv = host.querySelector('svg'); if (sv && window.innerWidth <= 520) sv.style.maxHeight = '240px';
         var qb = h('div', {}); ask.append(qb);
         qb.append(h('div', { class: 'pl-q', html: '第一象限，<b>cos θ ＝ 0.6</b>，那 <b>sin θ ＝ ？</b><br><small>看上面藍色算式：<b>平方</b>後相加會等於 1。</small>' }));
         P.numBox(qb, { answer: 0.8, okMsg: '對！畢氏定理：0.6² ＋ 0.8² ＝ 1。', onOk: function () { P.track('aha', { id: 'trig-circle', step: 2 }); setTimeout(function () { qb.style.display = 'none'; }, 1100); ask.append(P.ruleBox('畢氏定理：<b>cos²θ ＋ sin²θ ＝ 1</b><br>它不是要背的公式，是圓的半徑 ＝ 1。', '公式')); api.unlock('這條公式看得見了！'); }, wrong: function (v) { return v === 0.4 ? '0.6 ＋ 0.4 ＝ 1 是「直接相加」，但公式要的是「<b>平方後</b>再相加」：cos²θ ＋ sin²θ ＝ 1。<br>先算 0.6² ＝ 0.36，所以 sin²θ ＝ 1 − 0.36 ＝ 0.64；sin θ 是「平方後等於 0.64」的數。' : v === 0.64 ? '0.64 是 sin²θ（平方後的值）。sin θ 要再「開根號」：什麼數乘以自己等於 0.64？' : '提示：cos²θ ＋ sin²θ ＝ 1。0.6² ＝ 0.36，所以 sin²θ ＝ 1 − 0.36 ＝ 0.64。'; } });
@@ -96,7 +96,7 @@
       function draw() {
         g.innerHTML = ''; var a = ang * rad, s = Math.sin(a), px = cx + r * Math.cos(a), py = cy - r * s;
         g.append(h('line', { x1: 8, y1: cy, x2: x0 + ww + 6, y2: cy, class: 'pl-line pl-line--soft' }), h('line', { x1: cx, y1: cy - r - 10, x2: cx, y2: cy + r + 10, class: 'pl-line pl-line--soft' }), h('circle', { cx: cx, cy: cy, r: r, class: 'pl-circle' }));
-        [90, 180, 270, 360].forEach(function (d) { g.append(h('line', { x1: x0 + ww * d / 360, y1: cy - 4, x2: x0 + ww * d / 360, y2: cy + 4, class: 'pl-line' })); var t = h('text', { x: x0 + ww * d / 360, y: cy + 18, class: 'pm-t', 'font-size': 10 }); t.textContent = d + '°'; g.append(t); });
+        [90, 180, 270, 360].forEach(function (d) { g.append(h('line', { x1: x0 + ww * d / 360, y1: cy - 4, x2: x0 + ww * d / 360, y2: cy + 4, class: 'pl-line' })); var t = h('text', { x: x0 + ww * d / 360, y: cy + 18, class: 'pm-t', 'font-size': 13 }); t.textContent = d + '°'; g.append(t); });
         var pts = []; for (var k = 0; k <= Math.floor(ang); k += 2) pts.push((x0 + ww * k / 360).toFixed(1) + ',' + (cy - r * Math.sin(k * rad)).toFixed(1)); pts.push((x0 + ww * ang / 360).toFixed(1) + ',' + py.toFixed(1));
         g.append(h('polyline', { points: pts.join(' '), class: 'pl-line pl-line--pink pl-line--bold', fill: 'none' }));
         g.append(h('line', { x1: px, y1: py, x2: x0 + ww * ang / 360, y2: py, class: 'pl-line pl-line--pink pl-line--dash' }), h('line', { x1: cx, y1: cy, x2: px, y2: py, class: 'pl-line' }), h('line', { x1: px, y1: cy, x2: px, y2: py, class: 'pl-line pl-line--pink' }));
@@ -139,7 +139,7 @@
           b.handle({ pos: [9, 10], candidates: null, constrain: onCircle, onMove: draw }); draw([9, 10]);
           P.choice(box, {}, { id: 'tc-t3', prompt: '拖動 P 繞圓一圈。為什麼 sin θ 永遠不會大於 1？', options: [{ t: '因為圓的半徑是 1，P 最高也只到 1', ok: true, fb: '對！P 在單位圓上，高度最多是半徑 1。' }, { t: '因為角度最大是 360°', fb: '角度可以繼續轉很多圈，波形會重複。' }], onAnswer: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'trig-circle' }); } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 6 完成 */

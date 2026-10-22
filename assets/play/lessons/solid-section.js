@@ -37,14 +37,20 @@
 
   /* 場景：透明正方體＋截面 */
   function SecScene(host, o) {
-    o = o || {}; this.sc = PS.scene(host, { scale: o.scale || 112, aspect: o.aspect || 1.6, maxH: o.maxH || 200, yaw: -0.65, pitch: 0.45 }); this.n = [0, 1, 0]; this.d = 0; var sc = this.sc;
+    o = o || {}; this.sc = PS.scene(host, { fitR: 1.0, yaw: -0.65, pitch: 0.45 }); this.n = [0, 1, 0]; this.d = 0; var sc = this.sc;
     sc.lines = CE.map(function (e) { return { a: CV[e[0]], b: CV[e[1]], color: '#122548', w: 2 }; });
+    sc.extraTexts = [{ p: [0, 0.7, 0], t: '上', color: '#6b4a00', size: 14, halo: true, top: true }];   /* 「水平切」「斜切」都是相對於『上』 */
   }
   SecScene.prototype = {
     set: function (n, d) {
       this.n = unit(n); this.d = d; var pts = section(this.n, d), sc = this.sc;
       sc.faces = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f, i) { f.fill = FCOL[i]; f.alpha = 0.14; f.stroke = null; f.flat = true; f.nopick = true; return f; });
       sc.dots = []; sc.texts = []; var keep = sc.lines.slice(0, CE.length); sc.lines = keep;
+      /* 切平面的朝向：從正方體中心沿「平面的垂直方向」畫一支箭頭（長度固定，所以畫面大小不會跟著滑桿跳動） */
+      var nn = this.n, tip = V3.mul(nn, 0.72), hp = Math.abs(nn[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0], au = V3.norm(V3.cross(nn, hp)), av = V3.cross(nn, au), ac = '#c2255c';
+      sc.lines.push({ a: [0, 0, 0], b: tip, color: ac, w: 3.5, bias: 5 });
+      [au, av].forEach(function (q) { [1, -1].forEach(function (sg) { sc.lines.push({ a: tip, b: V3.add(V3.sub(tip, V3.mul(nn, 0.2)), V3.mul(q, 0.1 * sg)), color: ac, w: 3.5, bias: 5 }); }); });
+      sc.texts.push({ p: V3.mul(nn, 0.84), t: '朝向', color: ac, size: 13, halo: true, top: true });
       if (pts.length >= 3) { sc.faces.push({ pts: pts, fill: '#f2a93b', alpha: 0.82, stroke: '#b4700b', lw: 2.4, flat: true, double: true, nopick: true }); pts.forEach(function (p) { sc.dots.push({ p: p, r: 4, color: '#b4700b' }); }); }
       sc.invalidate(); return pts;
     },
@@ -72,7 +78,7 @@
     },
     /* 2 正六邊形 */
     function (st, api) {
-      st.append(h('div', { class: 'pl-label' }, '正六邊形'), P.instr('平面朝著「<b>角</b>」的方向切。把滑桿調到切面是<b>正六邊形</b>！'));
+      st.append(h('div', { class: 'pl-label' }, '正六邊形'), P.instr('平面朝著「<b>角</b>」的方向切（粉紅箭頭＝平面的朝向）。把滑桿調到切面是<b>正六邊形</b>！'));
       var ss = new SecScene(st, { maxH: Math.max(150, Math.min(210, window.innerHeight - 560)) }), n0 = [1, 1, 1], done = false, nn = unit(n0), r = Math.abs(nn[0]) + Math.abs(nn[1]) + Math.abs(nn[2]);
       var pr = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pr);
       var sl = P.slider(0, 200, 30, function (v) {
@@ -94,7 +100,7 @@
       });
       function showAsk() {
         var qb = h('div', {}); ask.append(qb); qb.append(h('div', { class: 'pl-q', html: '切下來的是一個<b>三角錐</b>（三條稜長都是 1）。它的體積是整個正方體的幾分之幾？<br><small>想想：底是直角三角形（面積 1/2），高 1，三角錐體積 ＝ 底面積 × 高 ÷ 3。</small>' }));
-        P.choice(qb, {}, { id: 'ss-t3', prompt: '', row: true, options: [{ t: '1/3', fb: '1/3 是用整個正方形當底、高 1 的錐體。這裡的底是直角三角形（正方形的一半）。' }, { t: '1/6', ok: true, fb: '對！(1/2 × 1) ÷ 3 ＝ 1/6。' }, { t: '1/8', fb: '1/8 是切成 8 個小正方體的一份。' }], onAnswer: function () { P.track('transfer_ok', { id: 'solid-section', q: 3 }); setTimeout(function () { qb.style.display = 'none'; }, 1200); ask.append(P.ruleBox('把平面推到經過 3 個鄰頂點，切面是<b>正三角形</b>，切下的是 <b>1/6 個正方體</b>的三角錐。', '性質')); api.unlock('切下一個角了！'); } });
+        P.choice(qb, {}, { id: 'ss-t3', prompt: '', row: true, options: [{ t: '1/3', fb: '1/3 是用整個正方形當底、高 1 的錐體。這裡的底是直角三角形（正方形的一半）。' }, { t: '1/6', ok: true, fb: '對！(1/2 × 1) ÷ 3 ＝ 1/6。' }, { t: '1/8', fb: '1/8 是切成 8 個小正方體的一份。' }], onAnswer: function () { P.track('transfer_ok', { id: 'solid-section', q: 3 }); ask.append(P.ruleBox('把平面推到經過 3 個鄰頂點，切面是<b>正三角形</b>，切下的是 <b>1/6 個正方體</b>的三角錐。', '性質')); api.unlock('切下一個角了！'); } });
       }
       var ref = ss.set(n0, (150 / 200 - 0.5) * (r - 0.02));
       [[-.5, .5, .5], [.5, -.5, .5], [.5, .5, -.5]].forEach(function (p) { ss.sc.dots.push({ p: p, r: 6, color: '#e8590c', ring: true }); }); ss.sc.invalidate();
@@ -108,7 +114,7 @@
       var box = h('div', {}), k = 0; st.append(box);
       var qs = [
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 1 / 3 題')); var sc = PS.scene(box, { scale: 112, aspect: 1.7, maxH: Math.max(140, Math.min(190, window.innerHeight - 580)), yaw: -0.65, pitch: 0.45 });
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 1 / 3 題')); var sc = PS.scene(box, { fitR: 1.0, yaw: -0.65, pitch: 0.45 });
           sc.faces = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f, i) { f.fill = FCOL[i]; f.alpha = 0.14; f.stroke = null; f.flat = true; f.nopick = true; return f; });
           var A = CV[0], C = CV[3], F = CV[5]; // (-.5,-.5,-.5)、(-.5,.5,.5)... 取同一個頂點的三條面對角線端點
           var T = [[-.5, -.5, -.5].map(function (x) { return x; }), [.5, -.5, .5], [.5, .5, -.5]]; T = [[-.5, -.5, .5], [.5, -.5, -.5], [-.5, .5, -.5]];
@@ -121,12 +127,12 @@
           P.choice(box, {}, { id: 'ss-t2', prompt: '這個正六邊形的 6 個頂點，是正方體 6 條稜的<b>中點</b>。正方體邊長 1，正六邊形的<b>每邊</b>長是多少？', row: true, options: [{ t: '1／2', fb: '1/2 是半條稜的長。六邊形的邊是斜著連接兩個中點。' }, { t: '√2／2', ok: true, fb: '對！相鄰兩中點的距離 ＝ √(0.5² ＋ 0.5²) ＝ √2／2 ≈ 0.71。' }, { t: '1', fb: '1 是整條稜長，六邊形的邊比它短。' }], onAnswer: next });
         },
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 3 / 3 題')); var S = cornerCutSolid(), sc = PS.scene(box, { scale: 112, aspect: 1.7, maxH: Math.max(140, Math.min(190, window.innerHeight - 580)), yaw: -0.65, pitch: 0.45 });
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 3 / 3 題')); var S = cornerCutSolid(), sc = PS.scene(box, { fitR: 1.0, yaw: -0.65, pitch: 0.45 });
           PS.addSolid(sc, S, { alpha: 0.5, dotR: 4 }); sc.faces.forEach(function (f, i) { if (f.pts.length === 3 && V3.dot(V3.norm(V3.cross(V3.sub(f.pts[1], f.pts[0]), V3.sub(f.pts[2], f.pts[0]))), [1, 1, 1]) > 0.9) f.fill = '#f2a93b'; }); sc.invalidate();
           box.append(h('div', { class: 'pl-q', html: '切掉一個角（橘色是新切出來的面）。剩下的立體有 <b>7 個頂點、12 條稜</b>。它有幾個面？（想想歐拉公式 V − E + F ＝ 2）' }));
           P.numBox(box, { answer: 7, before: '面 F ＝', okMsg: '對！7 − 12 + F ＝ 2，F ＝ 7（3 個正方形＋ 3 個變成三角形的面＋ 1 個切面）。', onOk: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-section' }); }, wrong: function () { return '提示：7 − 12 + F ＝ 2。'; } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 5 完成 */

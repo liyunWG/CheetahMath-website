@@ -17,7 +17,8 @@
   }
   var RN = { parallel: '平行', meet: '相交', skew: '歪斜', same: '同一條' };
   function mkCube(st, o) {
-    o = o || {}; var sc = PS.scene(st, { scale: o.scale || 118, aspect: o.aspect || 1.45, maxH: o.maxH });
+    o = o || {}; var sc = PS.scene(st, { fitR: 0.98 });
+    if (o.dir) PS.dirLabels(sc, { x0: -.5, x1: .5, z0: -.5, z1: .5, y: -.5, lo: -.95, ly: .62 }, { margin: 0.5, size: 15, up: 1.0 });   /* 面的名稱有方向（前、後、左、右、上）：標在正方體四周 */
     sc.faces = FACES.map(function (f, i) { return { pts: f.v.map(function (j) { return VERT[j]; }), fill: FCOL[i], alpha: o.faceAlpha === undefined ? 0.2 : o.faceAlpha, stroke: null, id: 'f' + i, flat: true }; });
     sc.lines = EDGES.map(function (e, i) { return { a: VERT[e[0]], b: VERT[e[1]], color: '#122548', w: 2.4, id: 'e' + i }; });
     sc.dots = VERT.map(function (p, i) { return { p: p, r: 4, color: '#122548', label: NAMES[i], size: 14, dy: i < 4 ? 15 : -13 }; });
@@ -27,6 +28,7 @@
     sc.lines.forEach(function (l, i) { var c = map[i]; l.color = c || '#122548'; l.w = c ? 5 : 2.4; }); sc.texts = [];
     sc.invalidate();
   }
+  function edgeTap(sc, i) { var q = sc.project(V3.mid(VERT[EDGES[i][0]], VERT[EDGES[i][1]])); sc.onTap([q[0], q[1]], null); }
   var COL = { blue: PS.COL.blue, pink: PS.COL.pink, green: PS.COL.green, amber: '#d29b1f' };
 
   var steps = [
@@ -81,7 +83,7 @@
     function (st, api) {
       st.append(h('div', { class: 'pl-label' }, '直線與平面'), P.instr('先點<b>一條稜</b>（線），再點<b>一個面</b>，看它們的關係。'));
       var mode = 'e', eSel = null, fSel = null, seen = {}, n = 0;
-      var sc = mkCube(st, { maxH: Math.max(170, Math.min(250, window.innerHeight - 520)) }), pr = P.pill('點一條稜、再點一個面', ''), ro = h('div', { class: 'pl-readout' }, pr);
+      var sc = mkCube(st, { dir: true, maxH: Math.max(170, Math.min(250, window.innerHeight - 520)) }), pr = P.pill('點一條稜、再點一個面', ''), ro = h('div', { class: 'pl-readout' }, pr);
       var seg = PS.seg(st, [{ k: 'e', t: '╱ 選稜' }, { k: 'f', t: '▱ 選面' }], function (k) { mode = k; }); seg.set('e', false);
       var tags = h('div', { class: 'ps-pills' }), tp = {}; [['in', '在面上'], ['para', '平行'], ['perp', '垂直']].forEach(function (k) { tp[k[0]] = P.pill(k[1] + ' ？', ''); tags.append(tp[k[0]]); });
       function relEF(ei, fi) {
@@ -113,7 +115,7 @@
     function (st, api) {
       st.append(h('div', { class: 'pl-label' }, '平面與平面'), P.instr('點<b>兩個面</b>，看它們是<b>平行</b>還是<b>垂直</b>。'));
       var sel = [], seen = {}, n = 0, ask = h('div', {});
-      var sc = mkCube(st, { maxH: Math.max(160, Math.min(230, window.innerHeight - 560)), faceAlpha: 0.3 }), pr = P.pill('點兩個面', ''), ro = h('div', { class: 'pl-readout' }, pr);
+      var sc = mkCube(st, { dir: true, maxH: Math.max(160, Math.min(230, window.innerHeight - 560)), faceAlpha: 0.3 }), pr = P.pill('點兩個面', ''), ro = h('div', { class: 'pl-readout' }, pr);
       function paintF() { sc.faces.forEach(function (f, i) { var s = sel.indexOf(i); f.fill = s === 0 ? '#9db7ee' : s === 1 ? '#f3a6c3' : '#e4dcc8'; f.alpha = s >= 0 ? 0.6 : 0.22; f.label = s >= 0 ? FACES[i].name : ''; f.labelColor = '#122548'; f.labelSize = 14; }); sc.invalidate(); }
       sc.onTap = function (pos, face) {
         if (!face || !face.id) return; var i = +face.id.slice(1); if (sel.length === 2) sel = []; if (sel.indexOf(i) < 0) sel.push(i); paintF();
@@ -122,7 +124,7 @@
       };
       function showAsk() {
         var qb = h('div', {}); ask.append(qb); qb.append(h('div', { class: 'pl-q', html: '正方體 6 個面，任選 2 個面配成一對，共 15 對。<b>平行</b>的有幾對？' }));
-        P.numBox(qb, { answer: 3, before: '平行 ＝', okMsg: '對！上下、前後、左右，共 3 對平行；其餘 12 對都互相垂直。', onOk: function () { P.track('aha', { id: 'solid-lines', step: 4 }); setTimeout(function () { qb.style.display = 'none'; }, 1100); ask.append(P.ruleBox('兩個平面：<b>平行</b>（永遠碰不到）或<b>相交</b>。正方體相鄰的面相交成 <b>90°</b>（互相垂直）。<br>15 對面：<b>3 對平行、12 對垂直</b>。', '性質')); api.unlock('面與面的關係！'); }, wrong: function () { return '提示：每個面只有「對面」和它平行，6 個面共 3 對。'; } });
+        P.numBox(qb, { answer: 3, before: '平行 ＝', okMsg: '對！上下、前後、左右，共 3 對平行；其餘 12 對都互相垂直。', onOk: function () { P.track('aha', { id: 'solid-lines', step: 4 }); ask.append(P.ruleBox('兩個平面：<b>平行</b>（永遠碰不到）或<b>相交</b>。正方體相鄰的面相交成 <b>90°</b>（互相垂直）。<br>15 對面：<b>3 對平行、12 對垂直</b>。', '性質')); api.unlock('面與面的關係！'); }, wrong: function () { return '提示：每個面只有「對面」和它平行，6 個面共 3 對。'; } });
       }
       api.solve(function () { sel = [4, 5]; paintF(); if (!ask.firstChild) showAsk(); });
       st.append(ro, ask, P.hint('點完兩個面，還會再點新的一組。試幾組後會出現問題。')); paintF(); api.lock('點幾組面，再回答問題');
@@ -143,12 +145,12 @@
           P.numBox(box, { answer: 18, before: '共', unit: '對', okMsg: '對！每個方向 4 條選 2 條：4×3÷2 ＝ 6 對，3 個方向 ＝ 18 對。', onOk: next, wrong: function () { return '提示：同一方向的 4 條稜，兩兩配對有 4×3÷2 ＝ 6 種；共 3 個方向。'; } });
         },
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 3 / 3 題')); var S = PS.solid('tprism'), sc = PS.scene(box, { scale: 110, aspect: 1.6, maxH: Math.max(150, Math.min(210, window.innerHeight - 560)) });
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 3 / 3 題')); var S = PS.solid('tprism'), sc = PS.scene(box, { fitR: 1.1 });
           PS.addSolid(sc, S, { alpha: 0.2, stroke: null }); var nm = { 0: 'A', 2: 'B', 4: 'C', 1: 'D', 3: 'E', 5: 'F' }; S.V.forEach(function (p, i) { sc.dots[i].label = nm[i]; sc.dots[i].size = 14; sc.dots[i].dy = i % 2 ? -13 : 15; });
           sc.lines.forEach(function (l, i) { var e = S.E[i]; if ((e[0] === 0 && e[1] === 2)) { l.color = COL.blue; l.w = 5; } if (e[0] === 3 && e[1] === 5) { l.color = COL.pink; l.w = 5; } });
           P.choice(box, {}, { id: 'sl-t3', prompt: '三角柱 ABC-DEF。<b>AB</b>（藍）與 <b>EF</b>（粉紅）的關係是？', row: true, options: [{ t: '平行', fb: 'AB 平行的是 DE（上下底面對應的邊），不是 EF。' }, { t: '相交', fb: '兩條線不在同一個面上，也沒有共同點。' }, { t: '歪斜', ok: true, fb: '對！不平行、也不相交，在不同的底面上。' }], onAnswer: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-lines' }); } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 6 完成 */

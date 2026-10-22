@@ -78,7 +78,7 @@
     cfg.levels.forEach(function (lv) {
       var b = best(cfg.slug, lv.id), btn = h('button', { type: 'button', class: 'pgm-level' },
         h('span', { class: 'pgm-lv ' + (TONE[lv.id] || '') }, lv.name),
-        h('span', { class: 'pgm-level__body' }, h('b', {}, lv.title || lv.name), h('span', { html: lv.desc }), h('em', {}, b === null ? '還沒有紀錄' : '最佳：' + (cfg.fmtBest ? cfg.fmtBest(b, lv) : b))),
+        h('span', { class: 'pgm-level__body' }, h('b', {}, lv.title || lv.name), h('span', { html: lv.desc }), h('em', {}, cfg.fmtBest ? cfg.fmtBest(b, lv) : (b === null ? '還沒有紀錄' : '最佳：' + b))),
         h('span', { class: 'pgm-level__go', 'aria-hidden': 'true' }, '▶'));
       btn.addEventListener('click', function () { P.track('game_level', { id: cfg.slug, level: lv.id }); cfg.onPick(lv); });
       wrap.append(btn);

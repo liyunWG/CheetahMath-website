@@ -120,7 +120,7 @@
           box.append(h('div', { class: 'pl-q', html: '45° 轉兩次是 90°。用倍角公式：<br>sin 90° ＝ 2 sin45° cos45° ＝ 2 × (√2/2) × (√2/2) ＝ ？' }));
           P.numBox(box, { answer: 1, okMsg: '對！2 × 1/2 ＝ 1，和圖上 90° 的位置（最高點）一致。', onOk: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'trig-identities' }); }, wrong: function () { return '提示：√2/2 × √2/2 ＝ 1/2，再乘 2。'; } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 5 完成 */

@@ -2,7 +2,7 @@
 (function () {
   var P = Play, h = P.h, V3 = PS.v;
   function f1(n) { return String(Math.round(n * 10) / 10); }
-  function mkCube(st) { var S = PS.solid('cube'), sc = PS.scene(st, { scale: 92, aspect: 1.35 }); PS.addSolid(sc, S, { alpha: 0.35 }); return { S: S, sc: sc }; }
+  function mkCube(st) { var S = PS.solid('cube'), sc = PS.scene(st, { fitR: 1.05 }); PS.addSolid(sc, S, { alpha: 0.35 }); return { S: S, sc: sc }; }
 
   /* 在一個頂點周圍拼 n 個正 m 邊形的平面圖（SVG 字串元素） */
   function fanSvg(m, n) {
@@ -51,7 +51,7 @@
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, S = null;
       P.choice(st, api, { id: 'sb-p2', predict: true, label: '先猜猜看', prompt: '數一數各種多面體的 <b>頂點 − 稜 + 面</b>，結果會是…？', row: true, options: [{ t: '每個都不同' }, { t: '全部都一樣' }, { t: '都是 0' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('把 6 種多面體都看一遍'); } });
-      var sc = PS.scene(st, { scale: 100, aspect: 1.5, maxH: Math.max(170, Math.min(250, window.innerHeight - 520)) });
+      var sc = PS.scene(st, { fitR: 1.1 });
       var pc = P.pill('', 'is-blue'), pe2 = P.pill('', 'is-pink'), pf = P.pill('', 'is-green'), pr = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pc, pe2, pf, pr);
       var items = [['tpyramid', '三角錐'], ['cube', '正方體'], ['tprism', '三角柱'], ['spyramid', '四角錐'], ['pprism', '五角柱'], ['octa', '八面體']];
       var seg = PS.seg(st, items.map(function (it) { return { k: it[0], t: it[1] }; }), function (k) {
@@ -69,7 +69,7 @@
     /* 3 用歐拉公式算 */
     function (st, api) {
       var box = h('div', {}), k = 0; st.append(box);
-      function fig(key) { var S = PS.solid(key), sc = PS.scene(box, { scale: 96, aspect: 1.7, maxH: Math.max(150, Math.min(210, window.innerHeight - 560)) }); PS.addSolid(sc, S, { alpha: 0.4, dotR: 4 }); return S; }
+      function fig(key) { var S = PS.solid(key), sc = PS.scene(box, { fitR: 1.1 }); PS.addSolid(sc, S, { alpha: 0.4, dotR: 4 }); return S; }
       var qs = [
         function () {
           box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '用歐拉公式算算看（1 / 2）')); fig('icosa');
@@ -81,7 +81,7 @@
           box.append(h('div', { class: 'pl-q', html: '這個多面體有 <b>20 個頂點</b>、<b>12 個面</b>（每面是正五邊形）。它有幾條稜？' }));
           P.numBox(box, { answer: 30, before: '稜 E ＝', okMsg: '對！20 − E + 12 ＝ 2，所以 E ＝ 30。也可以數：12 面 × 5 邊 ÷ 2（每條稜被兩個面共用）＝ 30。', onOk: function () { api.unlock('算出來了！'); P.track('transfer_ok', { id: 'solid-basic', q: 3 }); }, wrong: function () { return '提示：20 − E + 12 ＝ 2。或者：12 個面各 5 條邊，每條稜被 2 個面共用。'; } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 2 題');
     },
     /* 4 為什麼只有 5 種正多面體 */
@@ -108,7 +108,7 @@
       var box = h('div', {}), k = 0; st.append(box);
       var qs = [
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 1 / 3 題')); var S = PS.solid('spyramid'), sc = PS.scene(box, { scale: 100, aspect: 1.7, maxH: Math.max(150, Math.min(220, window.innerHeight - 560)) }); PS.addSolid(sc, S, { alpha: 0.4 });
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 1 / 3 題')); var S = PS.solid('spyramid'), sc = PS.scene(box, { fitR: 1.1 }); PS.addSolid(sc, S, { alpha: 0.4 });
           box.append(h('div', { class: 'pl-q', html: '這個正四角錐有 <b>5 個頂點</b>、<b>5 個面</b>。它有幾條稜？' }));
           P.numBox(box, { answer: 8, before: '稜 E ＝', okMsg: '對！5 − E + 5 ＝ 2，E ＝ 8（底面 4 條＋側面 4 條）。', onOk: next, wrong: function () { return '提示：V − E + F ＝ 2，5 − E + 5 ＝ 2。'; } });
         },
@@ -117,11 +117,11 @@
           P.choice(box, {}, { id: 'sb-t2', prompt: '每個頂點接 <b>3 個正五邊形</b>（如上圖），拼出來的是哪一種正多面體？', options: [{ t: '正六面體（正方體）', fb: '正方體的面是正方形。' }, { t: '正十二面體', ok: true, fb: '對！12 個正五邊形，每個頂點接 3 個。' }, { t: '正二十面體', fb: '正二十面體的面是正三角形。' }], onAnswer: next });
         },
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 3 / 3 題')); var S = PS.solid('pprism'), sc = PS.scene(box, { scale: 100, aspect: 1.7, maxH: Math.max(150, Math.min(220, window.innerHeight - 560)) }); PS.addSolid(sc, S, { alpha: 0.4 });
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 3 / 3 題')); var S = PS.solid('pprism'), sc = PS.scene(box, { fitR: 1.1 }); PS.addSolid(sc, S, { alpha: 0.4 });
           box.append(h('div', { class: 'pl-q', html: '正五角柱有 <b>10 個頂點</b>、<b>15 條稜</b>。它有幾個面？（想想：2 個五邊形底面＋幾個側面）' }));
           P.numBox(box, { answer: 7, before: '面 F ＝', okMsg: '對！10 − 15 + F ＝ 2，F ＝ 7（2 個底面＋ 5 個側面）。', onOk: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-basic' }); }, wrong: function () { return '提示：10 − 15 + F ＝ 2。'; } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 6 完成 */

@@ -28,6 +28,7 @@
   /* 積木＋姿勢＋動畫 */
   function Rig(sc, piece, o) {
     o = o || {}; this.sc = sc; this.piece = piece; this.R = o.R || I3; this.theta = 0; this.axis = null; this.busy = false; this.mirror = !!o.mirror; this.axes = !!o.axes; this.alpha = o.alpha;
+    if (this.axes) { this.AS = PS.axisSet(1.7); sc.extraTexts = this.AS.texts; PS.dirDedupe(sc); }   /* 軸與正負方向（+x、−x…）；正對著軸看時只畫近的那個標籤 */
     this.draw();
   }
   Rig.prototype = {
@@ -36,7 +37,7 @@
       var sc = this.sc, fs = pieceFaces(this.centers(), CC), th = this.theta, ax = this.axis;
       if (ax && th) fs.forEach(function (f) { f.pts = f.pts.map(function (p) { return D.rotAxis(p, ax, th); }); });
       sc.faces = fs; if (this.alpha !== undefined) fs.forEach(function (f) { f.alpha = this.alpha; }, this);
-      if (this.axes) { sc.lines = [[[-1.7, 0, 0], [1.7, 0, 0], '#e03131'], [[0, -1.7, 0], [0, 1.7, 0], '#2b8a3e'], [[0, 0, -1.7], [0, 0, 1.7], '#1971c2']].map(function (a) { return { a: a[0], b: a[1], color: a[2], w: 2.5, bias: -2 }; }); sc.texts = [{ p: [1.95, 0, 0], t: 'x', color: '#e03131', size: 15 }, { p: [0, 1.95, 0], t: 'y', color: '#2b8a3e', size: 15 }, { p: [0, 0, 1.95], t: 'z', color: '#1971c2', size: 15 }]; }
+      if (this.axes) sc.lines = this.AS.lines;
       sc.invalidate();
     },
     /* 繞 axis 轉 sign×90°，完成後呼叫 cb */
@@ -47,7 +48,7 @@
     },
     setR: function (R) { this.R = R; this.draw(); }
   };
-  function mk(host, o) { o = o || {}; return PS.scene(host, { scale: o.scale || 88, aspect: o.aspect || 1, maxH: o.maxH || 190, yaw: o.yaw === undefined ? -0.6 : o.yaw, pitch: o.pitch === undefined ? 0.5 : o.pitch, drag: o.drag, center: o.center || [0, 0, 0] }); }
+  function mk(host, o) { o = o || {}; return PS.scene(host, { fitR: o.axes ? 2.25 : 1.8, twoCol: true, hFrac: o.drag === false ? 0.66 : 1, yaw: o.yaw === undefined ? -0.6 : o.yaw, pitch: o.pitch === undefined ? 0.5 : o.pitch, drag: o.drag, center: o.center || [0, 0, 0] }); }
   function holders(st, n) { var row = PS.stage(st), out = []; for (var i = 0; i < n; i++) { var d = h('div', { class: 'ps-col' }); row.append(d); out.push(d); } return { row: row, cols: out }; }
   function capt(col, text) { col.append(h('div', { class: 'ps-cap' }, text)); }
   function seqMoves(rig, moves, done) { var i = 0; (function step() { if (i >= moves.length) { if (done) done(); return; } var m = moves[i++]; rig.rot(m[0], m[1], function () { setTimeout(step, 120); }); })(); }
@@ -60,7 +61,7 @@
       capt(H.cols[0], '目標'); capt(H.cols[1], '你的積木（可拖動轉視角）');
       var s1 = mk(H.cols[0], { drag: false, maxH: mh }), s2 = mk(H.cols[1], { axes: true, maxH: mh });
       var goal = mm(MZ, MX); // 先繞 x 再繞 z（逆時針各 90°）
-      var tgt = new Rig(s1, PIECES.spiral, { R: goal }), me = new Rig(s2, PIECES.spiral, { axes: true }), moves = 0, done = false;
+      var tgt = new Rig(s1, PIECES.spiral, { R: goal, axes: true }), me = new Rig(s2, PIECES.spiral, { axes: true }), moves = 0, done = false;
       var pm = P.pill('已轉 0 次', ''), pk = P.pill('還沒一樣', ''), ro = h('div', { class: 'pl-readout' }, pm, pk);
       function after() { moves++; pm.textContent = '已轉 ' + moves + ' 次'; if (eq(me.R, goal)) { pk.className = 'pl-pill is-ok'; pk.textContent = '✓ 一樣了！'; if (!done) { done = true; P.track('aha', { id: 'solid-transform', step: 1 }); st.append(P.ruleBox('<b>旋轉</b>不會改變積木的形狀和大小，只改變它的<b>朝向</b>。每次繞一根軸轉 90°，轉幾次就能擺成不同的姿勢。', '性質')); api.unlock('轉對了！'); } } else { pk.className = 'pl-pill'; pk.textContent = '還沒一樣'; } }
       function go(a, s) { return function () { if (!me.rot(a, s, after)) return; }; }
@@ -68,7 +69,7 @@
       var br = PS.btnRow(st, items); br.el.classList.add('ps-btngrid');
       var reset = PS.btnRow(st, [{ t: '重來', fn: function () { if (me.busy) return; me.setR(I3); moves = 0; pm.textContent = '已轉 0 次'; pk.className = 'pl-pill'; pk.textContent = '還沒一樣'; } }]);
       api.solve(function () { me.setR(goal); after(); });
-      st.append(ro, P.hint('↺ 逆時針、↻ 順時針（從軸的尖端往原點看）。紅＝x、綠＝y、藍＝z。')); api.lock('把積木轉成目標的樣子');
+      st.append(ro, P.hint('箭頭指向正方向：紅＝+x、綠＝+y、藍＝+z。↺ 逆時針、↻ 順時針（從軸的箭頭端往原點看）。')); api.lock('把積木轉成目標的樣子');
     },
     /* 2 順序有關 */
     function (st, api) {
@@ -76,7 +77,7 @@
       P.choice(st, api, { id: 'stf-p2', predict: true, label: '先猜猜看', prompt: '「先繞 x 軸轉 90°、再繞 y 軸轉 90°」和「先 y 再 x」，結果會一樣嗎？', row: true, options: [{ t: '一樣' }, { t: '不一樣' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按「播放」看看'); } });
       var H = holders(st, 2), mh = Math.max(120, Math.min(160, window.innerHeight - 600));
       capt(H.cols[0], '先 x 再 y'); capt(H.cols[1], '先 y 再 x');
-      var a = new Rig(mk(H.cols[0], { drag: false, maxH: mh }), PIECES.spiral), b = new Rig(mk(H.cols[1], { drag: false, maxH: mh }), PIECES.spiral);
+      var a = new Rig(mk(H.cols[0], { drag: false, maxH: mh, axes: true }), PIECES.spiral, { axes: true }), b = new Rig(mk(H.cols[1], { drag: false, maxH: mh, axes: true }), PIECES.spiral, { axes: true });
       var pr = P.pill('按「播放」', ''), ro = h('div', { class: 'pl-readout' }, pr);
       var br = PS.btnRow(st, [{ k: 'play', t: '▶ 播放', fn: function (btn) {
         if (gate.on) { P.toast('先做上面的預測'); return; } if (a.busy || b.busy) return; a.setR(I3); b.setR(I3); pr.className = 'pl-pill'; pr.textContent = '播放中…'; var n = 0;
@@ -112,14 +113,14 @@
     /* 4 正方體的旋轉軸 */
     function (st, api) {
       st.append(h('div', { class: 'pl-label' }, '正方體的旋轉軸'), P.instr('正方體繞哪些軸轉一轉，會和自己<b>重合</b>？選一種軸，按「轉給我看」。'));
-      var sc = PS.scene(st, { scale: 118, aspect: 1.5, maxH: Math.max(140, Math.min(200, window.innerHeight - 560)) }), types = {
+      var sc = PS.scene(st, { fitR: 1.2 }), types = {
         face: { name: '面軸', ax: [0, 1, 0], deg: 90, cnt: 3, desc: '穿過相對面的中心' }, vert: { name: '頂點軸', ax: [1, 1, 1], deg: 120, cnt: 4, desc: '穿過相對的頂點' }, edge: { name: '稜軸', ax: [1, 1, 0], deg: 180, cnt: 6, desc: '穿過相對稜的中點' } };
       var cur = 'face', theta = 0, visited = {}, busy = false, ask = h('div', {});
       var base = D.cubeFaces(-.5, -.5, -.5, 1, '#fff'); var fcol = ['#2f6fdc', '#d6336c', '#1f9d55', '#d29b1f', '#7a4fd6', '#e8590c'];
       function draw() {
         var t = types[cur], u = V3.norm(t.ax); sc.faces = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f, i) { f.fill = fcol[i]; f.alpha = 0.78; f.pts = f.pts.map(function (p) { return D.rotAxis(p, u, theta); }); return f; });
         var ghost = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f) { f.fill = null; f.stroke = 'rgba(18,37,72,.35)'; f.dash = [4, 4]; f.lw = 1.2; f.nopick = true; return f; }); sc.faces = ghost.concat(sc.faces);
-        sc.lines = [{ a: V3.mul(u, -1.1), b: V3.mul(u, 1.1), color: '#122548', w: 3.5, bias: 3 }]; sc.dots = [{ p: V3.mul(u, 1.1), r: 5, color: '#122548' }, { p: V3.mul(u, -1.1), r: 5, color: '#122548' }]; sc.invalidate();
+        sc.lines = [{ a: V3.mul(u, -1.1), b: V3.mul(u, 1.1), color: '#122548', w: 3.5, bias: 3 }]; sc.dots = [{ p: V3.mul(u, 1.1), r: 5, color: '#122548' }, { p: V3.mul(u, -1.1), r: 5, color: '#122548' }]; sc.texts = [{ p: V3.mul(u, 1.38), t: '＋端', color: '#122548', size: 13, halo: true, top: true }, { p: V3.mul(u, -1.38), t: '－端', color: '#122548', size: 13, halo: true, top: true }]; sc.invalidate();
       }
       var pt = P.pill('', 'is-blue'), pd = P.pill('', 'is-amber'), pc = P.pill('', 'is-green'), ro = h('div', { class: 'pl-readout' }, pt, pd, pc);
       var seg = PS.seg(st, [{ k: 'face', t: '面軸<br><small>穿過面中心</small>' }, { k: 'vert', t: '頂點軸<br><small>穿過對頂點</small>' }, { k: 'edge', t: '稜軸<br><small>穿過稜中點</small>' }], function (k) { if (busy) { seg.set(cur, false); return; } cur = k; theta = 0; info(); draw(); }, {});
@@ -129,9 +130,9 @@
         if (busy) return; busy = true; var t = types[cur], sp = PS.spring(0, { k: 90, zeta: 0.8, onUpdate: function (v) { theta = v; draw(); }, onRest: function () { busy = false; visited[cur] = 1; if (Object.keys(visited).length === 3 && !ask.firstChild) showAsk(); } }); sp.to(t.deg * Math.PI / 180);
       } }]);
       function showAsk() {
-        sc.maxH = 118; sc._resize(); br.el.style.display = 'none'; seg.el.style.display = 'none';
+        br.el.style.display = 'none'; seg.el.style.display = 'none';
         var qb = h('div', {}); ask.append(qb); qb.append(h('div', { class: 'pl-q', html: '把「不轉」也算一種。正方體所有「轉一轉就和自己重合」的方法共有幾種？<br><small>（面軸 3 條×3 種＋頂點軸 4 條×2 種＋稜軸 6 條×1 種＋不轉 1 種）</small>' }));
-        P.numBox(qb, { answer: 24, before: '共', unit: '種', okMsg: '對！1 ＋ 3×3 ＋ 4×2 ＋ 6×1 ＝ 24 種。', onOk: function () { P.track('aha', { id: 'solid-transform', step: 4 }); setTimeout(function () { qb.style.display = 'none'; }, 1200); ask.append(P.ruleBox('正方體有 <b>13 條旋轉軸</b>（3 面軸、4 頂點軸、6 稜軸），共 <b>24 種</b>轉法會和自己重合。這就是正方體的<b>旋轉對稱</b>。', '性質')); api.unlock('24 種轉法！'); }, wrong: function () { return '提示：9 ＋ 8 ＋ 6 ＋ 1 ＝ ？'; } });
+        P.numBox(qb, { answer: 24, before: '共', unit: '種', okMsg: '對！1 ＋ 3×3 ＋ 4×2 ＋ 6×1 ＝ 24 種。', onOk: function () { P.track('aha', { id: 'solid-transform', step: 4 }); ask.append(P.ruleBox('正方體有 <b>13 條旋轉軸</b>（3 面軸、4 頂點軸、6 稜軸），共 <b>24 種</b>轉法會和自己重合。這就是正方體的<b>旋轉對稱</b>。', '性質')); api.unlock('24 種轉法！'); }, wrong: function () { return '提示：9 ＋ 8 ＋ 6 ＋ 1 ＝ ？'; } });
       }
       api.solve(function () { visited = { face: 1, vert: 1, edge: 1 }; if (!ask.firstChild) showAsk(); });
       st.append(ro, ask, P.hint('三種軸都「轉給我看」一次，會出現一個問題。')); api.lock('三種軸都看一次，再回答問題');
@@ -141,13 +142,14 @@
       var box = h('div', {}), k = 0; st.append(box);
       var qs = [
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 1 / 3 題')); var sc = PS.scene(box, { scale: 118, aspect: 1.8, maxH: Math.max(130, Math.min(180, window.innerHeight - 600)), pitch: 0.3, yaw: -0.5 }), th = 0, busy = false, fcol = { f: '#d6336c', b: '#9db7ee', l: '#9ad9b3', r: '#f0d58b', t: '#c5b0ef', d: '#f4b78e' };
-          function draw() { var cols = [fcol.f, fcol.b, fcol.l, fcol.r, fcol.t, fcol.d]; sc.faces = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f, i) { f.fill = cols[i]; f.pts = f.pts.map(function (p) { return D.rotAxis(p, [0, 1, 0], th); }); f.label = i === 0 ? '紅' : ''; f.labelColor = '#fff'; f.labelSize = 18; return f; }); sc.lines = [{ a: [0, -1.1, 0], b: [0, 1.1, 0], color: '#2b8a3e', w: 3, bias: 3 }]; sc.texts = [{ p: [0, 1.3, 0], t: 'y', color: '#2b8a3e', size: 15 }]; sc.invalidate(); }
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 1 / 3 題')); var sc = PS.scene(box, { fitR: 1.2, pitch: 0.3, yaw: -0.5 }), AS1 = PS.axisSet(1.15, { only: [1] }), th = 0, busy = false, fcol = { f: '#d6336c', b: '#9db7ee', l: '#9ad9b3', r: '#f0d58b', t: '#c5b0ef', d: '#f4b78e' };
+          function draw() { var cols = [fcol.f, fcol.b, fcol.l, fcol.r, fcol.t, fcol.d]; sc.faces = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f, i) { f.fill = cols[i]; f.pts = f.pts.map(function (p) { return D.rotAxis(p, [0, 1, 0], th); }); f.label = i === 0 ? '紅' : ''; f.labelColor = '#fff'; f.labelSize = 18; return f; }); sc.lines = AS1.lines; sc.invalidate(); }
+          PS.dirLabels(sc, { x0: -.5, x1: .5, z0: -.5, z1: .5, y: -.5, lo: -.95, ly: .62 }, { margin: 0.5, size: 15 }); sc.extraTexts = sc.extraTexts.concat(AS1.texts);   /* 左右前後（固定在地板，不跟著積木轉）＋ y 軸的正負端 */
           draw(); PS.btnRow(box, [{ t: '▶ 轉給我看', fn: function () { if (busy) return; busy = true; th = 0; var sp = PS.spring(0, { k: 90, zeta: 0.8, onUpdate: function (v) { th = v; draw(); }, onRest: function () { busy = false; } }); sp.to(Math.PI / 2); } }, { t: '↺ 還原', fn: function () { if (!busy) { th = 0; draw(); } } }]);
           P.choice(box, {}, { id: 'stf-t1', prompt: '紅色的面朝向你。繞 y 軸（綠線）<b>逆時針</b>轉 90° 後（從軸尖端往下看），紅面會轉到哪裡？', row: true, options: [{ t: '右邊', ok: true, fb: '對！逆時針（右手定則）：前面轉到右邊。' }, { t: '左邊', fb: '那是順時針轉的結果。按「轉給我看」確認。' }, { t: '後面', fb: '轉 90° 只會轉到旁邊；轉 180° 才到後面。' }], onAnswer: next });
         },
         function () {
-          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 2 / 3 題')); var sc = PS.scene(box, { scale: 118, aspect: 1.8, maxH: Math.max(130, Math.min(180, window.innerHeight - 600)) }), u = V3.norm([1, 1, 1]), th = 0, busy = false;
+          box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 2 / 3 題')); var sc = PS.scene(box, { fitR: 1.2 }), u = V3.norm([1, 1, 1]), th = 0, busy = false;
           function draw() { sc.faces = D.cubeFaces(-.5, -.5, -.5, 1, '#fff').map(function (f, i) { f.fill = ['#2f6fdc', '#d6336c', '#1f9d55', '#d29b1f', '#7a4fd6', '#e8590c'][i]; f.alpha = 0.8; f.pts = f.pts.map(function (p) { return D.rotAxis(p, u, th); }); return f; }); sc.lines = [{ a: V3.mul(u, -1.1), b: V3.mul(u, 1.1), color: '#122548', w: 3.5, bias: 3 }]; sc.dots = [{ p: V3.mul(u, 1.1), r: 5, color: '#122548', label: '頂點', dx: 18, dy: -4 }]; sc.invalidate(); }
           draw(); PS.btnRow(box, [{ t: '▶ 轉 120°', fn: function () { if (busy) return; busy = true; th = 0; var sp = PS.spring(0, { k: 90, zeta: 0.8, onUpdate: function (v) { th = v; draw(); }, onRest: function () { busy = false; } }); sp.to(Math.PI * 2 / 3); } }, { t: '↺ 還原', fn: function () { if (!busy) { th = 0; draw(); } } }]);
           box.append(h('div', { class: 'pl-q', html: '正方體繞一條<b>對角線</b>（穿過兩個相對頂點，黑線）轉，<b>最少</b>轉幾度會和自己重合？（按鈕可以看 120° 的樣子）' }));
@@ -158,7 +160,7 @@
           capt(H.cols[0], '右手積木'); capt(H.cols[1], '鏡中的像'); var a = new Rig(mk(H.cols[0], { maxH: mh }), PIECES.spiral), b = new Rig(mk(H.cols[1], { maxH: mh }), PIECES.spiral, { mirror: true });
           P.choice(box, {}, { id: 'stf-t3', prompt: '螺旋積木的鏡中像，和原來的積木<b>轉一轉</b>能一樣嗎？', options: [{ t: '能，轉到對的姿勢就一樣', fb: '剛剛 24 種姿勢都試過了，沒有一個一樣。' }, { t: '不能，像左手與右手', ok: true, fb: '對！這種沒有對稱面的形狀，鏡像和原來是「左右手」關係。' }], onAnswer: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'solid-transform' }); } });
         }];
-      function next() { setTimeout(function () { k++; qs[k](); }, 900); }
+      function next() { P.later(function () { k++; qs[k](); }, 900); }
       qs[0](); api.lock('完成 3 題');
     },
     /* 6 完成 */
