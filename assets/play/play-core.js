@@ -90,8 +90,42 @@
     this.svg.append(this.gGrid, this.gMid, this.gTop);
     host.append(this.svg);
     this.drawGrid(o);
+    this._initDeclutter();
   }
   Board.prototype = {
+    /* 標籤避讓：文字壓到把手、端點或其他文字時，自動挪到附近的空位；每次畫面變動（含拖動把手）後重新計算，
+       所以數字和字母不會被蓋住。課程自己改了文字位置時，以新位置為「想放的地方」重新找。 */
+    _initDeclutter: function () {
+      var self = this; if (!window.MutationObserver) return;
+      this._dcQueued = false; this._dcBusy = false;
+      this._mo = new MutationObserver(function () { if (self._dcBusy || self._dcQueued) return; self._dcQueued = true; requestAnimationFrame(function () { self._dcQueued = false; self.declutter(); }); });
+      this._moOpts = { subtree: true, childList: true, attributes: true, characterData: true, attributeFilter: ['x', 'y', 'transform', 'cx', 'cy', 'r', 'display', 'style'] };
+      this._mo.observe(this.svg, this._moOpts);
+    },
+    declutter: function () {
+      var svg = this.svg; if (!svg.isConnected || !this._mo) return; this._dcBusy = true; this._mo.disconnect();
+      try {
+        var texts = [], list = svg.querySelectorAll('text'), i;
+        for (i = 0; i < list.length; i++) { var t = list[i]; if (!t.textContent.trim()) continue; var cs = getComputedStyle(t); if (cs.display === 'none' || parseFloat(cs.opacity) < 0.05) continue; texts.push(t); }
+        var obst = [];
+        [].forEach.call(svg.querySelectorAll('.pl-handle'), function (g) { var m = /translate\(([-\d.eE]+)[ ,]+([-\d.eE]+)\)/.exec(g.getAttribute('transform') || ''); if (m) obst.push({ x0: +m[1] - 0.62, x1: +m[1] + 0.62, y0: +m[2] - 0.62, y1: +m[2] + 0.62 }); });
+        [].forEach.call(svg.querySelectorAll('circle.pl-dot'), function (c) { var cx = +c.getAttribute('cx'), cy = +c.getAttribute('cy'), r = (+c.getAttribute('r') || 0.16) + 0.1; if (!isNaN(cx) && !isNaN(cy)) obst.push({ x0: cx - r, x1: cx + r, y0: cy - r, y1: cy + r }); });
+        var placed = [], M = 0.08, vb = svg.viewBox.baseVal;
+        var hit = function (b) { var k; for (k = 0; k < obst.length; k++) { var o = obst[k]; if (b.x0 < o.x1 + M && b.x1 > o.x0 - M && b.y0 < o.y1 + M && b.y1 > o.y0 - M) return true; } for (k = 0; k < placed.length; k++) { var p = placed[k]; if (b.x0 < p.x1 + M && b.x1 > p.x0 - M && b.y0 < p.y1 + M && b.y1 > p.y0 - M) return true; } return false; };
+        var inside = function (b) { return b.x0 >= vb.x + 0.05 && b.x1 <= vb.x + vb.width - 0.05 && b.y0 >= vb.y + 0.05 && b.y1 <= vb.y + vb.height - 0.05; };
+        texts.forEach(function (t) {
+          var cx = parseFloat(t.getAttribute('x')) || 0, cy = parseFloat(t.getAttribute('y')) || 0;
+          if (t._sx === undefined || Math.abs(t._sx - cx) > 1e-9 || Math.abs(t._sy - cy) > 1e-9) { t._ox = cx; t._oy = cy; }
+          var bb; try { bb = t.getBBox(); } catch (e) { return; }
+          var dx0 = t._ox - cx, dy0 = t._oy - cy, base = { x0: bb.x + dx0, x1: bb.x + bb.width + dx0, y0: bb.y + dy0, y1: bb.y + bb.height + dy0 }, best = null, d, a, n;
+          if (!hit(base) && inside(base)) best = [0, 0];
+          for (d = 0.2; d <= 2.8 && !best; d += 0.2) { n = Math.max(8, Math.round(d * 14)); for (a = 0; a < n && !best; a++) { var ang = 2 * Math.PI * a / n, ox = d * Math.cos(ang), oy = d * Math.sin(ang), bx = { x0: base.x0 + ox, x1: base.x1 + ox, y0: base.y0 + oy, y1: base.y1 + oy }; if (!hit(bx) && inside(bx)) best = [ox, oy]; } }
+          if (!best) best = [0, 0];
+          var nx = t._ox + best[0], ny = t._oy + best[1]; t.setAttribute('x', nx); t.setAttribute('y', ny); t._sx = nx; t._sy = ny;
+          placed.push({ x0: base.x0 + best[0], x1: base.x1 + best[0], y0: base.y0 + best[1], y1: base.y1 + best[1] });
+        });
+      } finally { this._mo.observe(svg, this._moOpts); this._dcBusy = false; }
+    },
     Y: function (y) { return this.hh - y; },
     P: function (p) { return [p[0], this.hh - p[1]]; },
     drawGrid: function (o) {

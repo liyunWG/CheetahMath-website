@@ -18,12 +18,14 @@
     return { pts: pts, bis: d1 + d / 2, val: Math.abs(d) };
   }
   function angAt(V, X, Y) { return Math.abs(shortest(dirTo(V, X), dirTo(V, Y))); }
-  /* 逆時針凸多邊形：回傳每個邊的方向 heads[i]（頂點 i 到 i+1）與每個頂點的外角 ext[i]（頂點 i 處，從上一條邊轉到下一條邊）；不是凸的（有外角 ≤ 0）回傳 null */
+  /* 逆時針凸多邊形：回傳每個邊的方向 heads[i]（頂點 i 到 i+1）與每個頂點的外角 ext[i]（頂點 i 處，從上一條邊轉到下一條邊）。
+     不是「真正的凸多邊形」一律回傳 null：頂點重疊（邊長 0）、有外角 ≤ 0（凹進去或三點共線）、或外角和不等於 360°（自己交叉的星形會轉 720°）。 */
   function polyAngles(pts) {
-    var n = pts.length, heads = [], ext = [], i, ok = true;
-    for (i = 0; i < n; i++) heads.push(dirTo(pts[i], pts[(i + 1) % n]));
-    for (i = 0; i < n; i++) { var e = norm(heads[i] - heads[(i + n - 1) % n]); if (e < 0.01 || e > 179.99) ok = false; ext.push(e); }
-    return ok ? { heads: heads, ext: ext, sum: ext.reduce(function (a, b) { return a + b; }, 0) } : null;
+    var n = pts.length, heads = [], ext = [], i, ok = true, sum = 0;
+    for (i = 0; i < n; i++) { var q = pts[(i + 1) % n]; if (Math.hypot(q[0] - pts[i][0], q[1] - pts[i][1]) < 1e-6) return null; heads.push(dirTo(pts[i], q)); }
+    for (i = 0; i < n; i++) { var e = norm(heads[i] - heads[(i + n - 1) % n]); if (e < 0.01 || e > 179.99) ok = false; ext.push(e); sum += e; }
+    if (!ok || Math.abs(sum - 360) > 1e-6) return null;
+    return { heads: heads, ext: ext, sum: sum };
   }
   /* 橢圓上不等間隔的 n 個點（一定是凸的），當作「看起來隨便畫」的凸多邊形 */
   function ellipsePoly(n, c, rx, ry, rot) {
