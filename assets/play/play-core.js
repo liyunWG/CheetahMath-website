@@ -182,10 +182,10 @@
   var curLesson = null;
   function solvable(el, o) { if (curLesson) curLesson.solvers.push(Object.assign({ el: el }, o)); }
   var SOLVED = '<span class="pl-sol__tag">詳解</span>';
-  /* 測驗序列的「下一題」：自己答對時 0.9 秒後自動換題；按「看詳解」公布答案時不自動換，改放一顆「下一題 ▶」讓使用者看完解釋再按 */
+  /* 測驗序列的「下一題」：答對（或按「看詳解」公布答案）後，一律放一顆「下一題 ▶」，使用者看完、想好再按，不會自動跳題 */
   var revealing = false;
-  function later(fn, ms) {
-    if (!revealing || !curLesson) { setTimeout(fn, ms === undefined ? 900 : ms); return; }
+  function later(fn) {
+    if (!curLesson) { setTimeout(fn, 900); return; }
     var b = h('button', { type: 'button', class: 'button button--primary pl-nextq' }, '下一題 ▶');
     b.addEventListener('click', function () { b.remove(); fn(); });
     curLesson.stage.append(b);
@@ -283,7 +283,7 @@
       box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + tasks.length + ' 關')); var finished = false;
       function done() {
         if (finished) return; finished = true; api.solve(function () { var b = document.querySelector('.pl-nextq'); if (b) b.click(); }, true);
-        if (k + 1 < tasks.length) later(function () { k++; show(); }, 900); else if (o.onDone) o.onDone();
+        if (k + 1 < tasks.length) later(function () { k++; show(); }); else if (o.onDone) o.onDone();
       }
       tasks[k](box, done, function (fn) { api.solve(fn, true); });
     }
@@ -365,6 +365,7 @@
       var i0 = this.i; track('solve', { id: this.cfg.id, n: i0 }); revealing = true;
       try {
       for (var guard = 0; guard < 8 && this.next.disabled && this.i === i0; guard++) {
+        var pend = this.stage.querySelector('.pl-nextq'); if (pend) { pend.click(); break; }   /* 已經答完、正等著按「下一題」：看詳解＝直接換下一題 */
         var s = this.solvers.filter(function (o) { return !o.done() && o.el.isConnected && o.el.getClientRects().length; })[0];
         if (s) { s.reveal(); if (!s.predict) break; continue; }
         if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.stepSolve(); if (this.stepHold) break; continue; }

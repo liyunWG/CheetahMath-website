@@ -6,10 +6,13 @@
   function norm(d) { return ((d % 360) + 360) % 360; }
   function dirTo(a, b) { return Math.atan2(b[1] - a[1], b[0] - a[0]) / rad; }
   function shortest(d1, d2) { return ((d2 - d1 + 540) % 360) - 180; }
-  /* 角的小扇形：頂點 V、從方向 d1 轉過 d（沒給 d 就取較短的那一邊） */
+  /* 角的小扇形：頂點 V、從方向 d1 轉過 d（沒給 d 就取較短的那一邊）。剛好 90° 時畫成直角符號（小方框） */
   function wedge(V, d1, d2, r, d) {
     if (d === undefined) d = shortest(d1, d2); var pts = [V], i;
-    for (i = 0; i <= 24; i++) { var a = (d1 + d * i / 24) * rad; pts.push([V[0] + r * Math.cos(a), V[1] + r * Math.sin(a)]); }
+    if (Math.abs(Math.abs(d) - 90) < 0.01) {
+      var sd = r * 0.7, u = [Math.cos(d1 * rad), Math.sin(d1 * rad)], w = [Math.cos((d1 + d) * rad), Math.sin((d1 + d) * rad)];
+      pts.push([V[0] + u[0] * sd, V[1] + u[1] * sd], [V[0] + (u[0] + w[0]) * sd, V[1] + (u[1] + w[1]) * sd], [V[0] + w[0] * sd, V[1] + w[1] * sd]);
+    } else for (i = 0; i <= 24; i++) { var a = (d1 + d * i / 24) * rad; pts.push([V[0] + r * Math.cos(a), V[1] + r * Math.sin(a)]); }
     return { pts: pts, bis: d1 + d / 2, val: Math.abs(d) };
   }
   function stage(st) { var wrap = h('div', { class: 'pl-stage' }); st.append(wrap); return wrap; }
