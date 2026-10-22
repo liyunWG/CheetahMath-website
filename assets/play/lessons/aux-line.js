@@ -68,7 +68,7 @@
       function draw() {
         g.innerHTML = ''; var a = G.angAt(H, A, B), r = roundSum([a, 180 - a], 180), ok = H[0] === A[0];
         board.poly([B, C, A], 'pl-poly pl-poly--amber', g); seg(board, g, B, C, 'pl-line'); seg(board, g, A, H, 'pl-line pl-line--bold pl-line--green' + (ok ? '' : ' pl-line--dash'));
-        dot(board, g, B, 'B', -0.5, -0.9); dot(board, g, C, 'C', 0.2, -0.9); dot(board, g, A, 'A', 0.3, 0.45);
+        dot(board, g, B, 'B', -0.5, -0.9); dot(board, g, C, 'C', 0.2, -0.9); dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, H, 'H', 0.01, -1.4);
         corner(board, g, H, A, B, 1.2, r[0] + '°', 'pl-poly--blue', 'pl-text--blue'); corner(board, g, H, A, C, 1.2, r[1] + '°', 'pl-poly--pink', 'pl-text--pink');
         p1.textContent = '∠AHB ＝ ' + r[0] + '°'; p2.textContent = '∠AHC ＝ ' + r[1] + '°'; pk.className = 'pl-pill' + (ok ? ' is-ok' : ''); pk.textContent = ok ? '✓ AH ⟂ BC：AH 是 BC 上的高' : '還不是垂直，繼續拖動 H';
         return ok;
@@ -79,17 +79,20 @@
     /* 4. 延長線與外角 */
     function (st, api) {
       st.append(P.instr('把三角形的一邊 <b>BC 往外延長</b>到 D。拖動 <b>D</b>，看看新出現的<b>外角</b>和三角形的內角有什麼關係。'));
-      var B = [2, 2], C = [8, 2], A = [5, 7], D = [10, 2], seen = {}, done = false, host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'); board.gMid.append(g);
+      var B = [2, 2], C = [8, 2], A = [5, 7], D = [9, 2], moved = false, seen = {}, done = false, host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'); board.gMid.append(g);
       var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), pe = P.pill('', 'is-ok'); st.append(h('div', { class: 'pl-readout' }, pa, pb), h('div', { class: 'pl-readout' }, pe));
       function draw() {
         g.innerHTML = ''; var x = G.angAt(A, B, C), y = G.angAt(B, A, C), tot = Math.round(x + y), r = roundSum([x, y], tot);
-        board.poly([A, B, C], 'pl-poly pl-poly--amber', g); seg(board, g, A, B, 'pl-line'); seg(board, g, A, C, 'pl-line'); seg(board, g, B, C, 'pl-line'); seg(board, g, C, D, 'pl-line pl-line--bold pl-line--green pl-line--dash');
-        dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, B, 'B', -0.5, -0.9); dot(board, g, C, 'C', -0.4, -0.9); dot(board, g, D, 'D', 0, -1.4);
-        corner(board, g, A, B, C, 1.2, r[0] + '°', 'pl-poly--blue', 'pl-text--blue'); corner(board, g, B, C, A, 1.5, r[1] + '°', 'pl-poly--pink', 'pl-text--pink'); corner(board, g, C, D, A, 1.4, tot + '°', 'pl-poly--green', 'pl-text--green');
-        pa.textContent = '∠A ＝ ' + r[0] + '°'; pb.textContent = '∠B ＝ ' + r[1] + '°'; pe.textContent = '外角 ∠ACD ＝ ' + r[0] + '° ＋ ' + r[1] + '° ＝ ' + tot + '°';
+        board.poly([A, B, C], 'pl-poly pl-poly--amber', g); seg(board, g, A, B, 'pl-line'); seg(board, g, A, C, 'pl-line'); seg(board, g, B, C, 'pl-line');
+        dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, B, 'B', -0.5, -0.9); dot(board, g, C, 'C', -0.4, -0.9);
+        corner(board, g, A, B, C, 1.2, r[0] + '°', 'pl-poly--blue', 'pl-text--blue'); corner(board, g, B, C, A, 1.5, r[1] + '°', 'pl-poly--pink', 'pl-text--pink');
+        pa.textContent = '∠A ＝ ' + r[0] + '°'; pb.textContent = '∠B ＝ ' + r[1] + '°';
+        /* 一開始只有三角形；拖動 D 把 BC 延長之後，延長線與外角才出現 */
+        if (moved) { seg(board, g, C, D, 'pl-line pl-line--bold pl-line--green pl-line--dash'); dot(board, g, D, 'D', 0.01, -1.4); corner(board, g, C, D, A, 1.4, tot + '°', 'pl-poly--green', 'pl-text--green'); pe.className = 'pl-pill is-ok'; pe.textContent = '外角 ∠ACD ＝ ' + r[0] + '° ＋ ' + r[1] + '° ＝ ' + tot + '°'; }
+        else { pe.className = 'pl-pill'; pe.textContent = '先把 BC 往右延長，看看會出現什麼角'; }
       }
-      var hd = board.handle({ pos: D, candidates: [9, 10, 11].map(function (x) { return [x, 2]; }), onMove: function (t) { D = t; seen[t[0]] = 1; draw(); if (Object.keys(seen).length >= 2 && !done) { done = true; P.track('aha', { id: 'aux-line', step: 4 }); st.append(P.ruleBox('<b>延長一邊</b>，就多出一個<b>外角</b>。外角 ＝ 和它<b>不相鄰的兩個內角的和</b>：<br>∠ACD ＝ ∠A ＋ ∠B。<br>原因：∠ACB ＋ ∠ACD ＝ 180°，三角形內角和 ∠A ＋ ∠B ＋ ∠ACB ＝ 180°。', '延長線')); api.unlock('延長一邊，外角現形'); } } });
-      api.solve(function () { hd.moveTo([9, 2]); hd.moveTo([11, 2]); }); draw(); st.append(P.hint('至少把 D 放在 2 個不同的位置。')); api.lock('把 D 拖到 2 個位置');
+      var hd = board.handle({ pos: D, candidates: [9, 10, 11].map(function (x) { return [x, 2]; }), onMove: function (t) { D = t; moved = true; seen[t[0]] = 1; draw(); if (Object.keys(seen).length >= 2 && !done) { done = true; P.track('aha', { id: 'aux-line', step: 4 }); st.append(P.ruleBox('<b>延長一邊</b>，就多出一個<b>外角</b>。外角 ＝ 和它<b>不相鄰的兩個內角的和</b>：<br>∠ACD ＝ ∠A ＋ ∠B。<br>原因：∠ACB ＋ ∠ACD ＝ 180°，三角形內角和 ∠A ＋ ∠B ＋ ∠ACB ＝ 180°。', '延長線')); api.unlock('延長一邊，外角現形'); } } });
+      api.solve(function () { hd.moveTo([9, 2]); hd.moveTo([11, 2]); }); draw(); st.append(P.hint('把綠色的點 D 往右拖，BC 就被延長了。至少把 D 放在 2 個不同的位置。')); api.lock('把 D 拖到 2 個位置');
     },
     /* 5. 操作關卡 */
     function (st, api) {
@@ -115,7 +118,7 @@
             g.innerHTML = ''; var out = H[0] < B[0] || H[0] > C[0], ok = H[0] === A[0];
             board.poly([A, B, C], 'pl-poly pl-poly--amber', g); seg(board, g, B, C, 'pl-line'); if (out) seg(board, g, H[0] < B[0] ? H : C, H[0] < B[0] ? B : H, 'pl-line pl-line--bold pl-line--blue pl-line--dash');
             seg(board, g, A, B, 'pl-line'); seg(board, g, A, C, 'pl-line'); seg(board, g, A, H, 'pl-line pl-line--bold pl-line--green' + (ok ? '' : ' pl-line--dash'));
-            dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, B, 'B', 0.1, -0.9); dot(board, g, C, 'C', 0.2, -0.9);
+            dot(board, g, A, 'A', 0.3, 0.45); dot(board, g, B, 'B', 0.1, -0.9); dot(board, g, C, 'C', 0.2, -0.9); dot(board, g, H, 'H', 0.01, -1.4);
             if (H[0] !== B[0] && H[0] !== C[0]) { var other = H[0] < B[0] ? C : (H[0] > C[0] ? B : C); var a = G.angAt(H, A, other); corner(board, g, H, A, other, 1.2, Math.round(a) + '°', 'pl-poly--blue', 'pl-text--blue'); pa.textContent = '∠AH' + (H[0] < B[0] ? 'C' : H[0] > C[0] ? 'B' : 'C') + ' ＝ ' + Math.round(a) + '°'; } else pa.textContent = 'H 和頂點重合了';
             pk.className = 'pl-pill' + (ok ? ' is-ok' : ''); pk.textContent = ok ? '✓ AH ⟂ BC（要先延長 BC）' : '還不是垂直'; if (ok && !fin) { fin = true; P.toast('鈍角三角形的高在外面：先延長 BC'); done(); }
           }
