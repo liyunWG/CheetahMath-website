@@ -20,6 +20,14 @@ SPHERE_ART = (
     '<g font-family="sans-serif" font-weight="800" font-size="14" fill="#122548" text-anchor="middle"><text x="75" y="122">半球</text><text x="235" y="122">圓柱挖掉圓錐</text></g></svg>')
 
 
+VOLUME_ART = (
+    '<svg viewBox="0 0 320 130" aria-hidden="true"><g stroke="#122548" stroke-width="2.5" stroke-linejoin="round">'
+    '<polygon points="40,100 110,100 110,60 40,60" fill="rgba(47,111,220,.3)"/><polygon points="40,60 70,40 140,40 110,60" fill="rgba(214,51,108,.25)"/><polygon points="110,100 140,80 140,40 110,60" fill="rgba(31,157,85,.28)"/>'
+    '<g stroke-width="1.2"><line x1="40" y1="80" x2="110" y2="80"/><line x1="110" y1="80" x2="140" y2="60"/></g>'
+    '<polygon points="190,100 250,100 220,40" fill="rgba(210,155,31,.3)"/><polygon points="250,100 275,85 220,40" fill="rgba(214,51,108,.25)"/></g>'
+    '<g font-family="sans-serif" font-weight="800" text-anchor="middle"><text x="90" y="122" font-size="14" fill="#122548">底面積 × 高</text><text x="235" y="122" font-size="14" fill="#d6336c">1/3 × 底面積 × 高</text></g></svg>')
+
+
 ENTRIES = [
     dict(slug='solid-basic', title='立體圖形的基本性質', grade='國中', area='立體幾何', mins='約 8 分鐘',
          blurb='數一數正方體的頂點、稜、面，發現所有多面體都有 頂點 − 稜 + 面 ＝ 2，再看為什麼正多面體只有 5 種。',
@@ -67,9 +75,13 @@ ENTRIES = [
          see='可拉動滑桿的切片（圓對圓環）、疊切片算體積、倒水實驗（球＋圓錐＝圓柱）、3 個操作關卡', deep='卡瓦列里原理、球的表面積、球冠體積、空間向量', classes='PK3C／PK4B／PK3B／J91S／J91A',
          desc='拉動滑桿切開半球與挖掉圓錐的圓柱，看截面積處處相等，用祖暅原理算出球的體積，並發現圓錐：球：圓柱＝1：2：3——立體幾何互動單元。',
          art=SPHERE_ART),
+    dict(slug='solid-volume', title='立體圖形的體積與表面積', grade='國中', area='立體幾何', mins='約 9 分鐘',
+         blurb='疊方塊看懂「底面積 × 高」，把正方體切成 3 個角錐看見 1/3，再把圓柱的側面攤平算表面積。',
+         see='疊積木找體積 24 的疊法、正方體拆成 3 個角錐、圓柱展開圖、3 個操作關卡（最省表面積、錐柱同水量、圓柱表面積）', deep='卡瓦列里原理與球體、圓柱圓錐的割補、積分求體積', classes='J91S／J91A／PK3C／PK4B／PK3B',
+         desc='疊方塊看懂體積是底面積乘高，把正方體拆成 3 個角錐看見 1/3，再用展開圖算圓柱表面積——國中立體幾何互動單元。',
+         art=VOLUME_ART),
 ]
 SOON = [
-    ('立體圖形的體積與表面積', '國中', '立體幾何', '柱體、錐體為什麼是 1/3？倒水、切片、堆疊一次看懂。'),
 ]
 
 for _e in ENTRIES:
