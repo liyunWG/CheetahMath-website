@@ -277,3 +277,5 @@ line.pm-blue{stroke:var(--pl-blue)}line.pm-pink{stroke:var(--pl-pink)}
 .pl-goal__badge{fill:var(--pl-green);stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}.pl-goal__tick{stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 @keyframes plGoal{0%{opacity:0}100%{opacity:1}}
 .pl-q small{display:inline-block;margin-left:6px;padding:2px 10px;border-radius:999px;background:var(--pl-amber-soft);color:#8a6410;font-size:.82em;font-weight:900;vertical-align:middle}
+.pl-choice.is-nudge{animation:plNudge .6s ease 3;border-radius:18px}
+@keyframes plNudge{0%,100%{box-shadow:0 0 0 0 rgba(214,51,108,0)}50%{box-shadow:0 0 0 8px rgba(214,51,108,.38)}}

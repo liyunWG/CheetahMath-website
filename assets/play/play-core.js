@@ -199,7 +199,7 @@
       }
       g.addEventListener('touchstart', function (e) { if (!(opts.disabled && opts.disabled())) e.preventDefault(); }, { passive: false });
       g.addEventListener('pointerdown', function (e) {
-        if (opts.disabled && opts.disabled()) return;
+        if (opts.disabled && opts.disabled()) { if (document.querySelector('.pl-choice:not(.is-done)')) toast('先做上面的預測'); return; }
         e.preventDefault(); try { g.setPointerCapture(e.pointerId); } catch (_) {}
         api.active = true; g.classList.add('is-drag');
         var mv = function (ev) { var raw = self.fromEvent(ev); var t = target(raw); if (opts.valid && !opts.valid(t)) return; ring.setAttribute('cx', t[0]); ring.setAttribute('cy', self.Y(t[1])); ring.style.opacity = 1;
@@ -234,7 +234,9 @@
   function instr(html) { return h('div', { class: 'pl-instr', html: html }); }
   function hint(html) { return h('div', { class: 'pl-hint', html: html }); }
   function pill(html, cls) { return h('span', { class: 'pl-pill ' + (cls || ''), html: html }); }
-  function toast(msg) { if (moving && !/先做|不行|再|繞遠|要沿|沒回到|必須|相鄰|已經|只淘汰|先標/.test(msg)) moving.board.goalMark(moving.pos); var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+  /* 還沒回答預測題就去動操作元件：把預測題捲到畫面中間並閃一下（手機上 toast 容易被忽略，會讓人以為壞掉） */
+  function nudge() { var c = document.querySelector('.pl-choice:not(.is-done)'); if (!c) return; try { c.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {} c.classList.remove('is-nudge'); void c.offsetWidth; c.classList.add('is-nudge'); setTimeout(function () { c.classList.remove('is-nudge'); }, 1800); }
+  function toast(msg) { if (/先做上面的預測/.test(msg)) nudge(); if (moving && !/先做|不行|再|繞遠|要沿|沒回到|必須|相鄰|已經|只淘汰|先標/.test(msg)) moving.board.goalMark(moving.pos); var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
   /* 「看詳解」：題目元件向目前的關卡登記，按下就公布答案並照答對流程走下去 */
   var curLesson = null;
