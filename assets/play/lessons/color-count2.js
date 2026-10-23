@@ -18,9 +18,9 @@
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, M = PG.model(PG.grid(['AB', 'CD'])), k = 4, V, pA, pB, pC, ks = {};
       P.choice(st, api, { id: 'cc2-p1', predict: true, label: '先猜猜看', prompt: '四區方塊（A 和 B、C 相鄰，D 和 B、C 相鄰）。依 A → B → C → D 的順序塗，A、B、C 都塗好了。<b>D 還剩幾種顏色</b>可選？', row: true, options: [{ ok: true, t: '要看 B、C 是不是同色' }, { t: '一定是 (總色數 − 1)' }, { t: '一定是 (總色數 − 2)' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('分成兩類看看'); } });
-      st.append(P.instr('D 的鄰居是 B 和 C，它們<b>可能同色</b>，也<b>可能不同色</b>，選擇數就不一樣。按下面兩個按鈕，分成<b>兩類</b>各算一遍；也調整顏色數 k 看看。'));
-      V = PG.view(st, M, { k: 4, nopal: true, small: true, onTap: function () { } });
-      var sn = steppr(st, '顏色數 k', 3, 6, 4, function (v) { k = v; if (cur) show(cur); ks[v] = 1; });
+      st.append(P.instr('D 的鄰居是 B 和 C，它們<b>可能同色</b>，也<b>可能不同色</b>，選擇數就不一樣。先照 A → B → C → D 的順序<b>塗塗看</b>（點顏色再點區域，下面會告訴你 D 還能選幾種）；再按下面兩個按鈕，分成<b>兩類</b>各算一遍。'));
+      V = PG.view(st, M, { k: 4, info: true, small: true, watch: 'D' });
+      var sn = steppr(st, '顏色數 k', 3, 6, 4, function (v) { k = v; V.setK(v); if (cur) show(cur); ks[v] = 1; });
       var cur = null, bt = btnRow(st, [{ k: 's', t: '看「B、C 同色」這一類', fn: function () { show('same'); } }, { k: 'd', t: '看「B、C 不同色」這一類', fn: function () { show('diff'); } }]);
       pA = pill(st, 'is-blue'); pB = pill(st, 'is-green'); pC = pill(st, 'is-amber');
       function show(w) {
@@ -41,7 +41,7 @@
       sn = steppr(st, '格數 n', 3, 8, 5, function (v) { n = v; build(); });
       st.append(holder); pA = pill(st, 'is-blue'); pB = pill(st, 'is-green'); pC = pill(st, 'is-amber');
       function build() {
-        holder.innerHTML = ''; V = PG.view(holder, ringModel(n), { k: k, nopal: true, small: true, onTap: function () { } }); var r = ringStats(n, k);
+        holder.innerHTML = ''; V = PG.view(holder, ringModel(n), { k: k, info: true, small: true }); var r = ringStats(n, k);
         pA.textContent = '剪開成一條線（首尾不相鄰）：3 × 2' + '^' + (n - 1) + ' ＝ ' + r.chain + ' 種'; pB.textContent = '其中「首尾同色」' + r.endSame + ' 種（這就是 ' + (n - 1) + ' 格的一圈：' + (n > 3 ? ringStats(n - 1, k).ring : 6) + ' 種）；「首尾不同色」' + r.endDiff + ' 種';
         pC.textContent = n + ' 格一圈（首尾相鄰）的塗法 ＝ 首尾不同色的那一類 ＝ ' + r.ring + ' 種　（' + r.chain + ' − ' + r.endSame + ' ＝ ' + r.ring + (r.ring === r.chain - r.endSame ? ' ✓' : '') + '）'; pC.className = 'pl-pill is-ok';
         if (gate.on) return; seen[n] = 1; if (seen[3] && seen[4] && seen[5] && seen[6] && !done) { done = true; P.track('aha', { id: 'color-count2', step: 2 }); if (api.ctx.p2 === 0) P.toast('你猜對了：比 3 × 2^(n−1) 少'); st.append(P.ruleBox('剪開成一條線有 <b>k(k−1)^(n−1)</b> 種，但這裡面<b>首尾同色</b>的塗法，在真正的一圈裡不能算（首尾相鄰）。<br>首尾同色的塗法，把首尾合併成一格，就是 <b>(n−1) 格的一圈</b>。所以 <b>n 格的一圈 ＋ (n−1) 格的一圈 ＝ k(k−1)^(n−1)</b>。這就是環形塗色的遞推，不用背公式。', '環形塗色')); api.unlock('n 格環 ＋ (n−1) 格環 ＝ k(k−1)^(n−1)'); }
@@ -55,24 +55,24 @@
       var box = h('div', {}); st.append(box);
       function sqTask(b0, done, setSolve) {
         b0.append(h('div', { class: 'pl-q', html: '四區方塊。調整顏色數 k，讓「<b>B、C 不同色</b>」這一類剛好有 <b>48</b> 種塗法。' })); var fin = false, M = PG.model(PG.grid(['AB', 'CD'])), p = pill(b0, 'is-green'), p2 = pill(b0, 'is-blue');
-        PG.view(b0, M, { k: 4, nopal: true, small: true, onTap: function () { } });
-        function upd(k) { var c = sq(M, k); p.textContent = 'k ＝ ' + k + '：B、C 不同色 ' + k + ' × ' + (k - 1) + ' × ' + (k - 2) + ' × ' + (k - 2) + ' ＝ ' + c.diff + ' 種'; p2.textContent = 'B、C 同色 ' + c.same + ' 種；合計 ' + c.total + ' 種'; p.className = 'pl-pill ' + (c.diff === 48 ? 'is-ok' : 'is-green'); if (c.diff === 48 && !fin) { fin = true; P.toast('k ＝ ' + k + '：48 種'); b0.append(P.ruleBox('不同色這一類：k(k−1)(k−2)²。k ＝ 4：4 × 3 × 2 × 2 ＝ 48。', '找到了')); done(); } }
+        var V = PG.view(b0, M, { k: 4, info: true, small: true });
+        function upd(k) { V.setK(k); var c = sq(M, k); p.textContent = 'k ＝ ' + k + '：B、C 不同色 ' + k + ' × ' + (k - 1) + ' × ' + (k - 2) + ' × ' + (k - 2) + ' ＝ ' + c.diff + ' 種'; p2.textContent = 'B、C 同色 ' + c.same + ' 種；合計 ' + c.total + ' 種'; p.className = 'pl-pill ' + (c.diff === 48 ? 'is-ok' : 'is-green'); if (c.diff === 48 && !fin) { fin = true; P.toast('k ＝ ' + k + '：48 種'); b0.append(P.ruleBox('不同色這一類：k(k−1)(k−2)²。k ＝ 4：4 × 3 × 2 × 2 ＝ 48。', '找到了')); done(); } }
         var sn = steppr(b0, '顏色數 k', 3, 6, 6, upd); b0.insertBefore(b0.lastChild, p.parentNode); upd(6); setSolve(function () { sn.set(4, true); upd(4); }, 'k ＝ 4（4 × 3 × 2 × 2 ＝ 48）'); b0.append(P.hint('不同色那一類：k × (k−1) × (k−2) × (k−2)。'));
       }
       function ringTask(b0, done, setSolve) {
         b0.append(h('div', { class: 'pl-q', html: '3 種顏色塗一圈（首尾相鄰）。調整<b>格數 n</b>，讓塗法剛好有 <b>66</b> 種。' })); var fin = false, holder = h('div'), p = pill(b0, 'is-green'), sn;
-        function upd(n) { var r = ringStats(n, 3); holder.innerHTML = ''; PG.view(holder, ringModel(n), { k: 3, nopal: true, small: true, onTap: function () { } }); p.textContent = n + ' 格一圈：' + r.ring + ' 種（剪開成線 ' + r.chain + '，減去首尾同色 ' + r.endSame + '）'; p.className = 'pl-pill ' + (r.ring === 66 ? 'is-ok' : 'is-green'); if (r.ring === 66 && !fin) { fin = true; P.toast('n ＝ ' + n + '：66 種'); b0.append(P.ruleBox('n ＝ 6：3 × 2^5 ＝ 96 種是剪開成線，首尾同色的有 30 種（5 格一圈），96 − 30 ＝ 66 種。', '找到了')); done(); } }
+        function upd(n) { var r = ringStats(n, 3); holder.innerHTML = ''; PG.view(holder, ringModel(n), { k: 3, info: true, small: true }); p.textContent = n + ' 格一圈：' + r.ring + ' 種（剪開成線 ' + r.chain + '，減去首尾同色 ' + r.endSame + '）'; p.className = 'pl-pill ' + (r.ring === 66 ? 'is-ok' : 'is-green'); if (r.ring === 66 && !fin) { fin = true; P.toast('n ＝ ' + n + '：66 種'); b0.append(P.ruleBox('n ＝ 6：3 × 2^5 ＝ 96 種是剪開成線，首尾同色的有 30 種（5 格一圈），96 − 30 ＝ 66 種。', '找到了')); done(); } }
         sn = steppr(b0, '格數 n', 3, 8, 3, upd); b0.append(holder); upd(3); setSolve(function () { sn.set(6, true); upd(6); }, 'n ＝ 6（6 格一圈、3 色：96 − 30 ＝ 66 種）'); b0.append(P.hint('3 格：6 種、4 格：18 種、5 格：30 種…往下接。'));
       }
       function wheelTask(b0, done, setSolve) {
         b0.append(h('div', { class: 'pl-q', html: '輪形：中心 O 加外圈，<b>4 種顏色</b>。調整<b>外圈格數 n</b>，讓塗法剛好有 <b>72</b> 種。（提示：中心先塗，外圈只剩 3 種顏色。）' })); var fin = false, holder = h('div'), p = pill(b0, 'is-green'), sn;
-        function upd(n) { var M = PG.model(PG.wheel(n, true)), tot = PG.count(M, 4), rg = ringStats(n, 3).ring; holder.innerHTML = ''; PG.view(holder, M, { k: 4, nopal: true, small: true, onTap: function () { } }); p.textContent = '外圈 ' + n + ' 格：中心 4 種 × 外圈（只剩 3 種顏色的一圈）' + rg + ' ＝ ' + 4 * rg + ' 種（電腦列舉 ' + tot + ' 種' + (tot === 4 * rg ? ' ✓' : '') + '）'; p.className = 'pl-pill ' + (tot === 72 ? 'is-ok' : 'is-green'); if (tot === 72 && !fin) { fin = true; P.toast('n ＝ ' + n + '：72 種'); b0.append(P.ruleBox('輪形：中心先塗，有 4 種；外圈每格都和中心相鄰，只剩 3 種顏色，外圈就是「3 色塗一圈」。n ＝ 4：4 × 18 ＝ 72。', '找到了')); done(); } }
+        function upd(n) { var M = PG.model(PG.wheel(n, true)), tot = PG.count(M, 4), rg = ringStats(n, 3).ring; holder.innerHTML = ''; PG.view(holder, M, { k: 4, info: true, small: true }); p.textContent = '外圈 ' + n + ' 格：中心 4 種 × 外圈（只剩 3 種顏色的一圈）' + rg + ' ＝ ' + 4 * rg + ' 種（電腦列舉 ' + tot + ' 種' + (tot === 4 * rg ? ' ✓' : '') + '）'; p.className = 'pl-pill ' + (tot === 72 ? 'is-ok' : 'is-green'); if (tot === 72 && !fin) { fin = true; P.toast('n ＝ ' + n + '：72 種'); b0.append(P.ruleBox('輪形：中心先塗，有 4 種；外圈每格都和中心相鄰，只剩 3 種顏色，外圈就是「3 色塗一圈」。n ＝ 4：4 × 18 ＝ 72。', '找到了')); done(); } }
         sn = steppr(b0, '外圈格數 n', 3, 7, 3, upd); b0.append(holder); upd(3); setSolve(function () { sn.set(4, true); upd(4); }, 'n ＝ 4（中心 4 種 × 外圈 3 色塗 4 格一圈 18 種 ＝ 72）'); b0.append(P.hint('外圈用 3 色塗一圈：前一關算過 3 格、4 格、5 格各幾種。'));
       }
       function cmpTask(b0, done, setSolve) {
         b0.append(h('div', { class: 'pl-q', html: '四區方塊。調整顏色數 k，讓「<b>B、C 同色</b>」這一類比「<b>B、C 不同色</b>」<b>更多</b>。' })); var fin = false, M = PG.model(PG.grid(['AB', 'CD'])), p = pill(b0, 'is-green'), p2 = pill(b0, 'is-blue');
-        PG.view(b0, M, { k: 4, nopal: true, small: true, onTap: function () { } });
-        function upd(k) { var c = sq(M, k); p.textContent = 'k ＝ ' + k + '：B、C 同色 ' + c.same + ' 種，B、C 不同色 ' + c.diff + ' 種'; p2.textContent = c.same > c.diff ? '同色比較多 ✓' : '不同色比較多（或一樣）'; p.className = 'pl-pill ' + (c.same > c.diff ? 'is-ok' : 'is-green'); if (c.same > c.diff && !fin) { fin = true; P.toast('k ＝ ' + k + '：同色比較多'); b0.append(P.ruleBox('同色：k(k−1)²；不同色：k(k−1)(k−2)²。k 很小時，(k−2)² 很小，不同色比較少；k 變大，不同色就超過同色。所以每一類有多少種，要看 k。', '找到了')); done(); } }
+        var V = PG.view(b0, M, { k: 4, info: true, small: true });
+        function upd(k) { V.setK(k); var c = sq(M, k); p.textContent = 'k ＝ ' + k + '：B、C 同色 ' + c.same + ' 種，B、C 不同色 ' + c.diff + ' 種'; p2.textContent = c.same > c.diff ? '同色比較多 ✓' : '不同色比較多（或一樣）'; p.className = 'pl-pill ' + (c.same > c.diff ? 'is-ok' : 'is-green'); if (c.same > c.diff && !fin) { fin = true; P.toast('k ＝ ' + k + '：同色比較多'); b0.append(P.ruleBox('同色：k(k−1)²；不同色：k(k−1)(k−2)²。k 很小時，(k−2)² 很小，不同色比較少；k 變大，不同色就超過同色。所以每一類有多少種，要看 k。', '找到了')); done(); } }
         var sn = steppr(b0, '顏色數 k', 3, 6, 5, upd); upd(5); setSolve(function () { sn.set(3, true); upd(3); }, 'k ＝ 3（同色 3 × 2 × 1 × 2 ＝ 12，不同色 3 × 2 × 1 × 1 ＝ 6）'); b0.append(P.hint('比較 (k−1) 和 (k−2)²。'));
       }
       P.taskSeq(box, api, [sqTask, ringTask, wheelTask, cmpTask], { lock: '完成 4 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'color-count2' }); } });

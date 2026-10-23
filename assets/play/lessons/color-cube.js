@@ -7,7 +7,8 @@
   function pill(host, cls) { var p = P.pill('', cls || 'is-green'); p.style.whiteSpace = 'normal'; host.append(h('div', { class: 'pl-readout' }, p)); return p; }
   function steppr(host, label, min, max, val, fn) { var sn = P.stepper(label, min, max, val, fn, function (v) { return v; }); host.append(h('div', { class: 'pl-steprow' }, sn.el)); return sn; }
   /* 小方塊 (i, j, k)（0 到 n−1）有哪幾面有色：+x、−x、+y、−y、+z、−z（順序對應 Play3D.box 的面）。variant：'all' 六面都塗，'nobottom' 底面（−y）不塗 */
-  function faceFlags(n, i, j, k, variant) { var f = [k === n - 1, k === 0, j === n - 1, variant === 'nobottom' ? false : j === 0, i === n - 1, i === 0]; return f; }   /* [+z, −z, +y, −y, +x, −x] */
+  /* 面的順序同 Play3D.box：[+z 前, −z 後, −x 左, +x 右, +y 上, −y 下]。v：'all'、'nobottom'，或六個 true／false（哪幾面有塗） */
+  function faceFlags(n, i, j, k, v) { var pf = Array.isArray(v) ? v : v === 'nobottom' ? [1, 1, 1, 1, 1, 0] : [1, 1, 1, 1, 1, 1], on = [k === n - 1, k === 0, i === 0, i === n - 1, j === n - 1, j === 0]; return on.map(function (b, t) { return !!(b && pf[t]); }); }
   function count(n, variant) { var c = [0, 0, 0, 0, 0, 0, 0], i, j, k; for (i = 0; i < n; i++) for (j = 0; j < n; j++) for (k = 0; k < n; k++) c[faceFlags(n, i, j, k, variant).filter(Boolean).length]++; return c; }
   function kind(n, i, j, k) { var e = [i, j, k].filter(function (v) { return v === 0 || v === n - 1; }).length; return e; }   /* 在大正方體的 角(3)／邊(2)／面(1)／內部(0) */
 
@@ -74,9 +75,11 @@
         sn = steppr(b0, '切成 n×n×n', 2, 6, 3, upd); upd(3); setSolve(function () { sn.set(5, true); upd(5); }, 'n ＝ 5（內部 3×3×3 ＝ 27 個）'); b0.append(P.hint('內部是去掉外面一層（兩端）後剩下的正方體。'));
       }
       function bottomTask(b0, done, setSolve) {
-        b0.append(h('div', { class: 'pl-q', html: '這次<b>底面不塗色</b>（只塗上面和四個側面）。調整 n，讓「<b>一面都沒有色</b>」的小方塊剛好有 <b>36</b> 個。' })); var fin = false, S, p = pill(b0, 'is-green'), sn;
-        S = cubeView(b0, { n: 3, variant: 'nobottom' }); S.cls = true; S.rebuild();
-        function upd(n) { S.set(n); var c = count(n, 'nobottom'); p.textContent = 'n ＝ ' + n + '：0 面有色 ＝ 內部 ' + (n - 2) + '³ ＋ 最下面一層中間 ' + (n - 2) + '² ＝ ' + (n - 2) * (n - 2) * (n - 2) + ' ＋ ' + (n - 2) * (n - 2) + ' ＝ ' + c[0] + ' 個'; p.className = 'pl-pill ' + (c[0] === 36 ? 'is-ok' : 'is-green'); if (c[0] === 36 && !fin) { fin = true; P.toast('n ＝ ' + n + '：36 個'); b0.append(P.ruleBox('底面不塗，最下面一層的小方塊，只要不在側面，就也沒有顏色：多了 (n − 2)² 塊。n ＝ 5：3³ ＋ 3² ＝ 27 ＋ 9 ＝ 36。公式要看「哪些面有塗」，不能死背。', '找到了')); done(); } }
+        b0.append(h('div', { class: 'pl-q', html: '這次<b>底面不塗色</b>：先按下面的「<b>下面</b>」把底面的顏色擦掉（只塗上面和四個側面）。再調整 n，讓「<b>一面都沒有色</b>」的小方塊剛好有 <b>36</b> 個。' })); var fin = false, S, p = pill(b0, 'is-green'), sn;
+        S = cubeView(b0, { n: 3, variant: [1, 1, 1, 1, 1, 1] }); S.cls = true; S.rebuild(); var FN = ['前面', '後面', '左面', '右面', '上面', '下面'], fb = [];
+        var frow = h('div'); frow.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0'; b0.append(frow);
+        FN.forEach(function (nmf, t) { var b = h('button', { type: 'button' }); b.style.cssText = 'min-height:44px;padding:0 12px;border-radius:12px;font-weight:800;cursor:pointer;border:2px solid #d29b1f;background:#fff;color:#122548'; function lab() { b.textContent = nmf + '：' + (S.variant[t] ? '有塗色' : '沒塗'); b.style.background = S.variant[t] ? '#fff3d0' : '#eee'; } b.addEventListener('click', function () { S.variant = S.variant.slice(); S.variant[t] = S.variant[t] ? 0 : 1; lab(); upd(S.n); }); lab(); fb.push(lab); frow.append(b); });
+        function upd(n) { S.set(n); var c = count(n, S.variant), pfOk = S.variant.join('') === '111110'; p.textContent = pfOk ? 'n ＝ ' + n + '：0 面有色 ＝ 內部 ' + (n - 2) + '³ ＋ 最下面一層中間 ' + (n - 2) + '² ＝ ' + (n - 2) * (n - 2) * (n - 2) + ' ＋ ' + (n - 2) * (n - 2) + ' ＝ ' + c[0] + ' 個' : 'n ＝ ' + n + '：現在有塗色的面 ' + S.variant.filter(Boolean).length + ' 個，一面都沒有色的小方塊有 ' + c[0] + ' 個（先把「下面」擦掉、其他五面都要有塗色）'; p.className = 'pl-pill ' + (c[0] === 36 && pfOk ? 'is-ok' : 'is-green'); if (c[0] === 36 && pfOk && !fin) { fin = true; P.toast('n ＝ ' + n + '：36 個'); b0.append(P.ruleBox('底面不塗，最下面一層的小方塊，只要不在側面，就也沒有顏色：多了 (n − 2)² 塊。n ＝ 5：3³ ＋ 3² ＝ 27 ＋ 9 ＝ 36。公式要看「哪些面有塗」，不能死背。', '找到了')); done(); } }
         sn = steppr(b0, '切成 n×n×n', 2, 6, 3, upd); upd(3); setSolve(function () { sn.set(5, true); upd(5); }, 'n ＝ 5（內部 27 ＋ 最下面一層中間 9 ＝ 36）'); b0.append(P.hint('底面沒塗，最下面一層有哪些小方塊也沒有顏色？'));
       }
       P.taskSeq(box, api, [pickTask, nTask, bottomTask], { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'color-cube' }); } });
