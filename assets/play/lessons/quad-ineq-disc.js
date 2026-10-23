@@ -33,7 +33,7 @@
     var S = { get: function () { return { s: s, k: k }; } };
     function upd() {
       cur.set(F(s, k)); gR.innerHTML = '';
-      var d = disc(k), r = rootsTxt(k); if (r) r.forEach(function (v) { gR.append(b.dot([pl.X(v), ay], 'pl-dot pl-dot--pink', null, 0.22)); });
+      var d = disc(k), r = rootsTxt(k); if (r) (d === 0 ? [r[0], r[0]] : r).forEach(function (v) { gR.append(b.dot([pl.X(v), ay], 'pl-dot pl-dot--pink', null, 0.22)); });   /* D ＝ 0：兩個根重合，畫兩個疊在一起的點 */
       pD.textContent = 'D ＝ 16 − 4k ＝ ' + f(d) + (d > 0 ? '（和 x 軸有 2 個交點）' : d === 0 ? '（剛好碰到 x 軸 1 個點）' : '（碰不到 x 軸）'); pD.className = 'pl-pill ' + (d > 0 ? 'is-green' : d === 0 ? 'is-blue' : 'is-pink');
       rows.forEach(function (r2) { r2.p.textContent = eqName(s, k) + ' ' + r2.op + ' 0：' + solText(s, k, r2.op); });
       if (o.onChange) o.onChange(s, k);

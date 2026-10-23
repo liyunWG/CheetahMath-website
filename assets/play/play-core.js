@@ -230,7 +230,12 @@
   }
 
   /* ------------------------------------------------------------ 共用元件 */
-  function ruleBox(html, label) { return h('div', { class: 'pl-rule' }, h('span', { class: 'pl-rule__lb' }, label || '性質'), h('div', { html: html })); }
+  /* 綠框（性質／詳解）：這一步（或這一關）已登記答案時，第一個出現的綠框最上面一律先寫「正確答案是：…」，不必等學生按「看詳解」 */
+  function ruleBox(html, label) {
+    var box = h('div', { class: 'pl-rule' }, h('span', { class: 'pl-rule__lb' }, label || '性質'), h('div', { html: html })), L = curLesson;
+    if (L && typeof L.stepAns === 'string' && L.stepAns && L.stepSolve && L._ansTok !== L.stepSolve && String(html).indexOf('pl-ans') < 0) { L._ansTok = L.stepSolve; box.insertAdjacentHTML('afterbegin', '<div class="pl-ans"><b>正確答案是：</b>' + L.stepAns + '</div>'); }
+    return box;
+  }
   function instr(html) { return h('div', { class: 'pl-instr', html: html }); }
   function hint(html) { return h('div', { class: 'pl-hint', html: html }); }
   function pill(html, cls) { return h('span', { class: 'pl-pill ' + (cls || ''), html: html }); }
@@ -449,7 +454,7 @@
       var ans = ans0 === undefined ? solveToast : ans0; if (!ans) return;
       var news = [].slice.call(stage.querySelectorAll('.pl-rule')).filter(function (n) { return before.indexOf(n) < 0; }), line = '<div class="pl-ans"><b>正確答案是：</b>' + ans + '</div>';
       if (news.length) { var box = news[news.length - 1]; if (!box.querySelector('.pl-ans')) box.insertAdjacentHTML('afterbegin', line); }   /* 放在綠框最上面，連小標籤（「找到了」「性質」…）都排在它下面 */
-      else { var bx = ruleBox(line, '詳解'); bx.classList.add('pl-ansbox'); stage.append(bx); }
+      else if (!stage.querySelector('.pl-rule .pl-ans')) { var bx = ruleBox(line, '詳解'); bx.classList.add('pl-ansbox'); stage.append(bx); }   /* 學生自己做對時綠框已經寫了答案，就不再重複放一個 */
     },
     go: function (n, first) {
       if (n < 0 || n >= this.cfg.steps.length) return; var self = this; this.i = n;

@@ -22,12 +22,13 @@
     circ.set([0, 0], R); b.dot([pl.X(0), pl.Y(0)], 'pl-dot', pl.gC, 0.12);
     function set2(el, p, q) { b.setLine(el, [pl.X(p[0]), pl.Y(p[1])], [pl.X(q[0]), pl.Y(q[1])]); }
     function upd() {
-      var g = PV.gen(A[0], A[1], B[0], B[1]), a = g[0], bb = g[1], c = g[2], n2 = a * a + bb * bb, nn = Math.sqrt(n2), d = Math.abs(c) / nn, delta = R2 * n2 - c * c, kind = delta > 0 ? 'int' : delta === 0 ? 'tan' : 'out';
+      var same = A[0] === B[0] && A[1] === B[1], g = same ? PV.gen(A[0], A[1], A[0] - A[1], A[1] + A[0]) : PV.gen(A[0], A[1], B[0], B[1]), a = g[0], bb = g[1], c = g[2], n2 = a * a + bb * bb, nn = Math.sqrt(n2), d = Math.abs(c) / nn, delta = R2 * n2 - c * c, kind = delta > 0 ? 'int' : delta === 0 ? 'tan' : 'out';
       ln.set(a, bb, c);
       var F = [-c * a / n2, -c * bb / n2], u = [-bb / nn, a / nn], half = delta >= 0 ? Math.sqrt(delta / n2) : 0, P1 = [F[0] + u[0] * half, F[1] + u[1] * half], P2 = [F[0] - u[0] * half, F[1] - u[1] * half];
       var showD = c !== 0, vFO = showD ? [-F[0] / d, -F[1] / d] : [0, 0];
       i1.style.display = i2.style.display = 'none'; chord.style.display = hseg.style.display = rseg.style.display = 'none';
-      if (kind === 'int' || kind === 'tan') { [[i1, P1], [i2, P2]].forEach(function (k, ix) { if (kind === 'tan' && ix === 1) return; k[0].style.display = ''; k[0].setAttribute('cx', pl.X(k[1][0])); k[0].setAttribute('cy', b.Y(pl.Y(k[1][1]))); }); }
+      if (kind === 'int' || kind === 'tan') { [[i1, P1], [i2, P2]].forEach(function (k, ix) { k[0].style.display = ''; k[0].setAttribute('cx', pl.X(k[1][0])); k[0].setAttribute('cy', b.Y(pl.Y(k[1][1]))); }); }
+      if (o.onCircle) i1.style.display = i2.style.display = 'none';   /* A、B 本身就是交點 */
       if (kind === 'int') { chord.style.display = ''; set2(chord, P1, P2); }
       if (o.tri && kind === 'int' && showD) { hseg.style.display = ''; set2(hseg, F, P1); rseg.style.display = ''; set2(rseg, [0, 0], P1); }
       if (showD) { dseg.style.display = ''; set2(dseg, [0, 0], F); rt.set(F, u, vFO, 0.4); } else { dseg.style.display = 'none'; rt.hide(true); }
@@ -38,16 +39,16 @@
       if (showD) { var mid = [F[0] / 2, F[1] / 2], nv = [-vFO[1], vFO[0]], ld = PV.pick(pl, [[mid[0] + nv[0] * 0.6, mid[1] + nv[1] * 0.6], [mid[0] - nv[0] * 0.6, mid[1] - nv[1] * 0.6], [mid[0] + nv[0] * 1.0, mid[1] + nv[1] * 1.0], [mid[0] - nv[0] * 1.0, mid[1] - nv[1] * 1.0]].concat(PV.ring(mid, Math.atan2(nv[1], nv[0]), [1.3, 1.7, 2.2])), avoid, [0.3, 0.45]); avoid.push(ld.m); b.setText(td, ld.b, 'd'); } else b.setText(td, [0, 0], '');
       var info = { A: A, B: B, g: g, a: a, b: bb, c: c, n2: n2, d: d, delta: delta, kind: kind, chord: 2 * half, half: half, F: F }; S.info = info; if (o.onChange) o.onChange(info);
     }
-    var cands = PV.lattice(pl, XW, YW, true);
+    var cands = o.onCircle ? LATT12.map(function (p) { return [pl.X(p[0]), pl.Y(p[1])]; }) : PV.lattice(pl, XW, YW, true);
     function dis() { return !!(o.gate && o.gate.on); }
     function H(P0, set, other, cls) {
       function apply(t) { set(Math.round(pl.Xi(t[0])), Math.round(pl.Yi(t[1]))); upd(); }
       return b.handle({ r: 0.3, cls: cls, pos: [pl.X(P0[0]), pl.Y(P0[1])], candidates: cands, disabled: dis,
-        valid: function (t) { var q = other(); return !(Math.round(pl.Xi(t[0])) === q[0] && Math.round(pl.Yi(t[1])) === q[1]); }, onMove: apply, onEnd: function (t) { apply(t); if (o.onSettle) o.onSettle(S.info); } });
+        valid: function (t) { if (o.onCircle) return true; var q = other(); return !(Math.round(pl.Xi(t[0])) === q[0] && Math.round(pl.Yi(t[1])) === q[1]); }, onMove: apply, onEnd: function (t) { apply(t); if (o.onSettle) o.onSettle(S.info); } });
     }
     var hA = o.fixedA ? null : H(A, function (x, y) { A[0] = x; A[1] = y; }, function () { return B; }), hB = H(B, function (x, y) { B[0] = x; B[1] = y; }, function () { return A; });
     S.setA = function (x, y) { hA.moveTo([pl.X(x), pl.Y(y)]); }; S.setB = function (x, y) { hB.moveTo([pl.X(x), pl.Y(y)]); }; S.pl = pl; S.A = A; S.B = B;
-    upd(); return S;
+    S.refresh = upd; upd(); return S;
   }
   function lineReadout(host, withChord) {
     var pD = P.pill('', 'is-amber'), pR = P.pill('', 'is-blue'), pK = P.pill('', 'is-green'), pS = P.pill('', 'is-pink'); [pD, pR, pK, pS].forEach(function (p) { p.style.whiteSpace = 'normal'; });
@@ -55,7 +56,7 @@
     return function (i) {
       pD.textContent = '直線：' + tl(i.a, i.b) + (i.c === 0 ? '' : i.c < 0 ? ' − ' + (-i.c) : ' ＋ ' + i.c) + ' ＝ 0';
       pR.textContent = 'd ＝ |C| ÷ √(A² ＋ B²) ＝ ' + Math.abs(i.c) + ' ÷ √' + i.n2 + ' ≈ ' + dec(i.d) + '　（半徑 r ＝ 5）';
-      pK.textContent = i.kind === 'int' ? 'd ＜ r：相交（2 個交點）' : i.kind === 'tan' ? 'd ＝ r：相切（只有 1 個交點）' : 'd ＞ r：相離（沒有交點）'; pK.className = 'pl-pill ' + (i.kind === 'tan' ? 'is-ok' : 'is-green');
+      pK.textContent = i.kind === 'int' ? 'd ＜ r：相交（2 個交點）' : i.kind === 'tan' ? 'd ＝ r：相切（兩個交點重合成 1 個切點）' : 'd ＞ r：相離（沒有交點）'; pK.className = 'pl-pill ' + (i.kind === 'tan' ? 'is-ok' : 'is-green');
       pS.textContent = withChord ? (i.kind === 'int' ? '弦長 ＝ 2√(r² − d²) ＝ 2√(25 − ' + dec(i.d * i.d) + ') ≈ ' + dec(i.chord) : '沒有弦（弦長要在相交時才有）')
         : '聯立後判別式 Δ 的正負 ＝ r²(A² ＋ B²) − C² ＝ 25×' + i.n2 + ' − ' + i.c * i.c + ' ＝ ' + i.delta + '（Δ ' + (i.delta > 0 ? '＞ 0' : i.delta === 0 ? '＝ 0' : '＜ 0') + '）';
     };
@@ -171,9 +172,9 @@
       function lineTask(cfg) {
         return function (b0, done, setSolve) {
           b0.append(h('div', { class: 'pl-q', html: cfg.prompt }));
-          var fin = false, ro, sc = lineScene(b0, { A: cfg.A, B: cfg.B, tri: cfg.tri, onChange: function (i) { ro && ro(i); }, onSettle: function (i) {
+          var fin = false, ro, pAB = cfg.onCircle ? P.pill('', 'is-blue') : null, sc = lineScene(b0, { A: cfg.A, B: cfg.B, tri: cfg.tri, onCircle: cfg.onCircle, onChange: function (i) { ro && ro(i); if (pAB) { var same = i.A[0] === i.B[0] && i.A[1] === i.B[1]; pAB.textContent = 'A ＝ ' + PV.vs(i.A[0], i.A[1]) + '、B ＝ ' + PV.vs(i.B[0], i.B[1]) + (same ? '：A、B 重合，只有 1 個交點' : '：兩個不同的交點，直線穿過圓'); pAB.className = 'pl-pill ' + (same ? 'is-ok' : 'is-blue'); pAB.style.whiteSpace = 'normal'; } }, onSettle: function (i) {
             if (cfg.ok(i) && !fin) { fin = true; sc.pl.b.goalMark([sc.pl.X(i.B[0]), sc.pl.Y(i.B[1])]); P.toast(cfg.msg); b0.append(P.ruleBox(cfg.rule, '找到了')); done(); } } });
-          ro = lineReadout(b0, cfg.tri); ro(sc.info); setSolve(function () { sc.setA(cfg.ans[0][0], cfg.ans[0][1]); sc.setB(cfg.ans[1][0], cfg.ans[1][1]); }, cfg.answer); b0.append(P.hint(cfg.hint));
+          ro = lineReadout(b0, cfg.tri); if (pAB) b0.append(h('div', { class: 'pl-readout' }, pAB)); ro(sc.info); if (pAB) sc.refresh(); setSolve(function () { sc.setA(cfg.ans[0][0], cfg.ans[0][1]); sc.setB(cfg.ans[1][0], cfg.ans[1][1]); }, cfg.answer); b0.append(P.hint(cfg.hint));
         };
       }
       function tanTask(b0, done, setSolve) {
@@ -188,7 +189,7 @@
         ro(sc.info); setSolve(function () { sc.setT1(5, 0); sc.setT2(0, 5); }, '切點是 (5, 0) 與 (0, 5)（切線 x ＝ 5 與 y ＝ 5，都通過 Q(5, 5)）'); b0.append(P.hint('切線 x₀x ＋ y₀y ＝ 25 要通過 Q，把 Q 的座標代進去，x₀ 和 y₀ 要滿足什麼？'));
       }
       var tasks = [
-        lineTask({ prompt: '拖動 <b>A</b>、<b>B</b>，讓直線<b>恰好和圓相切</b>。', A: [-3, 5], B: [3, 3], ok: function (i) { return i.kind === 'tan'; }, ans: [[5, -3], [5, 3]], answer: '直線 x ＝ 5（A(5, −3)、B(5, 3)）：d ＝ 5 ＝ r，相切；通過 (1, 3)、(5, 0) 的直線（3x ＋ 4y ＝ 25）也可以', msg: 'd ＝ r ＝ 5：相切', rule: '相切就是 d ＝ r ＝ 5，判別式 ＝ 0。例如鉛直線 x ＝ 5（d ＝ 5），或 3x ＋ 4y ＝ 25（切於 (3, 4)）。', hint: '相切時 d ＝ r，橘色虛線和半徑一樣長（5）。橫線或直線 x ＝ 常數 比較好找。' }),
+        lineTask({ prompt: '<b>A</b>、<b>B</b> 是直線和圓的<b>兩個交點</b>（兩個點都在圓上）。拖動 A、B，讓直線<b>恰好和圓相切</b>。', A: [-3, 4], B: [5, 0], onCircle: true, ok: function (i) { return i.kind === 'tan'; }, ans: [[3, 4], [3, 4]], answer: 'A、B 重疊在圓上同一個點（例如 (3, 4)）：只有 1 個交點，直線 3x ＋ 4y ＝ 25 和圓相切', msg: 'A、B 重合：只有 1 個交點，相切', rule: '相切時直線和圓只有 <b>1 個</b>交點，也就是 A、B 兩個交點<b>重合</b>在同一點（切點）。這條直線垂直於過切點的半徑 OA，例如切於 (3, 4) 是 3x ＋ 4y ＝ 25（d ＝ r ＝ 5）。', hint: '相切時，直線和圓有幾個交點？那 A、B 兩個點會怎麼樣？重疊以後，先把上面的 B 拖開，就能再單獨移動 A。' }),
         lineTask({ prompt: '圓的半徑 r ＝ 5。拖動 <b>A</b>、<b>B</b>，讓直線截出的<b>弦長是 8</b>。', A: [-4, 4], B: [4, 4], tri: true, ok: function (i) { return i.kind === 'int' && 25 * i.n2 - i.c * i.c === 16 * i.n2; }, ans: [[-4, 3], [4, 3]], answer: '直線 y ＝ 3（d ＝ 3）：弦長 ＝ 2√(25 − 9) ＝ 8；y ＝ −3、x ＝ ±3 也可以', msg: 'd ＝ 3：弦長 ＝ 8', rule: '弦長 ＝ 2√(r² − d²) ＝ 8 → √(25 − d²) ＝ 4 → d² ＝ 9 → d ＝ 3。所以直線要離圓心 3：例如 y ＝ 3。', hint: '弦長是 2 × 半弦。半弦是 4，r ＝ 5，那 d 是多少？（3、4、5）' }),
         tanTask];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'circle-line' }); } });

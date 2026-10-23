@@ -38,8 +38,9 @@
       var ts = cut(A, a), n = ts.length, hh = BLEN * Math.sin(rad(A)); gD.innerHTML = '';
       b.circle(C, a * U, 'pl-circle', gD, { fill: 'none', stroke: '#d29b1f', 'stroke-width': 0.08, 'stroke-dasharray': '0.35 0.25' }); circle.style.display = 'none';
       ts.forEach(function (t, i) {
-        var B = [AX + t * U, AY]; gD.append(b.line([AX, AY], B, 'pl-line pl-line--pink pl-line--bold'), b.line(B, C, 'pl-line pl-line--pink pl-line--dash')); gD.append(b.dot(B, 'pl-dot pl-dot--pink', null, 0.24));
-        b.text([B[0], AY - 0.65], n > 1 ? 'B' + (i + 1 === 1 ? '₁' : '₂') : 'B', 'pl-text pl-text--pink', gD);
+        var B = [AX + t * U, AY]; gD.append(b.line([AX, AY], B, 'pl-line pl-line--pink pl-line--bold'), b.line(B, C, 'pl-line pl-line--pink pl-line--dash')); gD.append(b.dot(B, 'pl-dot pl-dot--pink', null, 0.24)); var tanB = Math.abs(a - hh) < 1e-9;
+        if (tanB) gD.append(b.dot(B, 'pl-dot pl-dot--pink', null, 0.24));   /* 相切：B₁、B₂ 兩個交點重合在同一點 */
+        b.text([B[0], AY - 0.65], tanB ? 'B₁＝B₂' : n > 1 ? 'B' + (i + 1 === 1 ? '₁' : '₂') : 'B', 'pl-text pl-text--pink', gD);
         if (Math.abs(a - hh) < 1e-9) gD.append(h('polyline', { points: b.pts([[B[0] - 0.4, AY], [B[0] - 0.4, AY + 0.4], [B[0], AY + 0.4]]), class: 'pl-right' }));
       });
       pA.textContent = 'a ＝ ' + f2(a) + '（圓的半徑）'; pH.textContent = 'h ＝ b·sin A ＝ ' + f2(hh) + '，b ＝ ' + BLEN;
@@ -47,7 +48,7 @@
       pB.textContent = a <= 0 ? '' : sB > 1 + 1e-9 ? 'sin B ＝ b·sin A ÷ a ＝ ' + f2(sB) + ' ＞ 1：沒有這樣的角 B' : 'sin B ＝ b·sin A ÷ a ＝ ' + f2(sB) + (n === 2 ? '　B₁ ＝ ' + f2(Math.asin(sB) * 180 / Math.PI) + '°、B₂ ＝ 180° − B₁ ＝ ' + f2(180 - Math.asin(sB) * 180 / Math.PI) + '°' : n === 1 ? '　B ＝ ' + f2(Math.atan2(hh, ts[0] * 0 + 0) * 0 + (sB >= 1 - 1e-9 ? 90 : (Math.abs(a - BLEN) < 1e-9 ? 90 - 0 : 0)) || 0) + '' : '');
       /* 更清楚的 B 角度：由三角形 ABC 三邊直接算（和正弦定理對照） */
       if (a > 0 && n >= 1) { var parts = ts.map(function (t, i) { var Bx = t, vB = [-t, 0], vC = [BLEN * Math.cos(rad(A)) - t, hh], ang = Math.acos(Math.max(-1, Math.min(1, (vB[0] * vC[0] + vB[1] * vC[1]) / (Math.hypot(vB[0], vB[1]) * Math.hypot(vC[0], vC[1]))))) * 180 / Math.PI; return (n > 1 ? 'B' + (i + 1 === 1 ? '₁' : '₂') : 'B') + ' ＝ ' + f2(ang) + '°'; }); pB.textContent = (sB > 1 + 1e-9 ? '' : 'sin B ＝ b·sin A ÷ a ＝ ' + f2(sB) + '　') + parts.join('、'); }
-      pN.textContent = n === 0 ? '圓碰不到射線：做不出三角形（0 個）' : n === 1 ? '只有 1 個三角形' : '有 2 個三角形（B₁ 和 B₂ 兩個交點）'; pN.className = 'pl-pill ' + (n === 0 ? 'is-pink' : n === 1 ? 'is-green' : 'is-blue');
+      pN.textContent = n === 0 ? '圓碰不到射線：做不出三角形（0 個）' : n === 1 ? (Math.abs(a - hh) < 1e-9 ? '只有 1 個三角形（B₁、B₂ 兩個交點重合成 1 個）' : '只有 1 個三角形') : '有 2 個三角形（B₁ 和 B₂ 兩個交點）'; pN.className = 'pl-pill ' + (n === 0 ? 'is-pink' : n === 1 ? 'is-green' : 'is-blue');
       if (chips) { var key = a < hh - 1e-9 ? 'lt' : Math.abs(a - hh) < 1e-9 ? 'eq' : a < BLEN - 1e-9 ? 'mid' : 'ge'; Object.keys(chips).forEach(function (k) { chips[k].className = 'pl-pill ' + (S.seen && S.seen[k] ? 'is-ok' : 'is-amber'); }); S.cur = key; }
       if (o.onChange) o.onChange(a, n, S);
     }
