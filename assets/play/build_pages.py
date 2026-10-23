@@ -132,7 +132,10 @@ for en in ENTRIES:
     js_dir = 'games' if en['kind'] == 'game' else 'lessons'
     scripts = ['assets/play/play-core.js'] + en['libs'] + ['assets/play/%s/%s.js' % (js_dir, en['slug']), 'assets/play/play-chrome.js']
     extra_js = ''.join('\n  <script src="%s" defer=""></script>' % p for p in scripts)
+    hide = bool(en.get('hidden'))
     h = head_for('play-%s.html' % en['slug'], '%s｜獵豹玩中學｜獵豹科教' % en['title'], en['desc'], 'page-play-lesson' + (' page-play-game' if en['kind'] == 'game' else ''), extra_js)
+    if hide:
+        h = h.replace('</title>', '</title>' + chr(10) + '  <meta name="robots" content="noindex,nofollow">', 1)
     if en['css']:
         h = h.replace('<link rel="stylesheet" href="assets/play/play.css">', '<link rel="stylesheet" href="assets/play/play.css">' + css_links(en['css']), 1)
     body = '<main class="page"><div class="play-wrap"><div id="play-root"><noscript><p class="pl-noscript">這個互動單元需要開啟瀏覽器的 JavaScript 才能操作。</p></noscript></div></div></main>'
@@ -162,7 +165,7 @@ def card_soon(title, grade, area, blurb):
         'all' if grade == '全年段' else grade, area, grade, area, e(title), e(blurb), LINE)
 
 
-lessons_only = [en for en in ENTRIES if en['kind'] == 'lesson']
+lessons_only = [en for en in ENTRIES if en['kind'] == 'lesson' and not en.get('hidden')]
 games_only = [en for en in ENTRIES if en['kind'] == 'game']
 cards = ''.join(card_live(en) for en in lessons_only) + ''.join(card_soon(*s) for s in SOON)
 game_cards = ''.join(card_game(en) for en in games_only) + ''.join(card_soon(*s) for s in GAME_SOON)

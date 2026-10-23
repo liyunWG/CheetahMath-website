@@ -137,7 +137,7 @@
         items.push({ t: 0, d: d, f: f, n: n, facing: facing });
       }
       for (i = 0; i < this.lines.length; i++) { var ln = this.lines[i]; if (ln.hidden) continue; items.push({ t: 1, d: (this._depth(this.view(ln.a)) + this._depth(this.view(ln.b))) / 2 + (ln.bias || 0.02), l: ln }); }
-      for (i = 0; i < this.dots.length; i++) { var dt = this.dots[i]; if (dt.hidden) continue; items.push({ t: 2, d: this._depth(this.view(dt.p)) + 0.04, o: dt }); }
+      for (i = 0; i < this.dots.length; i++) { var dt = this.dots[i]; if (dt.hidden) continue; items.push({ t: 2, d: dt.top ? 1e6 : this._depth(this.view(dt.p)) + 0.04, o: dt }); }
       var allT = this.extraTexts ? this.texts.concat(this.extraTexts) : this.texts;
       for (i = 0; i < allT.length; i++) { var tx = allT[i]; if (tx.hidden || tx.skip) continue; items.push({ t: 3, d: tx.top ? 1e6 : this._depth(this.view(tx.p)) + 0.08, x: tx }); }
       items.sort(function (a, b) { return a.d - b.d; });
@@ -152,7 +152,7 @@
         } else if (it.t === 1) {
           var a = this.project(it.l.a), b = this.project(it.l.b); c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.strokeStyle = it.l.color || '#122548'; c.lineWidth = it.l.w || 2.5; c.lineCap = 'round'; c.setLineDash(it.l.dash || []); c.stroke(); c.setLineDash([]);
         } else if (it.t === 2) {
-          var q = this.project(it.o.p); c.beginPath(); c.arc(q[0], q[1], it.o.r || 6, 0, 6.2832); c.fillStyle = it.o.color || '#122548'; c.fill(); if (it.o.ring) { c.strokeStyle = '#fff'; c.lineWidth = 2.5; c.stroke(); }
+          var q = this.project(it.o.p); c.beginPath(); c.arc(q[0], q[1], it.o.r || 6, 0, 6.2832); c.fillStyle = it.o.color || '#122548'; c.fill(); if (it.o.ring) { c.strokeStyle = it.o.ringColor || '#fff'; c.lineWidth = it.o.ringW || 2.5; c.stroke(); }
           if (it.o.label) { c.fillStyle = it.o.labelColor || '#122548'; c.font = '800 ' + (it.o.size || 15) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(it.o.label, q[0] + (it.o.dx || 0), q[1] + (it.o.dy === undefined ? -(it.o.r || 6) - 9 : it.o.dy)); }
         } else {
           var tp = this.project(it.x.p); c.fillStyle = it.x.color || '#122548'; c.font = '800 ' + (it.x.size || 15) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
