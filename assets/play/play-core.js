@@ -448,7 +448,7 @@
       this.stepSolve();   /* 示範裡 done() 會重新登記下一個動作，所以答案要先記下來 */
       var ans = ans0 === undefined ? solveToast : ans0; if (!ans) return;
       var news = [].slice.call(stage.querySelectorAll('.pl-rule')).filter(function (n) { return before.indexOf(n) < 0; }), line = '<div class="pl-ans"><b>正確答案是：</b>' + ans + '</div>';
-      if (news.length) { var inner = news[news.length - 1].lastElementChild; if (inner && !inner.querySelector('.pl-ans')) inner.insertAdjacentHTML('afterbegin', line); }
+      if (news.length) { var box = news[news.length - 1]; if (!box.querySelector('.pl-ans')) box.insertAdjacentHTML('afterbegin', line); }   /* 放在綠框最上面，連小標籤（「找到了」「性質」…）都排在它下面 */
       else { var bx = ruleBox(line, '詳解'); bx.classList.add('pl-ansbox'); stage.append(bx); }
     },
     go: function (n, first) {
