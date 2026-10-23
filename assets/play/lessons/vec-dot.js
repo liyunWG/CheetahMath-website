@@ -24,7 +24,7 @@
       var th = Math.round(Math.abs(delta) * 180 / Math.PI * 1e6) / 1e6, cosT = Math.cos(delta);
       ab.set([0, 0], B); gM.innerHTML = '';
       var db = [B[0] / LB, B[1] / LB]; var mid0 = al + delta / 2, isPar = Math.abs(A[0] * B[1] - A[1] * B[0]) === 0;
-      var aPl = PV.place(pl, [0, 0], A, [A, B, [0, 0]], 0.6), bPl = PV.place(pl, [0, 0], B, [A, B, aPl.m, [0, 0]], 0.6), thBest = null, thD = -1e9, TW = [1.35, 0.4];
+      var aPl = PV.place(pl, [0, 0], A, [A, B, [0, 0]], 0.6), bPl = PV.place(pl, [0, 0], B, [A, B, aPl.m, [0, 0]], 0.6), thBest = null, thD = -1e9, TW = [1.4, 0.45];
       [1.3, 1.7, 2.1, 2.5, 2.9].forEach(function (rad0) { [0, 0.25, -0.25, 0.5, -0.5, 0.9, -0.9, 1.4, -1.4].forEach(function (da) { var m = [rad0 * Math.cos(mid0 + da), rad0 * Math.sin(mid0 + da)], dd = 1e9, me = [m[0], m[1], TW[0], TW[1]]; [A, B, aPl.m, bPl.m].forEach(function (q) { dd = Math.min(dd, PV.gap(me, q)); }); dd = Math.min(dd, 0.6) - (rad0 - 1.3) * 0.05; if (m[0] < -4.6 || m[0] > 4.6 || m[1] < -3.3 || m[1] > 3.3) dd -= 5; if (dd > thD) { thD = dd; thBest = m; } }); });
       if (isPar) thBest = [0.9 * Math.cos(mid0 + 0.6), 0.9 * Math.sin(mid0 + 0.6)];
       b.setText(tA, aPl.b, 'a'); b.setText(tB, bPl.b, 'b');
