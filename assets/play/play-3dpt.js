@@ -16,7 +16,7 @@
   P3.scene = function (host, o) {
     o = o || {}; var bx = o.box || { x: [-3, 3], y: [0, 4], z: [-3, 3] }, c = [(bx.x[0] + bx.x[1]) / 2, (bx.y[0] + bx.y[1]) / 2, (bx.z[0] + bx.z[1]) / 2];
     var R = Math.hypot(bx.x[1] - bx.x[0], bx.y[1] - bx.y[0], bx.z[1] - bx.z[0]) / 2 + 0.6;
-    var sc = new D.Scene(host, { aspect: o.twoCol ? 1 : 0.8, autoH: true, hFrac: o.hFrac || 1, fitR: o.fitR || R, center: c, yaw: o.yaw === undefined ? -0.7 : o.yaw, pitch: o.pitch === undefined ? 0.5 : o.pitch, drag: true, label: o.label || '立體圖：拖曳點移動，拖曳空白處旋轉視角' });
+    var sc = new D.Scene(host, { aspect: o.twoCol ? 1 : 0.8, autoH: true, hFrac: o.hFrac || 1, fitR: o.fitR || R * 0.9, center: c, yaw: o.yaw === undefined ? -0.7 : o.yaw, pitch: o.pitch === undefined ? 0.5 : o.pitch, drag: true, label: o.label || '立體圖：拖曳點移動，拖曳空白處旋轉視角' });
     sc.box = bx; sc.home = { yaw: sc.yaw, pitch: sc.pitch }; sc.P3 = { pts: [], layoutItems: [] };
     sc.onPreRender = function () { P3.layout(sc); };
     (PS.scenes = PS.scenes || []).push(sc); return sc;
@@ -77,7 +77,7 @@
     };
     sc.onDragStart = function (pos, e) {
       if (o.gate && o.gate()) return undefined;
-      var i = api.pick(pos); if (i < 0) return undefined;
+      var i = api.pick(pos); if (i < 0) return undefined; if (o.onPick) o.onPick(i);
       var pt = pts[i], pid = e.pointerId, y0 = pt.p[1];
       try { cv.setPointerCapture(pid); } catch (_) {} api.hot = i; sc.invalidate();
       var mv = function (ev) {
@@ -180,20 +180,28 @@
      回傳 S：{sc, pts, drag, rebuild(), moveTo(i, p)（程式代拖，會觸發 onEnd）} */
   P3.stage = function (host, o) {
     var sc = P3.scene(host, { box: o.box, yaw: o.yaw, pitch: o.pitch, hFrac: o.hFrac }), S = { sc: sc, pts: o.pts }, main = [];
-    S.drag = P3.drag(sc, o.pts, { snap: o.snap, valid: o.valid, gate: o.gate, onMove: function (pt, i) { S.rebuild(); if (o.onMove) o.onMove(pt, i, S); }, onEnd: function (pt, i) { S.rebuild(); if (o.onEnd) o.onEnd(pt, i, S); } });
-    var base = sc.onPreRender; sc.onPreRender = function (c, s) { main.forEach(function (d, i) { d.ring = S.drag.hot === d._i; d.ringColor = '#122548'; d.ringW = 3; }); base(c, s); };
+    var firstMov = -1; o.pts.forEach(function (p, i) { if (firstMov < 0 && !p.fixed && !p.hidden) firstMov = i; }); S.sel = firstMov;
+    S.drag = P3.drag(sc, o.pts, { snap: o.snap, valid: o.valid, gate: o.gate, onPick: function (i) { S.sel = i; if (S.nudgeUpd) S.nudgeUpd(); }, onMove: function (pt, i) { S.rebuild(); if (S.nudgeUpd) S.nudgeUpd(); if (o.onMove) o.onMove(pt, i, S); }, onEnd: function (pt, i) { S.rebuild(); if (o.onEnd) o.onEnd(pt, i, S); } });
+    var base = sc.onPreRender; sc.onPreRender = function (c, s) { main.forEach(function (d, i) { d.ring = S.drag.hot === d._i || (S.sel === d._i && !o.pts[d._i].fixed && S.nudgeOn); d.ringColor = '#122548'; d.ringW = 3; }); base(c, s); };
     if (o.controls !== false) S.ctrl = P3.controls(host, sc, o.pts);
+    if (o.nudge !== false && firstMov >= 0) {   /* 微調：選到一個點，用按鈕一格一格移動，不用精準拖到位 */
+      S.nudgeOn = true; var nb = h('div'); nb.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;margin:6px 0'; var nl = h('span'); nl.style.cssText = 'font-weight:800;color:#122548;width:100%;text-align:center;font-size:14px'; nb.append(nl);
+      [['x −', 0, -1], ['x ＋', 0, 1], ['y −', 1, -1], ['y ＋', 1, 1], ['z −', 2, -1], ['z ＋', 2, 1]].forEach(function (b) { var bt = h('button', { type: 'button' }, b[0]); bt.style.cssText = 'min-width:44px;min-height:44px;padding:0 4px;border-radius:12px;font-weight:800;cursor:pointer;border:2px solid ' + ['#e03131', '#1f9d55', '#2f6fdc'][b[1]] + ';background:#fff;color:#122548'; bt.addEventListener('click', function () { if (o.gate && o.gate()) { P.toast('先做上面的預測'); return; } var pt = o.pts[S.sel]; if (!pt) return; var q = pt.p.slice(); q[b[1]] += b[2]; S.moveTo(S.sel, q); S.nudgeUpd(); }); nb.append(bt); });
+      S.nudgeUpd = function () { var pt = o.pts[S.sel]; nl.textContent = pt ? '點「' + pt.name + '」：' + '(' + pt.p.map(fmt).join(', ') + ')　按鈕一格一格移動，或直接拖曳' : ''; sc.invalidate(); }; host.append(nb);
+    }
+    function fmt(v) { return String(v).replace('-', '−'); }
     S.rebuild = function () {
       var spec = (o.build && o.build(S)) || {}, faces = (spec.faces || []).slice(), lines = (o.floor === false ? [] : P3.floor(sc)).concat(spec.lines || []), dots = [], texts = (spec.texts || []).slice();
       sc.P3.layoutItems = [];
+      if (o.axes !== false && o.floor !== false) { var bx = sc.box, a0 = [bx.x[0], bx.y[0], bx.z[0]]; lines.push({ a: a0, b: [bx.x[0] + 1.6, bx.y[0], bx.z[0]], color: '#e03131', w: 3 }, { a: a0, b: [bx.x[0], bx.y[0] + 1.6, bx.z[0]], color: '#1f9d55', w: 3 }, { a: a0, b: [bx.x[0], bx.y[0], bx.z[0] + 1.6], color: '#2f6fdc', w: 3 }); texts.push({ p: [bx.x[0] + 1.9, bx.y[0], bx.z[0]], t: 'x', color: '#e03131', size: 14, halo: true }, { p: [bx.x[0], bx.y[0] + 1.9, bx.z[0]], t: 'y', color: '#1f9d55', size: 14, halo: true }, { p: [bx.x[0], bx.y[0], bx.z[0] + 1.9], t: 'z', color: '#2f6fdc', size: 14, halo: true }); }
       o.pts.forEach(function (pt) { if (!pt.hidden && !pt.noShadow && pt.p[1] > 0) { lines.push({ a: pt.p, b: [pt.p[0], 0, pt.p[2]], color: 'rgba(18,37,72,.4)', w: 1.4, dash: [4, 4] }); dots.push({ p: [pt.p[0], 0, pt.p[2]], r: 3, color: 'rgba(18,37,72,.5)' }); } });
-      main = []; o.pts.forEach(function (pt, i) { if (pt.hidden) return; var d = { p: pt.p, r: pt.fixed ? 7 : 9, color: pt.color || COLB, top: true, _i: i }; if (!pt.noLabel) { d.label = pt.name; d.labelColor = pt.color || COLB; d.size = 17; sc.P3.layoutItems.push({ obj: d, kind: 'dot' }); } main.push(d); });
+      main = []; o.pts.forEach(function (pt, i) { if (pt.hidden) return; var d = { p: pt.p, r: pt.fixed ? 7 : 9, color: pt.color || COLB, top: true, _i: i }; if (!pt.noLabel) { d.label = pt.name + (pt.fixed || pt.cands && false ? '' : '(' + pt.p.map(fmt).join(',') + ')'); d.labelColor = pt.color || COLB; d.size = 17; sc.P3.layoutItems.push({ obj: d, kind: 'dot' }); } main.push(d); });
       (spec.dots || []).forEach(function (d) { d.top = true; if (d.label) sc.P3.layoutItems.push({ obj: d, kind: 'dot' }); main.push(d); d._i = -2; });
       texts.forEach(function (t) { if (t.t) sc.P3.layoutItems.push({ obj: t, kind: 'text' }); });
       sc.faces = faces; sc.lines = lines; sc.texts = texts; sc.dots = dots.concat(main); sc.invalidate();
     };
-    S.moveTo = function (i, p) { S.drag.moveTo(i, p); S.rebuild(); if (o.onEnd) o.onEnd(o.pts[i], i, S); };
-    S.rebuild(); window.__E0 = S; return S;
+    S.moveTo = function (i, p) { S.drag.moveTo(i, p); S.rebuild(); if (S.nudgeUpd) S.nudgeUpd(); if (o.onEnd) o.onEnd(o.pts[i], i, S); };
+    S.rebuild(); if (S.nudgeUpd) S.nudgeUpd(); window.__E0 = S; return S;
   };
   var COLB = '#2f6fdc';
 
