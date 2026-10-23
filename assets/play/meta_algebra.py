@@ -36,6 +36,14 @@ ABS2_ART = (
     '<g font-family="sans-serif" font-weight="800" text-anchor="middle"><text x="160" y="46" font-size="15" fill="#8a6410">中間一段：和 ＝ 3</text><text x="120" y="122" font-size="13" fill="#122548">零點 1</text><text x="200" y="122" font-size="13" fill="#122548">零點 4</text>'
     '<text x="62" y="30" font-size="13" fill="#d6336c">5 − 2x</text><text x="262" y="30" font-size="13" fill="#1f9d55">2x − 5</text></g></svg>')
 
+LINEAR_ART = (
+    '<svg viewBox="0 0 320 130" aria-hidden="true"><polygon points="86,118 114,118 100,92" fill="#cfc6ad"/>'
+    '<line x1="22" y1="82" x2="178" y2="102" stroke="#122548" stroke-width="5" stroke-linecap="round"/>'
+    '<rect x="34" y="52" width="30" height="28" rx="4" fill="rgba(47,111,220,.3)" stroke="#2f6fdc" stroke-width="2.5"/>'
+    '<line x1="150" y1="98" x2="150" y2="58" stroke="#d6336c" stroke-width="2"/><circle cx="150" cy="40" r="20" fill="rgba(214,51,108,.28)" stroke="#d6336c" stroke-width="2.5"/>'
+    '<g font-family="sans-serif" font-weight="800" text-anchor="middle"><text x="49" y="72" font-size="17" fill="#122548">3</text><text x="150" y="46" font-size="17" fill="#d6336c">−3</text></g>'
+    '<g font-family="sans-serif" font-weight="800"><text x="196" y="48" font-size="17" fill="#122548">3 ＜ 5</text><text x="196" y="80" font-size="17" fill="#d6336c">×(−1) 之後</text><text x="196" y="112" font-size="20" fill="#1f9d55">−3 ＞ −5</text></g></svg>')
+
 ENTRIES = [
     dict(slug='abs-split', title='絕對值：零點把數線切成兩段', grade='國中', area='代數', mins='約 8 分鐘', libs=APPN, css=APPCSS,
          blurb='拖動數線上的 x，看 |x − 2| 在零點兩邊為什麼要用不同的方式去掉絕對值；自己找出零點，再解絕對值方程式，並學會檢查解有沒有落在那一段。',
@@ -47,6 +55,11 @@ ENTRIES = [
          see='拖 x 看三段與折線、自己放兩個零點、3 個操作關卡（和＝5、找 3 個最小的位置、和＝8）', deep='絕對值不等式、分段函數圖形、距離和的最小值', classes='S101',
          desc='拖動 x 看 |x−1|＋|x−4| 的折線，發現兩個零點切成三段、中間一段和是常數——高中絕對值與分段討論互動單元。',
          art=ABS2_ART),
+    dict(slug='linear-ineq', title='一元一次不等式：蹺蹺板與數線', grade='國中', area='代數', mins='約 9 分鐘', libs=APPN, css=APPCSS,
+         blurb='砝碼和氣球的蹺蹺板，讓你親眼看到為什麼乘（除）負數不等號要反向；再在數線上找出解集合，並一步一步把 x 單獨留下，連 x 消失的兩種情形都弄懂。',
+         see='蹺蹺板按鈕看不等號、拖 x 在數線上找解集合、3 個操作關卡（3x−5＜7、−2x＋3≥7、x 消失的兩題）', deep='含絕對值的不等式、聯立不等式、含參數的不等式', classes='J72A／J72S',
+         desc='用砝碼與氣球的蹺蹺板看懂乘負數為什麼要反向，在數線上找出解集合，再一步步解一元一次不等式——國中代數互動單元。',
+         art=LINEAR_ART),
     dict(slug='completing-square', title='配方法＝補成正方形', grade='國中', area='代數', mins='約 9 分鐘',
          blurb='把 x²＋6x 的長條從中間切開，一半放旁邊、一半轉到下面，缺的角落就是要補的數；再用它找出拋物線的最低點、解方程式。',
          see='拖動剪刀切長條、調整小方塊補滿缺角、在拋物線上找最低點、3 個操作關卡（頂點、頂點、解 x²−4x−5＝0）', deep='配方法解一元二次方程式、二次函數頂點與最值、判別式', classes='J81A／J81S／J91A／J91S',

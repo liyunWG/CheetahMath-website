@@ -7,7 +7,7 @@
   /* 數字轉字串（負號用 −，半格用 .5） */
   PN.fmt = function (v) { return (v < 0 ? '−' : '') + Math.abs(Math.round(v * 1000) / 1000); };
 
-  /* 畫數線：o = {vmin, vmax, y, x0, x1, step}。回傳 {X(v), V(x), g}；刻度數字在數線下方。 */
+  /* 畫數線：o = {vmin, vmax, y, x0, x1, step, labelGap, labelEvery}。回傳 {X(v), V(x), g}；刻度數字在數線下方。 */
   PN.axis = function (board, o) {
     var y = o.y, vmin = o.vmin, vmax = o.vmax, x0 = o.x0 === undefined ? 1 : o.x0, x1 = o.x1 === undefined ? 11 : o.x1, step = o.step || 1;
     var g = h('g'); board.gMid.append(g);
@@ -16,7 +16,7 @@
     board.line([x0 - 0.5, y], [x1 + 0.5, y], 'pl-line', g);
     for (var v = vmin; v <= vmax + 1e-9; v += step) {
       board.line([X(v), y - 0.14], [X(v), y + 0.14], 'pl-line pl-line--thin', g);
-      if (Math.abs(v - Math.round(v)) < 1e-9) board.text([X(v), y - (o.labelGap || 0.95)], PN.fmt(v), 'pl-text pl-text--sm', g);
+      if (Math.abs(v - Math.round(v)) < 1e-9 && Math.round(v) % (o.labelEvery || 1) === 0) board.text([X(v), y - (o.labelGap || 0.95)], PN.fmt(v), 'pl-text pl-text--sm', g);
     }
     return { X: X, V: V, g: g };
   };
