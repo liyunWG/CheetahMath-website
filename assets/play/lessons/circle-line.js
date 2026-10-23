@@ -5,7 +5,7 @@
   var PV = window.PV; PV.XR = [-8.25, 8.25]; PV.YR = [-5.5, 5.5];
   var P = Play, h = P.h, f = PV.f, R = 5, R2 = 25;
   var CA = '#2f6fdc', CB = '#d6336c', CG = '#1f9d55', CT = '#d29b1f', CD = '#8a8470';
-  var XW = [-6, 6], YW = [-4, 4];
+  var XW = [-7, 7], YW = [-5, 5];   /* 圓半徑 5：格點範圍要涵蓋圓上下左右的頂點與圓外一格 */
   var PLEX = { skipX: [-7, -5, -3, -1, 1, 3, 5, 7], skipY: [-5, -3, -1, 1, 3, 5] };
   var LATT12 = [[5, 0], [-5, 0], [0, 5], [0, -5], [3, 4], [3, -4], [-3, 4], [-3, -4], [4, 3], [4, -3], [-4, 3], [-4, -3]];
   function sty(el, color, w, dash) { el.style.stroke = color; el.style.strokeWidth = w + 'px'; if (dash) el.style.strokeDasharray = '6 5'; return el; }
