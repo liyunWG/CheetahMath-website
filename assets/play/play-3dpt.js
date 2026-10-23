@@ -43,6 +43,8 @@
   };
   /* 視線與水平面 y＝y0 的交點（視線幾乎水平就回傳 null） */
   P3.rayFloor = function (ray, y0) { if (Math.abs(ray.d[1]) < 0.12) return null; var t = (y0 - ray.o[1]) / ray.d[1]; return [ray.o[0] + ray.d[0] * t, y0, ray.o[2] + ray.d[2] * t]; };
+  /* 視線與「座標平面」（axis＝0、1、2 分別代表 x、y、z 固定為 val）的交點；視線幾乎平行就回傳 null */
+  P3.rayAxis = function (ray, axis, val) { if (Math.abs(ray.d[axis]) < 0.12) return null; var t = (val - ray.o[axis]) / ray.d[axis]; return [ray.o[0] + ray.d[0] * t, ray.o[1] + ray.d[1] * t, ray.o[2] + ray.d[2] * t]; };
   /* 視線與鉛直線（過 (x0, ·, z0)）最接近的高度 y（視線幾乎鉛直就回傳 null）
      最小化 |w0 ＋ t·d − u·e|²（e＝(0,1,0)）：d·(…)＝0 與 e·(…)＝0 兩式解出 t，再 u ＝ w0.y ＋ t·d.y */
   P3.rayVertical = function (ray, x0, z0) {
@@ -67,7 +69,10 @@
       return best;
     };
     api.moveTo = function (i, p) {
-      var pt = pts[i], np = sn(clampP(p)); if (o.valid && o.valid(np, pt, i) === false) return false;
+      var pt = pts[i], np;
+      if (pt.cands) { var bd = 1e9; pt.cands.forEach(function (c) { var d = V.len(V.sub(c, p)); if (d < bd) { bd = d; np = c.slice(); } }); }   /* 只能停在指定的幾個點（例如直線上的格點） */
+      else np = sn(clampP(p));
+      if (o.valid && o.valid(np, pt, i) === false) return false;
       if (np[0] === pt.p[0] && np[1] === pt.p[1] && np[2] === pt.p[2]) return false; pt.p = np; if (o.onMove) o.onMove(pt, i); sc.invalidate(); return true;
     };
     sc.onDragStart = function (pos, e) {
@@ -78,6 +83,7 @@
       var mv = function (ev) {
         if (ev.pointerId !== pid) return; var ray = P3.unproject(sc, sc._pos(ev)), np = null;
         if (pt.mode === 'vertical') { var yy = P3.rayVertical(ray, pt.p[0], pt.p[2]); if (yy !== null) np = [pt.p[0], yy, pt.p[2]]; }
+        else if (pt.mode === 'plane-x') { var fx = P3.rayAxis(ray, 0, pt.p[0]); if (fx) np = fx; }   /* 在 x ＝ 固定值的鉛直平面上移動（看二面角用） */
         else { var f = P3.rayFloor(ray, y0 = pt.p[1]); if (f) np = f; }
         if (np) api.moveTo(i, np);
       };
@@ -141,6 +147,55 @@
     var s = '', f = true; [[e.n[0], 'x'], [e.n[1], 'y'], [e.n[2], 'z']].forEach(function (k) { var x = t(k[0], k[1], f); if (x) { s += x; f = false; } });
     return s + ' ＝ ' + (e.d === 0 ? '0' : (e.d < 0 ? '−' + (-e.d) : e.d));
   };
+
+  /* ---------------------------------------------------------------- 把直線（無限長）切在可動範圍內 */
+  /* 過 a、b 的直線，與長方體範圍的交線段 [p, q]；不相交回傳 null（slab 法） */
+  P3.clipLine = function (a, b, box) {
+    var d = V.sub(b, a), t0 = -1e9, t1 = 1e9, rg = [box.x, box.y, box.z], i;
+    for (i = 0; i < 3; i++) {
+      if (Math.abs(d[i]) < 1e-12) { if (a[i] < rg[i][0] - 1e-9 || a[i] > rg[i][1] + 1e-9) return null; continue; }
+      var u = (rg[i][0] - a[i]) / d[i], w = (rg[i][1] - a[i]) / d[i]; if (u > w) { var tt = u; u = w; w = tt; } t0 = Math.max(t0, u); t1 = Math.min(t1, w);
+    }
+    if (t0 > t1) return null; return [V.add(a, V.mul(d, t0)), V.add(a, V.mul(d, t1))];
+  };
+  /* 水平大平面（y＝y0，蓋住整個地面範圍） */
+  P3.floorFace = function (sc, color, alpha, y0) {
+    var bx = sc.box, y = y0 || 0; return { pts: [[bx.x[0], y, bx.z[0]], [bx.x[1], y, bx.z[0]], [bx.x[1], y, bx.z[1]], [bx.x[0], y, bx.z[1]]], fill: color || '#7a4fd6', alpha: alpha === undefined ? 0.13 : alpha, stroke: 'rgba(122,79,214,.5)', lw: 1.4, flat: true, nopick: true, double: true };
+  };
+  /* 平面 n·x＝d 在長方體範圍內的截面（多邊形，3～6 邊）；沒有截面回傳 null */
+  P3.planeInBox = function (n, d, box, o) {
+    o = o || {}; var X = box.x, Y = box.y, Z = box.z, C = [], i, j, k, e = 1e-9, pts = [];
+    var corners = []; [X[0], X[1]].forEach(function (x) { [Y[0], Y[1]].forEach(function (y) { [Z[0], Z[1]].forEach(function (z) { corners.push([x, y, z]); }); }); });
+    var edges = []; for (i = 0; i < 8; i++) for (j = i + 1; j < 8; j++) { var df = 0; for (k = 0; k < 3; k++) if (corners[i][k] !== corners[j][k]) df++; if (df === 1) edges.push([corners[i], corners[j]]); }
+    edges.forEach(function (E) { var a = E[0], b = E[1], fa = V.dot(n, a) - d, fb = V.dot(n, b) - d; if (Math.abs(fa) < e && Math.abs(fb) < e) { pts.push(a, b); return; } if (Math.abs(fa) < e) { pts.push(a); return; } if (Math.abs(fb) < e) { pts.push(b); return; } if (fa * fb < 0) pts.push(V.lerp(a, b, fa / (fa - fb))); });
+    var uniq = []; pts.forEach(function (p) { if (!uniq.some(function (q) { return V.len(V.sub(p, q)) < 1e-7; })) uniq.push(p); }); if (uniq.length < 3) return null;
+    var g = V.mul(uniq.reduce(function (a, b) { return V.add(a, b); }, [0, 0, 0]), 1 / uniq.length), nn = V.norm(n), u0 = V.norm(V.sub(uniq[0], g)), v0 = V.cross(nn, u0);
+    uniq.sort(function (p, q) { return Math.atan2(V.dot(V.sub(p, g), v0), V.dot(V.sub(p, g), u0)) - Math.atan2(V.dot(V.sub(q, g), v0), V.dot(V.sub(q, g), u0)); });
+    return { pts: uniq, fill: o.color || '#2f6fdc', alpha: o.alpha === undefined ? 0.2 : o.alpha, stroke: o.stroke || 'rgba(47,111,220,.7)', lw: 1.6, dash: o.dash === false ? null : [6, 4], flat: true, nopick: true, double: true };
+  };
+
+  /* ---------------------------------------------------------------- 舞台：場景＋可拖的點＋重畫 */
+  /* o: pts（[{p, name, color, fixed, hidden, mode, noShadow, noLabel}]）、box、snap、yaw、pitch、floor（預設 true）、controls（預設 true）、gate()、valid(p, pt, i)
+        build(S) → {faces, lines, texts, dots}（每次點動了就呼叫；texts／dots 帶 label 的會參加標籤避讓）、onMove(pt, i, S)、onEnd(pt, i, S)
+     回傳 S：{sc, pts, drag, rebuild(), moveTo(i, p)（程式代拖，會觸發 onEnd）} */
+  P3.stage = function (host, o) {
+    var sc = P3.scene(host, { box: o.box, yaw: o.yaw, pitch: o.pitch, hFrac: o.hFrac }), S = { sc: sc, pts: o.pts }, main = [];
+    S.drag = P3.drag(sc, o.pts, { snap: o.snap, valid: o.valid, gate: o.gate, onMove: function (pt, i) { S.rebuild(); if (o.onMove) o.onMove(pt, i, S); }, onEnd: function (pt, i) { S.rebuild(); if (o.onEnd) o.onEnd(pt, i, S); } });
+    var base = sc.onPreRender; sc.onPreRender = function (c, s) { main.forEach(function (d, i) { d.ring = S.drag.hot === d._i; d.ringColor = '#122548'; d.ringW = 3; }); base(c, s); };
+    if (o.controls !== false) S.ctrl = P3.controls(host, sc, o.pts);
+    S.rebuild = function () {
+      var spec = (o.build && o.build(S)) || {}, faces = (spec.faces || []).slice(), lines = (o.floor === false ? [] : P3.floor(sc)).concat(spec.lines || []), dots = [], texts = (spec.texts || []).slice();
+      sc.P3.layoutItems = [];
+      o.pts.forEach(function (pt) { if (!pt.hidden && !pt.noShadow && pt.p[1] > 0) { lines.push({ a: pt.p, b: [pt.p[0], 0, pt.p[2]], color: 'rgba(18,37,72,.4)', w: 1.4, dash: [4, 4] }); dots.push({ p: [pt.p[0], 0, pt.p[2]], r: 3, color: 'rgba(18,37,72,.5)' }); } });
+      main = []; o.pts.forEach(function (pt, i) { if (pt.hidden) return; var d = { p: pt.p, r: pt.fixed ? 7 : 9, color: pt.color || COLB, top: true, _i: i }; if (!pt.noLabel) { d.label = pt.name; d.labelColor = pt.color || COLB; d.size = 17; sc.P3.layoutItems.push({ obj: d, kind: 'dot' }); } main.push(d); });
+      (spec.dots || []).forEach(function (d) { d.top = true; if (d.label) sc.P3.layoutItems.push({ obj: d, kind: 'dot' }); main.push(d); d._i = -2; });
+      texts.forEach(function (t) { if (t.t) sc.P3.layoutItems.push({ obj: t, kind: 'text' }); });
+      sc.faces = faces; sc.lines = lines; sc.texts = texts; sc.dots = dots.concat(main); sc.invalidate();
+    };
+    S.moveTo = function (i, p) { S.drag.moveTo(i, p); S.rebuild(); if (o.onEnd) o.onEnd(o.pts[i], i, S); };
+    S.rebuild(); window.__E0 = S; return S;
+  };
+  var COLB = '#2f6fdc';
 
   /* ---------------------------------------------------------------- 控制鈕：移動方式、視角重置 */
   P3.controls = function (host, sc, pts, o) {
