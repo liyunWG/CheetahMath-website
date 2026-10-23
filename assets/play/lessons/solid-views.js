@@ -88,7 +88,7 @@
     /* 1 三個方向看 */
     function (st, api) {
       var H = B.STEP1, V = B.viewsOf(H), seen = {}, n = 0, gate = { on: true }, tot = B.sum(H), top = B.footprint(H);
-      P.choice(st, api, { id: 'sv-p1', predict: true, label: '先猜猜看', prompt: '從<b>正上方</b>往下看這堆積木（共 ' + tot + ' 塊），會看到幾個正方形？', row: true, options: [{ t: tot + ' 個' }, { t: top + ' 個' }, { t: (top - 1) + ' 個' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按「前視、上視、右視」看看'); } });
+      P.choice(st, api, { id: 'sv-p1', predict: true, label: '先猜猜看', prompt: '從<b>正上方</b>往下看這堆積木（共 ' + tot + ' 塊），會看到幾個正方形？', row: true, options: [{ t: tot + ' 個' }, { ok: true, t: top + ' 個' }, { t: (top - 1) + ' 個' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按「前視、上視、右視」看看'); } });
       var sc = mkScene(st); sc.faces = faces(H); sc.invalidate();
       var holder = h('div', { class: 'ps-viewrow ps-viewrow--figs ps-slot' }), info = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, info), cur = 'solid';
       function check() { if (n >= 3 && !st.querySelector('.pl-rule')) { P.track('aha', { id: 'solid-views', step: 1 }); st.append(P.ruleBox('從<b>前、上、右</b>三個方向看，各得到一張<b>平面圖</b>，叫做<b>三視圖</b>。<br>被擋住的方塊看不見，所以<b>看到的正方形數 ≠ 方塊總數</b>。', '名稱')); P.toast(api.ctx.p1 === 1 ? '你猜對了！上視是 ' + top + ' 個' : '上視圖是 ' + top + ' 個正方形'); api.unlock('三個方向都看過了！'); } }
@@ -177,5 +177,5 @@
       show(); api.lock(S.ask);
     };
   }
-  new P.Lesson({ id: 'solid-views', title: '各種角度觀察', steps: STEPS });
+  new P.Lesson({ id: 'solid-views', title: '各種角度觀察', answers: { 1: '同樣的三視圖，積木堆可能不只一種，只要三張視圖都對就算數', 2: '視圖越多限制越多，但三視圖也不一定只剩一種堆法' }, steps: STEPS });
 })();

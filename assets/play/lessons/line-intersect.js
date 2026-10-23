@@ -48,7 +48,7 @@
     /* 1. 預測＋拖動兩條直線 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, upd;
-      P.choice(st, api, { id: 'li-p1', predict: true, label: '先猜猜看', prompt: '平面上的<b>兩條直線</b>，交點可能有幾個？', row: true, options: [{ t: '一定是 1 個' }, { t: '0 個、1 個，或無限多個' }, { t: '一定是 2 個' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動把手：做出相交、平行、重合'); } });
+      P.choice(st, api, { id: 'li-p1', predict: true, label: '先猜猜看', prompt: '平面上的<b>兩條直線</b>，交點可能有幾個？', row: true, options: [{ t: '一定是 1 個' }, { ok: true, t: '0 個、1 個，或無限多個' }, { t: '一定是 2 個' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動把手：做出相交、平行、重合'); } });
       var host = stage(st); upd = null; var lines;
       upd = pills(st);
       lines = makeLines(host, { L1: [[1, 3], [7, 5]], L2: [[2, 9], [8, 2]], move1: true, move2: true, onChange: function (info) {

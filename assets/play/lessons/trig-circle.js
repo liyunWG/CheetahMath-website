@@ -65,7 +65,7 @@
     /* 3 tan */
     function (st, api) {
       var gate = { on: true }, ask = null;
-      P.choice(st, api, { id: 'tc-p3', predict: true, label: '先猜猜看', prompt: 'P 從右邊 (θ＝0°) 往上轉，快到 90° 時，tan θ 會…？', row: true, options: [{ t: '越來越小' }, { t: '越來越大' }, { t: '不變' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('把 P 慢慢拖到最上面'); } });
+      P.choice(st, api, { id: 'tc-p3', predict: true, label: '先猜猜看', prompt: 'P 從右邊 (θ＝0°) 往上轉，快到 90° 時，tan θ 會…？', row: true, options: [{ t: '越來越小' }, { ok: true, t: '越來越大' }, { t: '不變' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('把 P 慢慢拖到最上面'); } });
       var host = stage(st), b = unitBoard(host), g = h('g'); b.gMid.append(g);
       b.line([C[0] + R, 0], [C[0] + R, 12], 'pl-line pl-line--amber pl-line--dash'); b.text([C[0] + R + 0.0, 0.45], '切線 x＝1', 'pl-text pl-text--amber pl-text--sm');
       var pt = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pt), done = false;
@@ -157,5 +157,5 @@
         classes: ['J91A（2607）：三角比', 'S102 CH4：三角函數', 'S111 CH1：三角函數 II'],
         next: { href: 'play-trig-identities.html', text: '下一個：三角公式看得見' } });
     }];
-  new P.Lesson({ id: 'trig-circle', title: '三角函數：單位圓', steps: steps });
+  new P.Lesson({ id: 'trig-circle', title: '三角函數：單位圓', answers: { 0: '單位圓上 P 的橫座標 ＝ cos θ、縱座標 ＝ sin θ（都在 −1 到 1 之間）', 3: 'sin θ 的波形是 P 的高度隨角度畫出來，每 360° 重複一次（週期 360°）' }, steps: steps });
 })();

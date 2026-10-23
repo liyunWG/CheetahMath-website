@@ -12,7 +12,7 @@
     /* 1 樹形圖：羽球賽程 */
     function (st, api) {
       var gate = { on: true }, done = false;
-      P.choice(st, api, { id: 'ct-p1', predict: true, label: '先猜猜看', prompt: '羽球賽：<b>先連勝兩場</b>或<b>先勝三場</b>的人贏。賽程共有幾種勝負情形？', row: true, options: [{ t: '6 種' }, { t: '10 種' }, { t: '16 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點黃色虛線圈，一場一場往下分'); } });
+      P.choice(st, api, { id: 'ct-p1', predict: true, label: '先猜猜看', prompt: '羽球賽：<b>先連勝兩場</b>或<b>先勝三場</b>的人贏。賽程共有幾種勝負情形？', row: true, options: [{ t: '6 種' }, { ok: true, t: '10 種' }, { t: '16 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點黃色虛線圈，一場一場往下分'); } });
       var host = PC.stage(st), pe = P.pill('', 'is-green'), pp = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pe, pp);
       var tree = PC.tree(host, { names: ['豹', '翰'], colors: ['blue', 'pink'], rowH: 24, end: badminton, locked: function () { return gate.on; }, onChange: function (i) {
         pe.textContent = '已結束的賽程：' + i.ended + ' 種'; pp.textContent = i.pending ? '還有 ' + i.pending + ' 個沒展開' : '全部展開了';
@@ -77,7 +77,7 @@
     /* 4 n 人排隊 */
     function (st, api) {
       var gate = { on: true }, visited = {}, names = '甲乙丙丁戊'.split('');
-      P.choice(st, api, { id: 'ct-p4', predict: true, label: '先猜猜看', prompt: '3 個人排隊有 6 種。那 <b>4 個人</b>排隊有幾種？', row: true, options: [{ t: '8 種' }, { t: '12 種' }, { t: '24 種' }], onAnswer: function (i) { api.ctx.p4 = i; gate.on = false; api.lock('按 ＋ 增加人數'); } });
+      P.choice(st, api, { id: 'ct-p4', predict: true, label: '先猜猜看', prompt: '3 個人排隊有 6 種。那 <b>4 個人</b>排隊有幾種？', row: true, options: [{ t: '8 種' }, { t: '12 種' }, { ok: true, t: '24 種' }], onAnswer: function (i) { api.ctx.p4 = i; gate.on = false; api.lock('按 ＋ 增加人數'); } });
       var bx = PC.boxes(st, []), list = h('div', { class: 'pc-found' }), cap = h('div', { class: 'pl-caption' });
       function draw(n) {
         var items = []; for (var i = n; i >= 1; i--) items.push({ n: i, label: '第 ' + (n - i + 1) + ' 位' }); bx.set(items);
@@ -126,5 +126,5 @@
         classes: ['宗翰講義：基本計數／排組原理（主題 1 樹形圖）', 'PK1A（2607）：字典排列、整數分拆'],
         next: { href: 'play-count-multiply.html', text: '下一個：乘法原理' } });
     }];
-  new P.Lesson({ id: 'count-tree', title: '樹形圖與排隊', steps: steps });
+  new P.Lesson({ id: 'count-tree', title: '樹形圖與排隊', answers: { 1: '5 × 2 ＝ 10 種（豹先贏 5 種，翰先贏 5 種）', 2: '3 × 2 × 1 ＝ 6 種' }, steps: steps });
 })();

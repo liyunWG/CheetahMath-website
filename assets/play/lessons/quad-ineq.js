@@ -31,7 +31,7 @@
     /* 1. 預測＋拖 T */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, xv = 4, pl = null, gS = null, painted = { L: 1, M: 0, R: 1, p1: 0, p2: 0 };
-      P.choice(st, api, { id: 'qn-p1', predict: true, label: '先猜猜看', prompt: '<b>x² − 5x ＋ 6 ＜ 0</b> 的解，畫在數線上會是什麼樣子？', row: true, options: [{ t: '中間一段' }, { t: '左右兩邊' }, { t: '只有一個點' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 T，看拋物線在 x 軸的哪一側'); } });
+      P.choice(st, api, { id: 'qn-p1', predict: true, label: '先猜猜看', prompt: '<b>x² − 5x ＋ 6 ＜ 0</b> 的解，畫在數線上會是什麼樣子？', row: true, options: [{ ok: true, t: '中間一段' }, { t: '左右兩邊' }, { t: '只有一個點' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 T，看拋物線在 x 軸的哪一側'); } });
       st.append(P.instr('拖動 <b>T</b> 在 x 軸上走。T 正上方（或正下方）的點是拋物線 <b>y ＝ x² − 5x ＋ 6</b>。看它在 x 軸的<b>上方</b>還是<b>下方</b>。'));
       pl = plane(st); var b = pl.b, cur = pl.curve('pl-line pl-line--blue'), ay = pl.Y(0); gS = h('g'); b.gMid.insertBefore(gS, pl.gC);
       cur.set(g(1));
@@ -117,5 +117,5 @@
         parent: { pitfall: '孩子常把口訣「大於取兩邊、小於取中間」背反，或是開口向下時還照背；也常忘了 ≥ 的兩個根要包含進來。', place: '高中一元二次不等式，是判別式、恆成立與線性規劃的基礎。', ask: ['x² − 5x ＋ 6 ＜ 0 的解，為什麼是中間一段？', '開口向下的 −x² ＋ 5x − 6 ＞ 0，解和上一題一樣嗎？為什麼？', '≥ 和 ＞ 差在哪裡？根要不要算？'] },
         classes: ['S101（2507 第 25 堂）：多項式函數，含二次不等式'], next: { href: 'play-quad-ineq-disc.html', text: '下一個：判別式與三種情形' } });
     }];
-  new P.Lesson({ id: 'quad-ineq', title: '二次不等式：看拋物線的上方和下方', steps: steps });
+  new P.Lesson({ id: 'quad-ineq', title: '二次不等式：看拋物線的上方和下方', answers: { 1: '開口向下時整個反過來：＞ 0 是中間一段（2 ＜ x ＜ 3），＜ 0 是兩邊' }, steps: steps });
 })();

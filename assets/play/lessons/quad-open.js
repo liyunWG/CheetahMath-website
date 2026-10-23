@@ -13,7 +13,7 @@
     /* 1. 預測＋滑桿 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, a = 1;
-      P.choice(st, api, { id: 'qo-p1', predict: true, label: '先猜猜看', prompt: '拋物線 <b>y ＝ −2x²</b> 的開口朝哪裡？', row: true, options: [{ t: '朝上' }, { t: '朝下' }, { t: '看不出來' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉動 a，看開口和胖瘦'); } });
+      P.choice(st, api, { id: 'qo-p1', predict: true, label: '先猜猜看', prompt: '拋物線 <b>y ＝ −2x²</b> 的開口朝哪裡？', row: true, options: [{ t: '朝上' }, { ok: true, t: '朝下' }, { t: '看不出來' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉動 a，看開口和胖瘦'); } });
       st.append(P.instr('拉動滑桿改變 <b>a</b>，看 <b>y ＝ ax²</b> 的開口怎麼變。虛線是 y ＝ x²（a ＝ 1），粉紅虛線是 a 的相反數。'));
       var pl = plane(st), ref = pl.curve('pl-line pl-line--soft'), mir = pl.curve('pl-line pl-line--pink pl-line--dash'), cur = pl.curve('pl-line pl-line--blue');
       ref.set(function (x) { return x * x; });
@@ -75,13 +75,13 @@
           /* 放開手才算數（拖動途中經過正確位置不算） */
           function settle() { if (cfg.ok(a) && !fin) { fin = true; b.goalMark([pl.X(1), pl.Y(a)]); P.toast(cfg.msg); done(); } }
           var hd = b.handle({ pos: [pl.X(1), pl.Y(a)], candidates: cands, onMove: function (t) { a = Math.round(pl.Yi(t[1]) * 2) / 2; upd(); }, onEnd: function (t) { a = Math.round(pl.Yi(t[1]) * 2) / 2; upd(); settle(); } });
-          setSolve(function () { hd.moveTo([pl.X(1), pl.Y(cfg.answer)]); }); upd(); b0.append(P.hint(cfg.hint));
+          setSolve(function () { hd.moveTo([pl.X(1), pl.Y(cfg.answer)]); }, cfg.ans || cfg.msg); upd(); b0.append(P.hint(cfg.hint));
         };
       }
       var tasks = [
         task({ prompt: '拖動 <b>P</b>，讓拋物線剛好蓋住橘色虛線。', target: 2, ok: function (a) { return a === 2; }, answer: 2, msg: '剛好重合：a ＝ 2', hint: '橘色虛線在 x ＝ 1 的高度是多少？' }),
         task({ prompt: '這次橘色虛線開口向下。拖動 <b>P</b>，讓拋物線剛好蓋住它。', target: -0.5, ok: function (a) { return a === -0.5; }, answer: -0.5, msg: '剛好重合：a ＝ −0.5', hint: '開口向下，又比較胖。' }),
-        task({ prompt: '橘色虛線是 y ＝ 2x²。拖動 <b>P</b>，讓拋物線<b>開口向下</b>，而且比虛線<b>更胖</b>。', target: 2, ok: function (a) { return a < 0 && a > -2; }, answer: -1, msg: '開口向下、|a| 比 2 小：更胖', hint: '向下要看 a 的正負；更胖要看 |a| 和 2 比大小。' })];
+        task({ prompt: '橘色虛線是 y ＝ 2x²。拖動 <b>P</b>，讓拋物線<b>開口向下</b>，而且比虛線<b>更胖</b>。', target: 2, ok: function (a) { return a < 0 && a > -2; }, answer: -1, ans: 'a 在 −2 和 0 之間（例如 a ＝ −1、−0.5、−1.5）', msg: '開口向下、|a| 比 2 小：更胖', hint: '向下要看 a 的正負；更胖要看 |a| 和 2 比大小。' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'quad-open' }); } });
     },
     /* 4. 完成 */
@@ -94,5 +94,5 @@
         parent: { pitfall: '孩子常以為 a 越大拋物線開口越大；其實 |a| 越大越瘦。也常把「開口方向」和「頂點在上在下」混在一起，或忘了 a 不能是 0。', place: '國中三年級二次函數的第一步，高中會延伸到頂點、極值、判別式。', ask: ['y ＝ 3x² 和 y ＝ x² 哪一個比較瘦？為什麼？', 'y ＝ −x² 和 y ＝ x² 的圖形有什麼關係？', 'x ＝ 1 時 y 是多少？它和 a 有什麼關係？'] },
         classes: ['J91A（2507 第 14、15 堂）：二次函數，含開口與頂點', 'J91S（2607 第 1、2 堂）：CH12 二次函數', 'S101（2507 第 21 堂）：多項式函數，含開口與頂點'], next: { href: 'play-quad-vertex.html', text: '下一個：頂點與極值' } });
     }];
-  new P.Lesson({ id: 'quad-open', title: '二次函數：開口方向與大小', steps: steps });
+  new P.Lesson({ id: 'quad-open', title: '二次函數：開口方向與大小', answers: { 1: 'a 就是 x ＝ 1 時的高度（P 的高度）' }, steps: steps });
 })();

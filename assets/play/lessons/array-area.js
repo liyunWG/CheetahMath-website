@@ -38,7 +38,7 @@
     /* 1. 12 個點排成長方形：行列互換 */
     function (st, api) {
       var gate = { on: true }, c = 2, r = 2, TG = [[1, 12], [2, 6], [3, 4], [4, 3], [6, 2], [12, 1]], found = {}, nf = 0, fin = false, hd;
-      P.choice(st, api, { id: 'aa-p1', predict: true, label: '先猜猜看', prompt: '12 個點排成長方形：「<b>3 排，每排 4 個</b>」和「<b>4 排，每排 3 個</b>」，點數一樣嗎？', row: true, options: [{ t: '一樣多' }, { t: '3 排的比較多' }, { t: '4 排的比較多' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動右上角，排出 12 個點'); } });
+      P.choice(st, api, { id: 'aa-p1', predict: true, label: '先猜猜看', prompt: '12 個點排成長方形：「<b>3 排，每排 4 個</b>」和「<b>4 排，每排 3 個</b>」，點數一樣嗎？', row: true, options: [{ ok: true, t: '一樣多' }, { t: '3 排的比較多' }, { t: '4 排的比較多' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動右上角，排出 12 個點'); } });
       st.append(P.instr('拖動右上角的點，改變陣列。把<b>剛好 12 個點</b>的長方形<b>每一種排法</b>都找出來（幾排 × 每排幾個）。'));
       var host = stage(st), ab = arrayBoard(host, 12, 12), b = ab.b, rim = b.poly([[0, 0], [1, 0], [1, 1], [0, 1]], 'pl-poly pl-poly--blue');
       var p1 = P.pill('', 'is-blue'), p2 = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, p1, p2), chips = {}, cr = h('div', { class: 'pl-readout' });

@@ -24,7 +24,7 @@
     /* 1. 預測＋拖動缺角 */
     function (st, api) {
       var gate = { on: true }, moves = {}, nm = 0, done = false;
-      P.choice(st, api, { id: 'ps-p1', predict: true, label: '先猜猜看', prompt: '一個 8 × 6 的長方形（周長 28），從<b>右上角剪掉一塊</b>。剪掉之後，周長會…？', row: true, options: [{ t: '變短' }, { t: '不變' }, { t: '變長' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動缺角的角，看周長'); } });
+      P.choice(st, api, { id: 'ps-p1', predict: true, label: '先猜猜看', prompt: '一個 8 × 6 的長方形（周長 28），從<b>右上角剪掉一塊</b>。剪掉之後，周長會…？', row: true, options: [{ t: '變短' }, { ok: true, t: '不變' }, { t: '變長' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動缺角的角，看周長'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), gF = h('g'), g = h('g'); board.gMid.append(gF, g); frame(board, gF);
       var upd = pillRow(st);
       function draw(t) { var s = drawShape(board, g, cornerShape(t[0], t[1])); upd(s, s.per === 28 ? 'is-ok' : 'is-amber'); }
@@ -48,7 +48,7 @@
     /* 3. 缺口開在邊的中間 */
     function (st, api) {
       var gate = { on: true }, ys = {}, done = false;
-      P.choice(st, api, { id: 'ps-p3', predict: true, label: '先猜猜看', prompt: '這次缺口開在<b>上面那條邊的中間</b>（不是角落）。周長還會不變嗎？', row: true, options: [{ t: '不變' }, { t: '變長' }, { t: '變短' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('拖動缺口的角，看周長'); } });
+      P.choice(st, api, { id: 'ps-p3', predict: true, label: '先猜猜看', prompt: '這次缺口開在<b>上面那條邊的中間</b>（不是角落）。周長還會不變嗎？', row: true, options: [{ t: '不變' }, { ok: true, t: '變長' }, { t: '變短' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('拖動缺口的角，看周長'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), gF = h('g'), g = h('g'); board.gMid.append(gF, g); frame(board, gF);
       var upd = pillRow(st);
       function draw(t) { var s = drawShape(board, g, midShape(t[0], t[1])), d = Y1 - t[1]; upd(s, s.per === 28 ? 'is-ok' : 'is-pink'); return d; }
@@ -85,7 +85,7 @@
           function shape() { return [[G[0], Y0], [X1, Y0], [X1, D[1]], [D[0], D[1]], [D[0], Y1], [X0, Y1], [X0, G[1]], [G[0], G[1]]]; }
           function draw() { var s = drawShape(board, g, shape()), miss = (X1 - D[0]) * (Y1 - D[1]) + (G[0] - X0) * (G[1] - Y0); upd(s, 'is-ok'); if (miss === 10 && !fin) { fin = true; P.toast('缺 10 格，周長還是 28'); done(); } return miss; }
           var h1 = board.handle({ pos: D, valid: function (t) { return t[0] >= 6 && t[0] <= 10 && t[1] >= 5 && t[1] <= 8; }, onMove: function (t) { D = t; draw(); } }), h2 = board.handle({ pos: G, cls: 'is-pink', valid: function (t) { return t[0] >= 3 && t[0] <= 5 && t[1] >= 3 && t[1] <= 5; }, onMove: function (t) { G = t; draw(); } });
-          setSolve(function () { h1.moveTo([6, 6]); h2.moveTo([4, 4]); }); draw();
+          setSolve(function () { h1.moveTo([6, 6]); h2.moveTo([4, 4]); }, '周長不變，還是 28（缺在角落，周長不會變）'); draw();
         })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'perimeter-slide' }); } });
     },

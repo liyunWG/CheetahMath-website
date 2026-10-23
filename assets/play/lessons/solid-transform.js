@@ -74,7 +74,7 @@
     /* 2 順序有關 */
     function (st, api) {
       var gate = { on: true }, played = 0;
-      P.choice(st, api, { id: 'stf-p2', predict: true, label: '先猜猜看', prompt: '「先繞 x 軸轉 90°、再繞 y 軸轉 90°」和「先 y 再 x」，結果會一樣嗎？', row: true, options: [{ t: '一樣' }, { t: '不一樣' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按「播放」看看'); } });
+      P.choice(st, api, { id: 'stf-p2', predict: true, label: '先猜猜看', prompt: '「先繞 x 軸轉 90°、再繞 y 軸轉 90°」和「先 y 再 x」，結果會一樣嗎？', row: true, options: [{ t: '一樣' }, { ok: true, t: '不一樣' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按「播放」看看'); } });
       var H = holders(st, 2), mh = Math.max(120, Math.min(160, window.innerHeight - 600));
       capt(H.cols[0], '先 x 再 y'); capt(H.cols[1], '先 y 再 x');
       var a = new Rig(mk(H.cols[0], { drag: false, maxH: mh, axes: true }), PIECES.spiral, { axes: true }), b = new Rig(mk(H.cols[1], { drag: false, maxH: mh, axes: true }), PIECES.spiral, { axes: true });
@@ -178,5 +178,5 @@
         classes: ['J71S CH5：三視圖與空間觀察', 'S112：矩陣與線性變換', 'PK4B：幾何變換'],
         next: { href: 'play-solid-views.html', text: '下一個：各種角度觀察' } });
     }];
-  new P.Lesson({ id: 'solid-transform', title: '立體變換', steps: steps });
+  new P.Lesson({ id: 'solid-transform', title: '立體變換', answers: { 0: '旋轉只改變積木的朝向，不改變形狀和大小', 2: '只有有對稱面的形狀，鏡像才能轉成原來的樣子（像左手和右手就不行）' }, steps: steps });
 })();

@@ -24,7 +24,7 @@
     /* 1. 預測＋拖動 P：圓周角不變 */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, done = false;
-      P.choice(st, api, { id: 'ca-p1', predict: true, label: '先猜猜看', prompt: 'A、B 固定。點 P 在圓上<b>繞一圈</b>，圓周角 ∠APB 會…？', row: true, options: [{ t: '越來越大' }, { t: '越來越小' }, { t: '一直不變' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 P，繞圓一圈'); } });
+      P.choice(st, api, { id: 'ca-p1', predict: true, label: '先猜猜看', prompt: 'A、B 固定。點 P 在圓上<b>繞一圈</b>，圓周角 ∠APB 會…？', row: true, options: [{ t: '越來越大' }, { t: '越來越小' }, { ok: true, t: '一直不變' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 P，繞圓一圈'); } });
       var host = stage(st), board = newBoard(host), A = polar(A_ANG), B = polar(A_ANG + 80);
       var pa = board.line(A, A, 'pl-line pl-line--blue'), pb = board.line(A, A, 'pl-line pl-line--blue'), oa = board.line(O, A, 'pl-line pl-line--pink pl-line--dash'), ob = board.line(O, B, 'pl-line pl-line--pink pl-line--dash');
       var wo = board.poly(wedge(O, A_ANG, 0, 1.5, 80).pts, 'pl-poly pl-poly--pink'), wp = board.poly([O, O, O], 'pl-poly pl-poly--blue');
@@ -70,7 +70,7 @@
     /* 3. 直徑所對的圓周角是直角 */
     function (st, api) {
       var gate = { on: true }, done = false;
-      P.choice(st, api, { id: 'ca-p3', predict: true, label: '先猜猜看', prompt: '如果 <b>AB 是直徑</b>（通過圓心），圓周角 ∠APB 會是幾度？', row: true, options: [{ t: '45°' }, { t: '90°' }, { t: '120°' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('把 B 拉到 A 的正對面'); } });
+      P.choice(st, api, { id: 'ca-p3', predict: true, label: '先猜猜看', prompt: '如果 <b>AB 是直徑</b>（通過圓心），圓周角 ∠APB 會是幾度？', row: true, options: [{ t: '45°' }, { ok: true, t: '90°' }, { t: '120°' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('把 B 拉到 A 的正對面'); } });
       var host = stage(st), board = newBoard(host), A = polar(A_ANG), ob = board.line(O, O, 'pl-line pl-line--pink pl-line--dash');
       var wp = board.poly([O, O, O], 'pl-poly pl-poly--blue'), pa = board.line(O, O, 'pl-line pl-line--blue'), pb = board.line(O, O, 'pl-line pl-line--blue'), ab = board.line(A, A, 'pl-line pl-line--green pl-line--bold');
       board.dot(A, 'pl-dot', null, 0.17); board.text([A[0] - 0.5, A[1] - 0.6], 'A', 'pl-text pl-text--lg'); var Pd = board.dot(O, 'pl-dot', null, 0.17), tB = board.text([0, 0], 'B', 'pl-text pl-text--lg'), tP = board.text([0, 0], 'P', 'pl-text pl-text--lg'), tp = board.text([0, 0], '', 'pl-text pl-text--blue pl-text--lg');
@@ -212,5 +212,5 @@
         classes: ['J82S（2601 第 14–19 堂）：CH10 圓', 'J91A（2507 第 1–9 堂；2607 第 4–11 堂）：圓形——圓周角、弦切角、圓內接四邊形、圓冪、托勒密', 'PK3A（2507 第 19–20 堂）：關於圓的角度(1)(2)——圓心角、圓周角、弦切角、四點共圓', 'PK4A（2507 第 17 堂）：曲線形中的角度問題'],
         next: { href: 'play-solid-sphere.html', text: '下一個：球與圓錐、圓柱的關係' } });
     }];
-  new P.Lesson({ id: 'circle-angles', title: '圓周角與圓心角', steps: steps });
+  new P.Lesson({ id: 'circle-angles', title: '圓周角與圓心角', answers: { 1: '同一條弧所對的圓周角，永遠是圓心角的一半（弧超過半圓時，圓周角是鈍角）', 3: '圓周角 ＝ 圓心角 ÷ 2（圓心角 ∠AOB 永遠 ＝ 2x）' }, steps: steps });
 })();

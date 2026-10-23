@@ -6,7 +6,7 @@
     /* 1 P(n,k)：挑人排座位 */
     function (st, api) {
       var gate = { on: true };
-      P.choice(st, api, { id: 'cp-p1', predict: true, label: '先猜猜看', prompt: '甲乙丙丁戊 5 個人，選 3 個人排成一列（有先後順序）。共有幾種排法？', row: true, options: [{ t: '10 種' }, { t: '60 種' }, { t: '125 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點人，依序填進座位；排出 5 種'); } });
+      P.choice(st, api, { id: 'cp-p1', predict: true, label: '先猜猜看', prompt: '甲乙丙丁戊 5 個人，選 3 個人排成一列（有先後順序）。共有幾種排法？', row: true, options: [{ t: '10 種' }, { ok: true, t: '60 種' }, { t: '125 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點人，依序填進座位；排出 5 種'); } });
       var seats = [], total = 3, pool = h('div', { class: 'pc-tabs' }), seatRow = h('div', { class: 'pc-seatrow' }), found = PC.found(st, { label: '已排出' }), bx = PC.boxes(st, [{ n: 5, label: '第 1 位', cls: 'is-blue' }, { n: 4, label: '第 2 位', cls: 'is-pink' }, { n: 3, label: '第 3 位', cls: 'is-green' }], { result: false }), chips = [];
       PEOPLE.slice(0, 5).forEach(function (p) { var b = h('button', { type: 'button', class: 'pc-tab' }, p); b.addEventListener('click', function () { pick(p, b); }); chips.push(b); pool.append(b); });
       function drawSeats() {
@@ -40,7 +40,7 @@
     /* 3 相鄰：綁成一塊 */
     function (st, api) {
       var gate = { on: true };
-      P.choice(st, api, { id: 'cp-p3', predict: true, label: '先猜猜看', prompt: '甲乙丙丁戊 5 人排成一列，<b>甲、乙必須相鄰</b>。共有幾種排法？', row: true, options: [{ t: '24 種' }, { t: '48 種' }, { t: '120 種' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按「綁成一塊」'); } });
+      P.choice(st, api, { id: 'cp-p3', predict: true, label: '先猜猜看', prompt: '甲乙丙丁戊 5 人排成一列，<b>甲、乙必須相鄰</b>。共有幾種排法？', row: true, options: [{ t: '24 種' }, { ok: true, t: '48 種' }, { t: '120 種' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按「綁成一塊」'); } });
       var bound = false, flip = false, rowEl = h('div', { class: 'pc-people' }), cap = h('div', { class: 'pl-caption' }), q = h('div', {}), asked = false, btn = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '把甲乙綁成一塊'), swap = h('button', { type: 'button', class: 'button button--secondary pl-small', style: { display: 'none' } }, '塊內交換 ⇄'), bx = PC.boxes(st, []);
       function draw() {
         rowEl.innerHTML = ''; if (!bound) { PEOPLE.slice(0, 5).forEach(function (p) { rowEl.append(PC.chip(p, 'pc-big')); }); bx.set([]); bx.el.style.display = 'none'; cap.textContent = '5 個人排隊，每個都是一個單位'; }

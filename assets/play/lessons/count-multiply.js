@@ -19,7 +19,7 @@
     /* 1 數對：先選 x 再選 y */
     function (st, api) {
       var gate = { on: true }, sel = { x: null, y: null }, filled = {}, nfill = 0, xs = ['1', '2', '3'], ys = ['a', 'b'];
-      P.choice(st, api, { id: 'cm-p1', predict: true, label: '先猜猜看', prompt: '數對 (x, y)：x 可以是 1、2、3，y 可以是 a、b。一共能寫出幾種數對？', row: true, options: [{ t: '5 種' }, { t: '6 種' }, { t: '8 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('先選 x，再選 y，寫出所有數對'); } });
+      P.choice(st, api, { id: 'cm-p1', predict: true, label: '先猜猜看', prompt: '數對 (x, y)：x 可以是 1、2、3，y 可以是 a、b。一共能寫出幾種數對？', row: true, options: [{ t: '5 種' }, { ok: true, t: '6 種' }, { t: '8 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('先選 x，再選 y，寫出所有數對'); } });
       var rx = h('div', { class: 'pc-tabs' }), ry = h('div', { class: 'pc-tabs' }), pill = P.pill('', 'is-green'), cells = {};
       var tbl = h('table', { class: 'pc-tbl' }, h('tr', {}, h('th', {}, 'x＼y'), h('th', {}, 'a'), h('th', {}, 'b')));
       xs.forEach(function (x) { var r = h('tr', {}, h('th', {}, x)); ys.forEach(function (y) { var c = h('td', {}, '　'); cells[x + y] = c; r.append(c); }); tbl.append(r); });
@@ -37,7 +37,7 @@
     /* 2 路線連乘 */
     function (st, api) {
       var gate = { on: true }, a = 4, b = 3, c = 5, picks = 0, changed = false, host, svgHost, bx;
-      P.choice(st, api, { id: 'cm-p2', predict: true, label: '先猜猜看', prompt: 'A 到 B 有 4 條路、B 到 C 有 3 條、C 到 D 有 5 條。每一段都必須走，A 到 D 共有幾種走法？', row: true, options: [{ t: '12' }, { t: '60' }, { t: '20' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按「隨機走一條」，或改變路數'); } });
+      P.choice(st, api, { id: 'cm-p2', predict: true, label: '先猜猜看', prompt: 'A 到 B 有 4 條路、B 到 C 有 3 條、C 到 D 有 5 條。每一段都必須走，A 到 D 共有幾種走法？', row: true, options: [{ t: '12' }, { ok: true, t: '60' }, { t: '20' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按「隨機走一條」，或改變路數'); } });
       host = PC.stage(st); svgHost = h('div', {}); host.append(svgHost);
       var found = {}, nfound = 0, pill = P.pill('', 'is-green');
       function draw(pk) { svgHost.innerHTML = ''; routeSvg(svgHost, [a, b, c], pk); bx.set([{ n: a, label: 'A→B', cls: 'is-blue' }, { n: b, label: 'B→C', cls: 'is-pink' }, { n: c, label: 'C→D', cls: 'is-green' }]); pill.textContent = '共 ' + a * b * c + ' 種，你走過 ' + nfound + ' 種'; }
@@ -54,7 +54,7 @@
     /* 3 信號燈箱：每盞燈 2 選 1 */
     function (st, api) {
       var gate = { on: true }, n = 2, state = [0, 0, 0, 0, 0, 0], reached = false;
-      P.choice(st, api, { id: 'cm-p3', predict: true, label: '先猜猜看', prompt: '信號燈箱有 6 個燈泡，每個都可以亮或暗。能表示幾種信號？（全部都暗，不算一種信號）', row: true, options: [{ t: '12 種' }, { t: '36 種' }, { t: '63 種' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按 ＋ 增加燈泡，到 6 個'); } });
+      P.choice(st, api, { id: 'cm-p3', predict: true, label: '先猜猜看', prompt: '信號燈箱有 6 個燈泡，每個都可以亮或暗。能表示幾種信號？（全部都暗，不算一種信號）', row: true, options: [{ t: '12 種' }, { t: '36 種' }, { ok: true, t: '63 種' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按 ＋ 增加燈泡，到 6 個'); } });
       var host = PC.stage(st), svgHost = h('div', {}); host.append(svgHost); var bx = PC.boxes(st, []), pill = P.pill('', 'is-amber'), cap = h('div', { class: 'pl-caption' });
       function val() { var v = 0; for (var i = 0; i < n; i++) v = v * 2 + state[i]; return v; }
       function draw() {
@@ -72,7 +72,7 @@
     /* 4 糖果：以糖果為主角 */
     function (st, api) {
       var gate = { on: true }, nC = 2, nP = 2, seen = {}, P_ = '甲乙丙'.split('');
-      P.choice(st, api, { id: 'cm-p4', predict: true, label: '先猜猜看', prompt: '5 種不同的糖果，全部分給甲、乙、丙三人（可以有人沒拿到）。共有幾種分法？', row: true, options: [{ t: '15 種' }, { t: '125 種' }, { t: '243 種' }], onAnswer: function (i) { api.ctx.p4 = i; gate.on = false; api.lock('用小例子觀察：改糖果數與人數'); } });
+      P.choice(st, api, { id: 'cm-p4', predict: true, label: '先猜猜看', prompt: '5 種不同的糖果，全部分給甲、乙、丙三人（可以有人沒拿到）。共有幾種分法？', row: true, options: [{ t: '15 種' }, { t: '125 種' }, { ok: true, t: '243 種' }], onAnswer: function (i) { api.ctx.p4 = i; gate.on = false; api.lock('用小例子觀察：改糖果數與人數'); } });
       var list = h('div', { class: 'pc-found' }), bx = PC.boxes(st, []), cap = h('div', { class: 'pl-caption' });
       list.style.maxHeight = '120px';
       function draw() {
@@ -90,7 +90,7 @@
     /* 5 因數個數（資優延伸） */
     function (st, api) {
       var gate = { on: true }, ex = [0, 0, 0], fh = h('div', {}), found = PC.found(fh, { total: 24, label: '已收集因數' }), shown = false;
-      P.choice(st, api, { id: 'cm-p5', predict: true, label: '先猜猜看', prompt: '504 ＝ 2³ × 3² × 7。504 有幾個正因數？', row: true, options: [{ t: '12 個' }, { t: '24 個' }, { t: '504 個' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('組出 8 個不同因數'); } });
+      P.choice(st, api, { id: 'cm-p5', predict: true, label: '先猜猜看', prompt: '504 ＝ 2³ × 3² × 7。504 有幾個正因數？', row: true, options: [{ t: '12 個' }, { ok: true, t: '24 個' }, { t: '504 個' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('組出 8 個不同因數'); } });
       var cur = P.pill('', 'is-blue'), btn = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '收集這個因數'), q = h('div', {}), rows = h('div', {});
       function val() { return Math.pow(2, ex[0]) * Math.pow(3, ex[1]) * Math.pow(7, ex[2]); }
       function draw() { cur.textContent = '2' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(ex[0]) + ' × 3' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(ex[1]) + ' × 7' + '⁰¹²³⁴⁵⁶⁷⁸⁹'.charAt(ex[2]) + ' ＝ ' + val(); }
@@ -110,7 +110,7 @@
     /* 6 塗色：先塗鄰居最多的 */
     function (st, api) {
       var gate = { on: true }, brush = 0, paint = {}, R = {}, shown = false;
-      P.choice(st, api, { id: 'cm-p6', predict: true, label: '先猜猜看', prompt: '要幫怪獸塗色：相鄰的區域不能同色，共 5 種顏色。<b>先塗哪一個區域</b>，之後的選擇數最容易算？', row: true, options: [{ t: '耳朵' }, { t: '臉' }, { t: '眼睛' }], onAnswer: function (i) { api.ctx.p6 = i; gate.on = false; api.lock('選顏色，再點區域塗色'); } });
+      P.choice(st, api, { id: 'cm-p6', predict: true, label: '先猜猜看', prompt: '要幫怪獸塗色：相鄰的區域不能同色，共 5 種顏色。<b>先塗哪一個區域</b>，之後的選擇數最容易算？', row: true, options: [{ t: '耳朵' }, { ok: true, t: '臉' }, { t: '眼睛' }], onAnswer: function (i) { api.ctx.p6 = i; gate.on = false; api.lock('選顏色，再點區域塗色'); } });
       var host = PC.stage(st), svg = PC.svg(host, 320, 190, 'pl-svg--sm'), pal = h('div', { class: 'pc-tabs' }), q = h('div', {}), badges = sv('g', {}), cap = h('div', { class: 'pl-caption' }, '先選顏色，再點區域。相鄰的區域不能同色。');
       var regs = [
         { id: 'face', name: '臉', draw: function () { return sv('ellipse', { cx: 160, cy: 104, rx: 84, ry: 70 }); }, bx: 160, by: 150 },

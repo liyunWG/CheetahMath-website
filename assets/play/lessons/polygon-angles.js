@@ -35,7 +35,7 @@
     /* 1. 走一圈：一共轉了幾度 */
     function (st, api) {
       var gate = { on: true }, n = 3, seen = {}, done = false, t = 0, pts, an, ints, cum, per;
-      P.choice(st, api, { id: 'pa-p1', predict: true, label: '先猜猜看', prompt: '小豹沿著多邊形的邊走一圈回到出發點，過程中<b>一共轉了幾度</b>？', row: true, options: [{ t: '180°' }, { t: '360°' }, { t: '720°' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿讓小豹走一圈，換幾種多邊形'); } });
+      P.choice(st, api, { id: 'pa-p1', predict: true, label: '先猜猜看', prompt: '小豹沿著多邊形的邊走一圈回到出發點，過程中<b>一共轉了幾度</b>？', row: true, options: [{ t: '180°' }, { ok: true, t: '360°' }, { t: '720°' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿讓小豹走一圈，換幾種多邊形'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), outline = board.poly([C0, C0, C0], 'pl-poly pl-poly--ghost'); board.gMid.append(g);
       var pTurn = P.pill('', 'is-amber'), pEnd = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pTurn, pEnd);
       var sn = P.stepper('邊數 n', 3, 8, 3, function (v) { n = v; sl.value = 0; t = 0; build(); draw(); });
@@ -153,5 +153,5 @@
         classes: ['J81S（2507 第 23–25 堂）：CH7 三角形的基本性質（含多邊形的內角和、外角和）', 'J82A（2601 第 6、8、10–12 堂）：平面閉折線', 'PK4A（2507 第 7 堂）：直線形中的角度問題'],
         next: { href: 'play-trig-ratio.html', text: '下一個：三角比' } });
     }];
-  new P.Lesson({ id: 'polygon-angles', title: '多邊形的外角和為什麼是 360°', steps: steps });
+  new P.Lesson({ id: 'polygon-angles', title: '多邊形的外角和為什麼是 360°', answers: { 1: '外角和 ＝ 360°（所有外角拼成一個圓周）', 2: '外角和永遠是 360°，和邊數、形狀都沒關係' }, steps: steps });
 })();

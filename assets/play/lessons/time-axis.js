@@ -98,7 +98,7 @@
     /* 1. 預測＋洗衣機同時進行 */
     function (st, api) {
       var gate = { on: true }, done = false, tl;
-      P.choice(st, api, { id: 'ta-p1', predict: true, label: '先猜猜看', prompt: '洗衣機洗衣服要 <b>30 分鐘</b>（機器自己洗）。洗衣的時候，我還要<b>掃地 12 分鐘</b>、<b>擦桌子 8 分鐘</b>。全部做完，最少要幾分鐘？', row: true, options: [{ t: '20 分鐘' }, { t: '30 分鐘' }, { t: '50 分鐘' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把「掃地」「擦桌子」拖到洗衣的時間裡'); } });
+      P.choice(st, api, { id: 'ta-p1', predict: true, label: '先猜猜看', prompt: '洗衣機洗衣服要 <b>30 分鐘</b>（機器自己洗）。洗衣的時候，我還要<b>掃地 12 分鐘</b>、<b>擦桌子 8 分鐘</b>。全部做完，最少要幾分鐘？', row: true, options: [{ t: '20 分鐘' }, { ok: true, t: '30 分鐘' }, { t: '50 分鐘' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把「掃地」「擦桌子」拖到洗衣的時間裡'); } });
       var b = PA.board(st, 14, 8), pA = P.pill('一件一件做：50 分鐘', 'is-amber'), pB = P.pill('', 'is-blue'); st.append(h('div', { class: 'pl-readout' }, pA, pB));
       tl = makeTimeline(b, { lanes: ['機器', '人'], tasks: [{ id: 'w', label: '洗衣 30', dur: 30, kind: 'm', lanes: [0] }, { id: 's', label: '掃地 12', dur: 12, lanes: [1] }, { id: 'q', label: '擦桌 8', s: '擦桌', dur: 8, lanes: [1] }], best: [[0, 0], [0, 1], [12, 1]], optimum: 30,
         onChange: function (t, e) { if (gate.on && e !== 50) { P.toast('先做上面的預測'); t.setAll([[0, 0], [30, 1], [42, 1]]); return; } pB.textContent = '你排的：' + e + ' 分鐘'; pB.className = 'pl-pill ' + (e === 30 ? 'is-ok' : 'is-blue'); },
@@ -148,5 +148,5 @@
         parent: { pitfall: '孩子常把所有時間「一件一件加起來」，沒想到機器在跑的時候人是空的。也常忽略先後順序（要先洗菜才能切菜），排出不可能的方案。', place: '小學三年級的「統籌」入門，第一次把生活中的時間排程變成數學問題。', ask: ['洗衣機在洗衣服的時候，你可以做哪些事？', '3 條魚為什麼不是 4 分鐘？', '哪一串工作決定了總共要花多久？'] },
         classes: ['PK1A（2607 第 1 堂）：合理下料', 'PI1A（2507 第 4 堂）：合理下料'], next: { href: 'play-fraction-split.html', text: '下一個：分數：平分才是 1/n' } });
     }];
-  new P.Lesson({ id: 'time-axis', title: '時間軸統籌：同時進行', steps: steps });
+  new P.Lesson({ id: 'time-axis', title: '時間軸統籌：同時進行', answers: { 1: '全部 20 ＋ 2 ＝ 22 分鐘（最長的那條接力線決定總時間）', 2: '最少 3 分鐘（6 個面 ÷ 一次煎 2 面）' }, steps: steps });
 })();

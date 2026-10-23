@@ -60,7 +60,7 @@
     /* 1. 預測＋拖動夾角，比較 c² 與 a²＋b² */
     function (st, api) {
       var gate = { on: true }, hit = false, a = 3, b = 4, p1 = P.pill('', 'is-green'), p2 = P.pill('', 'is-blue'), p3 = P.pill('', '');
-      P.choice(st, api, { id: 'cl-p1', predict: true, label: '先猜猜看', prompt: '三角形的兩邊固定：<b>a ＝ 3、b ＝ 4</b>。把它們中間的夾角 C <b>慢慢張大</b>，第三邊 c 會怎麼變？', row: true, options: [{ t: '一直變長' }, { t: '一直變短' }, { t: '都不變' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動紅點，改變夾角 C'); } });
+      P.choice(st, api, { id: 'cl-p1', predict: true, label: '先猜猜看', prompt: '三角形的兩邊固定：<b>a ＝ 3、b ＝ 4</b>。把它們中間的夾角 C <b>慢慢張大</b>，第三邊 c 會怎麼變？', row: true, options: [{ ok: true, t: '一直變長' }, { t: '一直變短' }, { t: '都不變' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動紅點，改變夾角 C'); } });
       st.append(P.instr('拖動頂點 <b>A</b> 改變夾角 C。下面的長條：<b>上面是 a² ＋ b²</b>，<b>下面是 c²</b>，比比看誰長。'));
       var host = stage(st), f = figure(host, a, b, {
         start: 40, disabled: function () { return gate.on; }, onMove: function (th, d) {
@@ -140,5 +140,5 @@
         classes: ['S102（2601 第 20–21 堂）：CH4 三角函數（正弦定理與餘弦定理）', 'PK4A（2507 第 19 堂）：勾股定理', 'J81A（2507 第 13–18 堂；2607 第 10–15 堂）：CH2 勾股定理'],
         next: { href: 'play-pythagoras.html', text: '回頭看：畢氏定理' } });
     }];
-  new P.Lesson({ id: 'cosine-law', title: '餘弦定理與畢氏定理', steps: steps });
+  new P.Lesson({ id: 'cosine-law', title: '餘弦定理與畢氏定理', answers: { 2: 'c² ＝ a² ＋ b² − 2ab·cos C' }, steps: steps });
 })();

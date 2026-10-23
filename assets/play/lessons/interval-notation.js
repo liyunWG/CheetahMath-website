@@ -69,7 +69,7 @@
     /* 1. 預測＋端點與符號 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, sc;
-      P.choice(st, api, { id: 'in-p1', predict: true, label: '先猜猜看', prompt: '區間 <b>[1, 4)</b>，也就是 <b>1 ≤ x ＜ 4</b>。它包含 <b>4</b> 嗎？', row: true, options: [{ t: '包含' }, { t: '不包含' }, { t: '看情況' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把 t 放在端點上，切換實心空心'); } });
+      P.choice(st, api, { id: 'in-p1', predict: true, label: '先猜猜看', prompt: '區間 <b>[1, 4)</b>，也就是 <b>1 ≤ x ＜ 4</b>。它包含 <b>4</b> 嗎？', row: true, options: [{ t: '包含' }, { ok: true, t: '不包含' }, { t: '看情況' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把 t 放在端點上，切換實心空心'); } });
       st.append(P.instr('拖動 <b>a</b>、<b>b</b> 決定區間的兩端，再把 <b>t</b> 拖到端點上。按下面的按鈕切換<b>實心（含）</b>與<b>空心（不含）</b>，看 t 在不在區間裡。'));
       function check(S) {
         if (gate.on) return; var atEnd = (S.t === S.a && !S.linf) || (S.t === S.b && !S.rinf);
@@ -131,5 +131,5 @@
         parent: { pitfall: '孩子常把中括號和小括號用反；也常把 ∞ 旁邊寫成中括號。定義域的題目會忘記根號裡不能是負的、分母不能是 0。', place: '高中函數的第一步：用區間符號寫出定義域與值域。', ask: ['[1, 4) 和 (1, 4] 有什麼不同？', '為什麼 ∞ 旁邊要用小括號？', 'f(x) ＝ √(x − 1) 的 x 可以是 0 嗎？為什麼？'] },
         classes: ['S101（2507 第 21 堂）：多項式函數，含定義域與值域', 'S101（2507 第 23、25 堂）：多項式函數，含區間'], next: { href: 'play-piecewise-fn.html', text: '下一個：分段函數' } });
     }];
-  new P.Lesson({ id: 'interval-notation', title: '函數與區間：區間符號與定義域', steps: steps });
+  new P.Lesson({ id: 'interval-notation', title: '函數與區間：區間符號與定義域', answers: { 1: '定義域是 [1, ∞)（x ≥ 1，1 是實心點，∞ 旁邊用小括號）' }, steps: steps });
 })();

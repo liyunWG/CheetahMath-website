@@ -34,7 +34,7 @@
     /* 1. 預測＋拉滑桿：同一個高度，截面一樣大 */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, done = false;
-      P.choice(st, api, { id: 'ss2-p1', predict: true, label: '先猜猜看', prompt: '<b>半球</b>和<b>「圓柱挖掉圓錐」</b>（高度、寬度都一樣），哪個體積大？', row: true, options: [{ t: '半球大' }, { t: '挖掉圓錐的較大' }, { t: '一樣大' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿，在不同高度切一刀'); } });
+      P.choice(st, api, { id: 'ss2-p1', predict: true, label: '先猜猜看', prompt: '<b>半球</b>和<b>「圓柱挖掉圓錐」</b>（高度、寬度都一樣），哪個體積大？', row: true, options: [{ t: '半球大' }, { t: '挖掉圓錐的較大' }, { ok: true, t: '一樣大' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿，在不同高度切一刀'); } });
       var host = stage(st), board = new P.Board(host, { w: 14, h: 11 }), upd = figures(board), p1 = P.pill('', 'is-ok'), p2 = P.pill('', 'is-pink'), p3 = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, p1, p2, p3);
       function draw(v) {
         var y = R * v / 100, a = upd(y), k = Math.round(v / 12.5);
@@ -76,7 +76,7 @@
     /* 3. 倒水實驗：球和圓錐的水倒進圓柱 */
     function (st, api) {
       var gate = { on: true }, poured = { s: false, c: false }, done = false, lvl = 0;
-      P.choice(st, api, { id: 'ss2-p3', predict: true, label: '先猜猜看', prompt: '球裝滿水，倒進剛好放得下它的圓柱（寬 ＝ 高 ＝ 2r）。水位會到哪裡？', row: true, options: [{ t: '1/3' }, { t: '1/2' }, { t: '2/3' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按按鈕，把水倒進圓柱'); } });
+      P.choice(st, api, { id: 'ss2-p3', predict: true, label: '先猜猜看', prompt: '球裝滿水，倒進剛好放得下它的圓柱（寬 ＝ 高 ＝ 2r）。水位會到哪裡？', row: true, options: [{ t: '1/3' }, { t: '1/2' }, { ok: true, t: '2/3' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按按鈕，把水倒進圓柱'); } });
       var host = stage(st), b = new P.Board(host, { w: 14, h: 6 });
       var sph = circ(b, [2, 3], 2, 'rgba(47,111,220,.4)', '#2f6fdc'), cone = b.poly([[10, 1], [14, 1], [12, 5]], 'pl-poly pl-poly--pink');
       b.poly([[5, 1], [9, 1], [9, 5], [5, 5]], 'pl-poly pl-poly--ghost'); var water = b.poly([[5, 1], [9, 1], [9, 1], [5, 1]], 'pl-poly'); water.style.fill = 'rgba(47,111,220,.4)'; water.style.stroke = '#2f6fdc';
@@ -162,5 +162,5 @@
         parent: { pitfall: '孩子常背了公式卻<b>分不清球和圓錐</b>的係數：球是 <b>4/3</b>、圓錐是 <b>1/3</b>、半球是 <b>2/3</b>；也常忘記球的公式是 <b>r 的三次方</b>，不是平方（平方是表面積）。', place: '國中立體圖形與高中空間概念的基礎，也是積分求體積的起點。', ask: ['球為什麼剛好是圓柱的三分之二？', '半球和「圓柱挖掉圓錐」，在每個高度切開有什麼一樣？', '如果把球的半徑變成 2 倍，體積會變成幾倍？（8 倍，因為是 r 的三次方）'] },
         classes: ['PK3C（2507 第 20 堂）：錐體與球體——卡瓦列里原理、球體積、球表面積、球冠', 'PK3C（2607 第 15 堂）：柱體與椎體的表面積與體積', 'PK4B（2512 第 9 堂）：圓柱與圓錐的體積與表面積', 'PK3B（2512 第 14 堂）：柱體體積與表面積', 'J91S（2607 第 7–9 堂）：CH03 生活中的立體圖形', 'J91A（2507 第 25–27 堂）：立體幾何'] });
     }];
-  new P.Lesson({ id: 'solid-sphere', title: '球與圓錐、圓柱的關係', steps: steps });
+  new P.Lesson({ id: 'solid-sphere', title: '球與圓錐、圓柱的關係', answers: { 1: '圓錐 : 半球 : 圓柱 ＝ 1 : 2 : 3（半球 ＋ 圓錐 ＝ 圓柱）' }, steps: steps });
 })();

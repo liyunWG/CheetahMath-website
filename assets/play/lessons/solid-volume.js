@@ -47,7 +47,7 @@
     /* 2. 正方體拆成三個角錐 */
     function (st, api) {
       var gate = { on: true }, done = false, t = 0;
-      P.choice(st, api, { id: 'sv-p2', predict: true, label: '先猜猜看', prompt: '一個正方體，可以剛好切成 <b>3 個一模一樣的角錐</b>（頂點都在同一個角）。每個角錐的體積是正方體的…？', row: true, options: [{ t: '1/2' }, { t: '1/3' }, { t: '1/4' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('拉滑桿把三個角錐拆開'); } });
+      P.choice(st, api, { id: 'sv-p2', predict: true, label: '先猜猜看', prompt: '一個正方體，可以剛好切成 <b>3 個一模一樣的角錐</b>（頂點都在同一個角）。每個角錐的體積是正方體的…？', row: true, options: [{ t: '1/2' }, { ok: true, t: '1/3' }, { t: '1/4' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('拉滑桿把三個角錐拆開'); } });
       var sc = PS.scene(st, { fitR: 1.6, yaw: -0.65, pitch: 0.45 }), AP = [0.5, 0.5, 0.5];
       var BASES = [[[-0.5, -0.5, -0.5], [-0.5, 0.5, -0.5], [-0.5, 0.5, 0.5], [-0.5, -0.5, 0.5]], [[-0.5, -0.5, -0.5], [0.5, -0.5, -0.5], [0.5, -0.5, 0.5], [-0.5, -0.5, 0.5]], [[-0.5, -0.5, -0.5], [0.5, -0.5, -0.5], [0.5, 0.5, -0.5], [-0.5, 0.5, -0.5]]], DIR = [[-1, 0, 0], [0, -1, 0], [0, 0, -1]], COLS = ['#9db7ee', '#f3a6c3', '#9ad9b3'];
       var pc = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pc);
@@ -60,7 +60,7 @@
     /* 3. 圓柱的表面積：攤平 */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, done = false, r = 1, hh = 2;
-      P.choice(st, api, { id: 'sv-p3', predict: true, label: '先猜猜看', prompt: '把圓柱的<b>側面</b>剪開、攤平，會是什麼形狀？', row: true, options: [{ t: '圓形' }, { t: '長方形' }, { t: '三角形' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('調整半徑和高，看展開圖'); } });
+      P.choice(st, api, { id: 'sv-p3', predict: true, label: '先猜猜看', prompt: '把圓柱的<b>側面</b>剪開、攤平，會是什麼形狀？', row: true, options: [{ t: '圓形' }, { ok: true, t: '長方形' }, { t: '三角形' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('調整半徑和高，看展開圖'); } });
       var host = stage(st), N = netBoard(host), pills = pillRow(st, ['is-amber', 'is-blue', 'is-pink']);
       var sr = P.stepper('半徑 r', 1, 5, r, function (v) { r = v; upd(); }), sh = P.stepper('高 h', 1, 6, hh, function (v) { hh = v; upd(); }); st.append(h('div', { class: 'pl-steprow' }, sr.el, sh.el));
       function upd() {
@@ -124,5 +124,5 @@
         parent: { pitfall: '孩子常把<b>體積</b>（立方單位）和<b>表面積</b>（平方單位）搞混，也常忘記錐體要乘 <b>1/3</b>；圓柱表面積容易漏掉<b>兩個底</b>。', place: '國中立體圖形的核心，之後的球體積、截面、立體幾何與微積分求體積都從這裡開始。', ask: ['疊方塊時，體積為什麼是「一層幾塊」乘「幾層」？', '圓錐為什麼是同底同高圓柱的 1/3？', '圓柱側面攤平，長方形的長為什麼是 2πr？'] },
         classes: ['J91S（2607 第 7–9 堂）：CH03 生活中的立體圖形（柱體、錐體、表面積、展開圖）', 'J91A（2507 第 25–27 堂）：立體幾何', 'PK3C（2507 第 20 堂；2607 第 15 堂）：錐體與球體、柱體與錐體的表面積與體積', 'PK4B（2512 第 9 堂）：圓柱與圓錐的體積與表面積', 'PK3B（2512 第 14 堂）：柱體體積與表面積'] });
     }];
-  new P.Lesson({ id: 'solid-volume', title: '立體圖形的體積與表面積', steps: steps });
+  new P.Lesson({ id: 'solid-volume', title: '立體圖形的體積與表面積', answers: { 0: '柱體體積 ＝ 底面積 × 高' }, steps: steps });
 })();

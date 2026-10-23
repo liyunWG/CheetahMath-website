@@ -16,7 +16,7 @@
     /* 1 (a+b)² 面積 */
     function (st, api) {
       var gate = { on: true }, touched = 0;
-      P.choice(st, api, { id: 'mf-p1', predict: true, label: '先猜猜看', prompt: '(a + b)² 是不是等於 a² + b²？（例如 a＝3、b＝2）', row: true, options: [{ t: '一樣' }, { t: '會多一些' }, { t: '會少一些' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按 ＋ − 改變 a、b'); } });
+      P.choice(st, api, { id: 'mf-p1', predict: true, label: '先猜猜看', prompt: '(a + b)² 是不是等於 a² + b²？（例如 a＝3、b＝2）', row: true, options: [{ t: '一樣' }, { ok: true, t: '會多一些' }, { t: '會少一些' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按 ＋ − 改變 a、b'); } });
       var host = stage(st), g = canvas(host, 320, 250), A = 3, B = 2, u = 27, ox = 36, oy = 30;
       var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), ro = h('div', { class: 'pl-readout' }, pa, pb);
       var sa = spring(3, draw), sb = spring(2, draw);
@@ -170,5 +170,5 @@
         classes: ['J81A CH1：乘法公式與多項式', 'J81S CH4：乘法公式與因式分解', 'J81A CH4：配方法', '高中 S 系列：二項式定理與不等式'],
         next: { href: 'play-trig-circle.html', text: '下一個：三角函數的單位圓' } });
     }];
-  new P.Lesson({ id: 'multiplication', title: '乘法公式的圖解', steps: steps });
+  new P.Lesson({ id: 'multiplication', title: '乘法公式的圖解', answers: { 1: '2ab（兩塊 ab 合起來）', 4: '(x ＋ p)(x ＋ q) ＝ x² ＋ (p ＋ q)x ＋ pq' }, steps: steps });
 })();

@@ -23,7 +23,7 @@
     /* 1. 預測＋拖 V（a＝1） */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, done = false, hv = 2, k = 1, a = 1;
-      P.choice(st, api, { id: 'qv-p1', predict: true, label: '先猜猜看', prompt: '拋物線 <b>y ＝ (x − 2)² ＋ 1</b>，最低的那個點在哪裡？', row: true, options: [{ t: '(2, 1)' }, { t: '(−2, 1)' }, { t: '(2, −1)' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動頂點 V 到不同的位置'); } });
+      P.choice(st, api, { id: 'qv-p1', predict: true, label: '先猜猜看', prompt: '拋物線 <b>y ＝ (x − 2)² ＋ 1</b>，最低的那個點在哪裡？', row: true, options: [{ ok: true, t: '(2, 1)' }, { t: '(−2, 1)' }, { t: '(2, −1)' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動頂點 V 到不同的位置'); } });
       st.append(P.instr('拖動 <b>V</b>（拋物線的最低點），看 <b>y ＝ (x − h)² ＋ k</b> 怎麼變，還有展開之後的樣子。'));
       var pl = plane(st), b = pl.b, cur = pl.curve('pl-line pl-line--blue'), axs = b.line([pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)], 'pl-line pl-line--soft', pl.gA), tV = b.text([pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V', 'pl-text pl-text--pink', pl.gA);
       var pV = P.pill('', 'is-blue'), pX = P.pill('', 'is-amber'), pM = P.pill('', 'is-green'); pV.style.whiteSpace = pX.style.whiteSpace = 'normal'; st.append(h('div', { class: 'pl-readout' }, pV), h('div', { class: 'pl-readout' }, pX), h('div', { class: 'pl-readout' }, pM));
@@ -113,5 +113,5 @@
         parent: { pitfall: '孩子常把 (x − 2)² 的頂點寫成 x ＝ −2（符號看反）；也常以為「有頂點就是最小值」，忘了開口向下時頂點是最大值。', place: '國中三年級到高中的二次函數，是最大最小值應用題的基礎。', ask: ['y ＝ (x − 3)² ＋ 2 的最低點在哪裡？', 'y ＝ −(x ＋ 1)² ＋ 4 有最大值還是最小值？是多少？', '球往上丟，最高點為什麼剛好是拋物線的頂點？'] },
         classes: ['J91A（2507 第 15、18 堂）：二次函數，含頂點與最大最小值', 'J91S（2607 第 2、4 堂）：CH12 二次函數', 'S101（2507 第 22、23 堂）：多項式函數，含最大最小值'], next: { href: 'play-quad-interval.html', text: '下一個：限定範圍的最大最小值' } });
     }];
-  new P.Lesson({ id: 'quad-vertex', title: '二次函數：頂點與最大最小值', steps: steps });
+  new P.Lesson({ id: 'quad-vertex', title: '二次函數：頂點與最大最小值', answers: { 1: 'a ＞ 0：頂點是最低點（最小值 k）；a ＜ 0：頂點是最高點（最大值 k）' }, steps: steps });
 })();

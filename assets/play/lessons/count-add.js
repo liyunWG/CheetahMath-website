@@ -72,7 +72,7 @@
     /* 2 路線分類：A → D */
     function (st, api) {
       var gate = { on: true }, nAB = 3, revealed = {}, nrev = 0, host, svgHost, sum = h('div', { class: 'pc-calc' }), asked = false, q = h('div', {});
-      P.choice(st, api, { id: 'ca-p2', predict: true, label: '先猜猜看', prompt: '由 A 走到 D，不走回頭路。有幾種路線？（A–B 3 條、B–C 3 條、C–D 2 條，另有長路 A–C、B–D、A–D 各 1 條）', row: true, options: [{ t: '18 種' }, { t: '24 種' }, { t: '36 種' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('依「經過哪些中間站」分類'); } });
+      P.choice(st, api, { id: 'ca-p2', predict: true, label: '先猜猜看', prompt: '由 A 走到 D，不走回頭路。有幾種路線？（A–B 3 條、B–C 3 條、C–D 2 條，另有長路 A–C、B–D、A–D 各 1 條）', row: true, options: [{ t: '18 種' }, { ok: true, t: '24 種' }, { t: '36 種' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('依「經過哪些中間站」分類'); } });
       host = PC.stage(st); svgHost = h('div', {}); host.append(svgHost);
       var cats = [{ id: 'AD', t: 'A→D 直達', edges: ['AD'], f: function () { return [1]; } }, { id: 'ABD', t: 'A→B→D', edges: ['AB', 'BD'], f: function () { return [nAB, 1]; } }, { id: 'ACD', t: 'A→C→D', edges: ['AC', 'CD'], f: function () { return [1, 2]; } }, { id: 'ABCD', t: 'A→B→C→D', edges: ['AB', 'BC', 'CD'], f: function () { return [nAB, 3, 2]; } }];
       function draw() {
@@ -167,5 +167,5 @@
         classes: ['宗翰講義：基本計數／排組原理（主題 3 加法原理）', 'PK1A（2607）：整數分拆', 'A1012prep：富比尼原理'],
         next: { href: 'play-count-comb.html', text: '下一個：組合與算兩次' } });
     }];
-  new P.Lesson({ id: 'count-add', title: '加法原理與標數法', steps: steps });
+  new P.Lesson({ id: 'count-add', title: '加法原理與標數法', answers: { 0: '連續的步驟用乘；不同的類別、只做其中一類用加', 2: '每個路口 ＝ 左邊的數 ＋ 下面的數；B 處共有 12 條捷徑', 3: '總共有 52 種' }, steps: steps });
 })();

@@ -9,7 +9,7 @@
     /* 1. 預測＋把蛋糕切成一樣大 */
     function (st, api) {
       var gate = { on: true }, cuts = [2, 4, 9], done = false, hs = [], g = h('g');
-      P.choice(st, api, { id: 'fs-p1', predict: true, label: '先猜猜看', prompt: '一塊長蛋糕被切成 <b>4 塊</b>（大小不一樣）。<b>最左邊那 1 塊</b>是整塊蛋糕的 1/4 嗎？', options: [{ t: '是，切成 4 塊就是 1/4' }, { t: '不是，還要看大小' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動三個切刀，讓 4 塊一樣大'); } });
+      P.choice(st, api, { id: 'fs-p1', predict: true, label: '先猜猜看', prompt: '一塊長蛋糕被切成 <b>4 塊</b>（大小不一樣）。<b>最左邊那 1 塊</b>是整塊蛋糕的 1/4 嗎？', options: [{ t: '是，切成 4 塊就是 1/4' }, { ok: true, t: '不是，還要看大小' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動三個切刀，讓 4 塊一樣大'); } });
       var b = PA.board(st, 14, 6); b.gMid.append(g);
       var pW = P.pill('', 'is-blue'), pS = P.pill('', ''); st.append(h('div', { class: 'pl-readout' }, pW, pS));
       function widths() { var e = [0].concat(cuts, [12]); return e.slice(1).map(function (v, i) { return v - e[i]; }); }
@@ -150,5 +150,5 @@
         parent: { pitfall: '孩子常把「切成幾塊」當成分母，沒注意要「平分」；也常以為分母越大分數越大。另一個常見的錯是忘了分數是「整體的幾分之幾」，不同整體的 1/2 不能直接比大小。', place: '小學三到五年級分數的起點，之後的通分、分數加減乘除、比例與百分率都建立在這裡。', ask: ['切成 4 塊，每塊都是 1/4 嗎？為什麼？', '1/3 和 1/5，哪一份比較大？怎麼知道？', '6 個蘋果的 1/3 和 12 個蘋果的 1/3，一樣多嗎？'] },
         classes: ['PK1A（2607 第 12 堂）：荷魯斯之眼（一）', 'PI1A（2507 第 8、14、15 堂）：分數（一）（二）（三）', 'PK3C（2507 第 7、16 堂）：分數裂項（一）（二）'], next: { href: 'play-perimeter-slide.html', text: '下一個：周長問題' } });
     }];
-  new P.Lesson({ id: 'fraction-split', title: '分數：平分才是 1/n', steps: steps });
+  new P.Lesson({ id: 'fraction-split', title: '分數：平分才是 1/n', answers: { 1: '分母 ＝ 平分成幾份，分子 ＝ 取了幾份：取 k 份就是 k/n', 2: '分數是「整體的幾分之幾」：整體越大，1/3 的個數越多' }, steps: steps });
 })();

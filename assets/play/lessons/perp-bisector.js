@@ -22,7 +22,7 @@
     /* 1. 預測＋找到一樣遠的點 */
     function (st, api) {
       var gate = { on: true }, found = {}, nf = 0, done = false, g = h('g');
-      P.choice(st, api, { id: 'pb-p1', predict: true, label: '先猜猜看', prompt: '平面上有些點，到 A、B 兩點<b>一樣遠</b>。把這些點通通找出來，它們會排成什麼形狀？', row: true, options: [{ t: '一條直線' }, { t: '一個圓' }, { t: '亂散各處' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 P，找出 5 個到 A、B 一樣遠的點'); } });
+      P.choice(st, api, { id: 'pb-p1', predict: true, label: '先猜猜看', prompt: '平面上有些點，到 A、B 兩點<b>一樣遠</b>。把這些點通通找出來，它們會排成什麼形狀？', row: true, options: [{ ok: true, t: '一條直線' }, { t: '一個圓' }, { t: '亂散各處' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 P，找出 5 個到 A、B 一樣遠的點'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }); board.gMid.append(g); baseAB(board);
       var pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), pl = P.pill('', ''), pf = P.pill('已找到 0 / 5 個', 'is-amber'); st.append(h('div', { class: 'pl-readout' }, pa, pb), h('div', { class: 'pl-readout' }, pl, pf));
       function draw(t) {
@@ -57,7 +57,7 @@
     /* 3. 三角形：三條垂直平分線交於外心 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false;
-      P.choice(st, api, { id: 'pb-p3', predict: true, label: '先猜猜看', prompt: '三角形三個邊各有一條<b>垂直平分線</b>。這三條線會<b>交在同一點</b>嗎？', row: true, options: [{ t: '一定交在同一點' }, { t: '有時候會' }, { t: '不會' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('拖動 C，找出三種三角形'); } });
+      P.choice(st, api, { id: 'pb-p3', predict: true, label: '先猜猜看', prompt: '三角形三個邊各有一條<b>垂直平分線</b>。這三條線會<b>交在同一點</b>嗎？', row: true, options: [{ ok: true, t: '一定交在同一點' }, { t: '有時候會' }, { t: '不會' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('拖動 C，找出三種三角形'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'), C0 = [5, 7]; board.gMid.append(g); baseAB(board);
       var pr = P.pill('', 'is-blue'), pk = P.pill('', 'is-amber'), pp = P.pill('', ''); st.append(h('div', { class: 'pl-readout' }, pr), h('div', { class: 'pl-readout' }, pk, pp));
       var ok = function (x, y) { var o = circumcenter(A, B, [x, y]); return !!o && o[0] > 0.3 && o[0] < 11.7 && o[1] > 0.3 && o[1] < 9.7; };

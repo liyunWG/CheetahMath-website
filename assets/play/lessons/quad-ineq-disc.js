@@ -46,7 +46,7 @@
     /* 1. 預測＋拉 k */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, k = 3, sc;
-      P.choice(st, api, { id: 'qd-p1', predict: true, label: '先猜猜看', prompt: '<b>x² − 4x ＋ 5 ＞ 0</b> 的解是什麼？', row: true, options: [{ t: '全部實數' }, { t: 'x ＞ 5' }, { t: '無解' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉 k，看拋物線和 x 軸的關係'); } });
+      P.choice(st, api, { id: 'qd-p1', predict: true, label: '先猜猜看', prompt: '<b>x² − 4x ＋ 5 ＞ 0</b> 的解是什麼？', row: true, options: [{ ok: true, t: '全部實數' }, { t: 'x ＞ 5' }, { t: '無解' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉 k，看拋物線和 x 軸的關係'); } });
       st.append(P.instr('拉動滑桿改變 <b>k</b>，拋物線 <b>y ＝ x² − 4x ＋ k</b> 會上下平移。看它和 x 軸有幾個交點，以及「＞ 0」「＜ 0」的解怎麼變。'));
       sc = scene(st, { s: 1, k: 3, onChange: function (s, kk) {
         if (gate.on) return; var d = disc(kk); seen[d > 0 ? 'pos' : d === 0 ? 'zero' : 'neg'] = 1;
@@ -90,11 +90,11 @@
           function settle() { if (cfg.ok(+sl.value) && !fin) { fin = true; P.toast(cfg.msg); b0.append(P.ruleBox(cfg.rule, '結果')); done(); } }
           sl = P.slider(0, 8, cfg.startK, function (v) { sc.set(cfg.s, v); }, 1); sl.addEventListener('change', settle);
           b0.append(sl, h('div', { class: 'pl-slider-lab' }, h('span', {}, '← k ＝ 0'), h('span', {}, 'k ＝ 8 →')));
-          setSolve(function () { sl.value = cfg.answer; sc.set(cfg.s, cfg.answer); settle(); }); b0.append(P.hint(cfg.hint));
+          setSolve(function () { sl.value = cfg.answer; sc.set(cfg.s, cfg.answer); settle(); }, cfg.ans || cfg.msg); b0.append(P.hint(cfg.hint));
         };
       }
       var tasks = [
-        task({ prompt: '拉 <b>k</b>，讓 <b>x² − 4x ＋ k ＞ 0</b> 的解是<b>全部實數</b>。（拋物線要整條在 x 軸上方）', s: 1, op: '＞', startK: 2, ok: function (k) { return disc(k) < 0; }, answer: 6, msg: 'D ＜ 0：全部實數', rule: 'D ＜ 0，拋物線碰不到 x 軸、整條在上方，所以 ＞ 0 對<b>所有</b> x 都成立。這裡要 <b>k ＞ 4</b>。', hint: '要讓拋物線完全離開 x 軸，D 要怎麼樣？' }),
+        task({ prompt: '拉 <b>k</b>，讓 <b>x² − 4x ＋ k ＞ 0</b> 的解是<b>全部實數</b>。（拋物線要整條在 x 軸上方）', s: 1, op: '＞', startK: 2, ok: function (k) { return disc(k) < 0; }, answer: 6, ans: 'k ＞ 4（例如 k ＝ 5、6、7、8），這時 D ＜ 0，拋物線整條在 x 軸上方', msg: 'D ＜ 0：全部實數', rule: 'D ＜ 0，拋物線碰不到 x 軸、整條在上方，所以 ＞ 0 對<b>所有</b> x 都成立。這裡要 <b>k ＞ 4</b>。', hint: '要讓拋物線完全離開 x 軸，D 要怎麼樣？' }),
         task({ prompt: '拉 <b>k</b>，讓 <b>x² − 4x ＋ k ＞ 0</b> 的解是 <b>x ≠ 2</b>。（只有一個 x 不行）', s: 1, op: '＞', startK: 1, ok: function (k) { return k === 4; }, answer: 4, msg: 'k ＝ 4：(x − 2)² ＞ 0，x ≠ 2', rule: 'k ＝ 4 時 x² − 4x ＋ 4 ＝ (x − 2)²，頂點剛好在 x 軸上。＞ 0 只有 x ＝ 2 不行，所以是 <b>x ≠ 2</b>。', hint: '頂點要剛好落在 x 軸上，D 是多少？' }),
         task({ prompt: '拋物線<b>開口向下</b>：<b>−x² ＋ 4x − k ≥ 0</b>。拉 <b>k</b>，讓解<b>只有 x ＝ 2</b> 一個。', s: -1, op: '≥', startK: 7, ok: function (k) { return k === 4; }, answer: 4, msg: 'k ＝ 4：−(x − 2)² ≥ 0，只有 x ＝ 2', rule: 'k ＝ 4 時 −x² ＋ 4x − 4 ＝ −(x − 2)² ≤ 0，所以 ≥ 0 只剩 <b>x ＝ 2</b>（等於 0 的那一點）。', hint: '開口向下，頂點碰到 x 軸時，其他地方都在哪一側？' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'quad-ineq-disc' }); } });
@@ -109,5 +109,5 @@
         parent: { pitfall: '孩子常在 D ＝ 0 時，把 ＞ 0 的解寫成「全部實數」或「無解」，漏掉「除了一個點以外」；也常在開口向下時還用開口向上的結論。', place: '高中一元二次不等式與判別式，是恆成立與根的分布的基礎。', ask: ['x² − 4x ＋ 4 ＞ 0 的解是什麼？為什麼 x ＝ 2 不行？', 'x² − 4x ＋ 5 ＞ 0 為什麼對所有 x 都成立？', '−x² ＋ 4x − 4 ≥ 0 的解是什麼？'] },
         classes: ['S101（2507 第 22、23、25 堂）：多項式函數，含判別式與二次不等式', 'J91A（2507 第 14 堂）：二次函數，含判別式', 'J91S（2607 第 3 堂）：CH12 二次函數，含判別式'], next: { href: 'play-interval-notation.html', text: '下一個：函數與區間' } });
     }];
-  new P.Lesson({ id: 'quad-ineq-disc', title: '二次不等式：判別式的三種情形', steps: steps });
+  new P.Lesson({ id: 'quad-ineq-disc', title: '二次不等式：判別式的三種情形', answers: { 1: '開口向下、D ＜ 0：＞ 0 無解、＜ 0 是全部實數；D ＝ 0：≥ 0 只有 x ＝ 2' }, steps: steps });
 })();

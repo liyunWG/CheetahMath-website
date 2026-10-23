@@ -138,5 +138,5 @@
         classes: ['S102 CH4：三角函數', 'S111 CH1：三角函數 II', 'J91A（2607）：三角比（先備）'],
         next: { href: 'play.html', text: '回獵豹玩中學看全部單元' } });
     }];
-  new P.Lesson({ id: 'trig-identities', title: '三角公式看得見', steps: steps });
+  new P.Lesson({ id: 'trig-identities', title: '三角公式看得見', answers: { 0: '誘導公式就是對稱：鏡射只會讓座標變號或對調', 1: 'cos(α ＋ β) ＝ cos α cos β − sin α sin β' }, steps: steps });
 })();

@@ -105,7 +105,7 @@
     cfg.ops.forEach(function (o, i) { var e = btn(opLabel(o), function () { doOp(i); }); btns.push({ el: e, o: o }); row.append(e); });
     host.append(expr, row, log); PA.resetBtn(host, '回到最初', reset); host.append(reveal);
     refresh();
-    setSolve(function () { reset(); cfg.solve.forEach(function (i) { doOp(i); }); });
+    setSolve(function () { reset(); cfg.solve.forEach(function (i) { doOp(i); }); }, cfg.ans || cfg.msg);
     host.append(P.hint(cfg.hint));
   }
 
@@ -113,7 +113,7 @@
     /* 1. 預測＋蹺蹺板 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, ss;
-      P.choice(st, api, { id: 'li-p1', predict: true, label: '先猜猜看', prompt: '<b>3 ＜ 5</b>。兩邊同時乘 <b>−1</b> 之後，<b>−3</b> 和 <b>−5</b> 誰比較大？', row: true, options: [{ t: '−3 ＜ −5' }, { t: '−3 ＞ −5' }, { t: '一樣大' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('試試加、減、乘正數、乘負數'); } });
+      P.choice(st, api, { id: 'li-p1', predict: true, label: '先猜猜看', prompt: '<b>3 ＜ 5</b>。兩邊同時乘 <b>−1</b> 之後，<b>−3</b> 和 <b>−5</b> 誰比較大？', row: true, options: [{ t: '−3 ＜ −5' }, { ok: true, t: '−3 ＞ −5' }, { t: '一樣大' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('試試加、減、乘正數、乘負數'); } });
       st.append(P.instr('蹺蹺板左右兩邊各放一個數：<b>正數是砝碼</b>（往下壓），<b>負數是氣球</b>（往上拉）。按下面的按鈕，<b>兩邊同時</b>做一樣的事，看蹺蹺板怎麼動。'));
       var ops = [{ t: '＋3', fn: function (v) { return v + 3; }, cat: 'add' }, { t: '−3', fn: function (v) { return v - 3; }, cat: 'add' }, { t: '×2', fn: function (v) { return v * 2; }, cat: 'pos' }, { t: '×(−1)', fn: function (v) { return -v; }, cat: 'neg' }];
       ss = seesaw(st, 3, 5, function (cat) {
@@ -176,9 +176,9 @@
           msg: '解：x ≤ −2', ruleLabel: '反向', rule: '兩邊同除以<b>負數</b>，不等號<b>反向</b>：−2x ≥ 4 變成 x ≤ −2。和上一步在數線上找到的一樣！', hint: '想想蹺蹺板：什麼時候會翻過來？' }]),
         task([
           { prompt: '把 <b>x ＋ 3 ＞ x ＋ 1</b> 一直化簡，看看 x 會怎麼樣。', start: { a: 1, b: 3, c: 1, d: 1, s: '＞' }, ops: [AX(-1), AX(1), A(-1), A(-3), M(2)], solve: [0],
-            msg: '3 ＞ 1 恆成立', ruleLabel: 'x 不見了', rule: 'x 消失後剩下 <b>3 ＞ 1</b>，這是<b>對的</b>，所以不管 x 是多少都成立：<b>全部實數</b>。', hint: '兩邊都有 x，把 x 去掉試試。' },
+            msg: '3 ＞ 1 恆成立', ans: '全部實數（x 消失後 3 ＞ 1 恆成立）', ruleLabel: 'x 不見了', rule: 'x 消失後剩下 <b>3 ＞ 1</b>，這是<b>對的</b>，所以不管 x 是多少都成立：<b>全部實數</b>。', hint: '兩邊都有 x，把 x 去掉試試。' },
           { prompt: '再來：把 <b>2x ＋ 3 ＜ 2x − 1</b> 化簡。', start: { a: 2, b: 3, c: 2, d: -1, s: '＜' }, ops: [AX(-2), AX(-1), A(-3), A(1), D(2)], solve: [0],
-            msg: '3 ＜ −1 不可能', ruleLabel: 'x 不見了', rule: 'x 消失後剩下 <b>3 ＜ −1</b>，這是<b>錯的</b>，所以沒有任何 x 能讓它成立：<b>無解</b>。', hint: '兩邊都有 2x，把它去掉。' }])];
+            msg: '3 ＜ −1 不可能', ans: '無解（x 消失後 3 ＜ −1 不可能）', ruleLabel: 'x 不見了', rule: 'x 消失後剩下 <b>3 ＜ −1</b>，這是<b>錯的</b>，所以沒有任何 x 能讓它成立：<b>無解</b>。', hint: '兩邊都有 2x，把它去掉。' }])];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'linear-ineq' }); } });
     },
     /* 4. 完成 */
@@ -191,5 +191,5 @@
         parent: { pitfall: '孩子最常忘記「乘或除以負數，不等號要反向」；也常把空心點、實心點用反，或在 x 消失後（例如 3 ＞ 1）不知道答案是「全部實數」還是「無解」。', place: '國中二年級「一元一次不等式」，也是高中二次不等式、線性規劃的基礎。', ask: ['−3 和 −5 誰比較大？為什麼乘 −1 之後大小會反過來？', '解 −2x ＞ 6，為什麼答案是 x ＜ −3，不是 x ＞ −3？', 'x ＋ 3 ＞ x ＋ 1，x 可以是多少？為什麼？'] },
         classes: ['J72A（第 10～14 堂，2026 年 3～4 月）：CH4 不等式', 'J72S（第 9～12 堂，2026 年 3 月）：CH8 一元一次不等式'] , next: { href: 'play-quad-open.html', text: '下一個：二次函數' } });
     }];
-  new P.Lesson({ id: 'linear-ineq', title: '一元一次不等式：蹺蹺板與數線', steps: steps });
+  new P.Lesson({ id: 'linear-ineq', title: '一元一次不等式：蹺蹺板與數線', answers: { 1: '解集合是 x ≤ −2（實心點，成立的綠點都在 −2 的左邊）' }, steps: steps });
 })();

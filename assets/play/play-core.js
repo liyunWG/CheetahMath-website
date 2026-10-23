@@ -236,14 +236,14 @@
   function pill(html, cls) { return h('span', { class: 'pl-pill ' + (cls || ''), html: html }); }
   /* 還沒回答預測題就去動操作元件：把預測題捲到畫面中間並閃一下（手機上 toast 容易被忽略，會讓人以為壞掉） */
   function nudge() { var c = document.querySelector('.pl-choice:not(.is-done)'); if (!c) return; try { c.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {} c.classList.remove('is-nudge'); void c.offsetWidth; c.classList.add('is-nudge'); setTimeout(function () { c.classList.remove('is-nudge'); }, 1800); }
-  function toast(msg) { if (/先做上面的預測/.test(msg)) nudge(); if (moving && !/先做|不行|再|繞遠|要沿|沒回到|必須|相鄰|已經|只淘汰|先標/.test(msg)) moving.board.goalMark(moving.pos); var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+  function toast(msg) { if (/先做上面的預測/.test(msg)) nudge(); if (revealing && !/先做|不行|繞遠|要沿|沒回到|必須|相鄰|已經|只淘汰|先標/.test(msg)) solveToast = msg; if (moving && !/先做|不行|再|繞遠|要沿|沒回到|必須|相鄰|已經|只淘汰|先標/.test(msg)) moving.board.goalMark(moving.pos); var t = document.querySelector('.pl-toast'); if (!t) { t = h('div', { class: 'pl-toast' }); document.body.append(t); } t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
   /* 「看詳解」：題目元件向目前的關卡登記，按下就公布答案並照答對流程走下去 */
   var curLesson = null;
   function solvable(el, o) { if (curLesson) curLesson.solvers.push(Object.assign({ el: el }, o)); }
   var SOLVED = '<span class="pl-sol__tag">詳解</span>';
   /* 測驗序列的「下一題」：答對（或按「看詳解」公布答案）後，一律放一顆「下一題 ▶」，使用者看完、想好再按，不會自動跳題 */
-  var revealing = false;
+  var revealing = false, solveToast = '';
   function later(fn) {
     if (!curLesson) { setTimeout(fn, 900); return; }
     var b = h('button', { type: 'button', class: 'button button--primary pl-nextq' }, '下一題 ▶');
@@ -261,10 +261,11 @@
       predict: !!cfg.predict, done: function () { return locked; },
       reveal: function () {
         if (locked) return; locked = true;
-        if (cfg.predict) { box.classList.add('is-done'); fb.className = 'pl-fb is-good'; fb.textContent = '先跳過預測，直接來看答案。'; track('reveal', { step: cfg.id }); if (cfg.onAnswer) cfg.onAnswer(-1); return; }
         var i = -1; cfg.options.forEach(function (o, k) { if (o.ok && i < 0) i = k; });
         if (i >= 0) btns[i].classList.add('is-right');
-        fb.className = 'pl-fb is-good pl-fb--sol'; fb.innerHTML = SOLVED + '正確答案：<b>' + (i >= 0 ? cfg.options[i].t : '') + '</b>。' + (i >= 0 && cfg.options[i].fb ? cfg.options[i].fb : '');
+        var ansT = i >= 0 ? (String(cfg.options[i].t || '').replace(/<[^>]+>/g, '').trim() ? cfg.options[i].t : ('第 ' + (i + 1) + ' 個選項（圖形，已用綠色標出）')) : '';   /* 選項是圖形、沒有文字時，改寫第幾個 */
+        if (cfg.predict) { box.classList.add('is-done'); fb.className = 'pl-fb is-good' + (i >= 0 ? ' pl-fb--sol' : ''); fb.innerHTML = i >= 0 ? SOLVED + '<b class="pl-ans">正確答案是：' + ansT + '</b>' + (cfg.options[i].fb ? '。' + cfg.options[i].fb : '。往下操作，親眼確認。') : '先跳過預測，直接來看答案。'; track('reveal', { step: cfg.id }); if (cfg.onAnswer) cfg.onAnswer(-1); return; }
+        fb.className = 'pl-fb is-good pl-fb--sol'; fb.innerHTML = SOLVED + '<b class="pl-ans">正確答案是：' + ansT + '</b>。' + (i >= 0 && cfg.options[i].fb ? cfg.options[i].fb : '');
         track('reveal', { step: cfg.id }); if (cfg.onAnswer) cfg.onAnswer(i);
       }
     });
@@ -294,7 +295,7 @@
     host.append(box, h('div', { class: 'pl-row pl-row--center' }, h('button', { type: 'button', class: 'button button--primary pl-small', onclick: chk }, '確認')), fb);
     solvable(box, { done: function () { return done; }, reveal: function () {
       if (done) return; done = true; inp.value = String(cfg.answer).replace('-', '−'); inp.disabled = true; box.classList.add('is-ok'); box.classList.remove('is-bad');
-      fb.className = 'pl-fb is-good pl-fb--sol'; fb.innerHTML = SOLVED + '答案是 <b>' + inp.value + (cfg.unit || '') + '</b>。' + (cfg.okMsg || ''); pop(ck); track('reveal');
+      fb.className = 'pl-fb is-good pl-fb--sol'; fb.innerHTML = SOLVED + '<b class="pl-ans">正確答案是：' + inp.value + (cfg.unit || '') + '</b>。' + (cfg.okMsg || ''); pop(ck); track('reveal');
       if (cfg.onOk) cfg.onOk();
     } });
   }
@@ -319,7 +320,11 @@
     host.append(box, tray); draw();
     solvable(box, { done: function () { return done; }, reveal: function () {
       if (done) return; done = true; placed = cfg.answer.slice(); Object.keys(chipEls).forEach(function (k) { chipEls[k].classList.toggle('is-used', placed.indexOf(k) >= 0 || placed.indexOf(+k) >= 0); }); draw();
-      box.classList.add('is-ok'); pop(ck); track('reveal'); if (cfg.onOk) cfg.onOk();
+      box.classList.add('is-ok'); pop(ck); track('reveal');
+      /* 把完整答案（空格填上積木之後的整句）寫在最前面 */
+      var full = cfg.parts.map(function (p) { return typeof p === 'string' ? p : (byId[placed[p.slot]] ? byId[placed[p.slot]].html : '？'); }).join('');
+      host.append(h('div', { class: 'pl-fb is-good pl-fb--sol', html: SOLVED + '<b class="pl-ans">正確答案是：' + full + '</b>' }));
+      if (cfg.onOk) cfg.onOk();
     } });
   }
   /* 大圓點滑桿 */
@@ -340,12 +345,12 @@
   function taskSeq(box, api, tasks, o) {
     o = o || {}; var k = 0;
     function show() {
-      box.innerHTML = ''; box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + tasks.length + ' 關')); var finished = false;
+      box.innerHTML = ''; [].slice.call(document.querySelectorAll('.pl-ansbox')).forEach(function (e) { e.remove(); }); box.append(h('div', { class: 'pl-label' }, '第 ' + (k + 1) + ' / ' + tasks.length + ' 關')); var finished = false;
       function done() {
-        if (finished) return; finished = true; if (moving) moving.board.goalMark(moving.pos); api.solve(function () { var b = document.querySelector('.pl-nextq'); if (b) b.click(); }, true);
+        if (finished) return; finished = true; if (moving) moving.board.goalMark(moving.pos); api.solve(function () { var b = document.querySelector('.pl-nextq'); if (b) b.click(); }, true, null);
         if (k + 1 < tasks.length) later(function () { k++; show(); }); else if (o.onDone) o.onDone();
       }
-      tasks[k](box, done, function (fn) { api.solve(fn, true); });
+      tasks[k](box, done, function (fn, ans) { api.solve(fn, true, ans); });
     }
     show(); api.lock(o.lock || ('完成 ' + tasks.length + ' 關'));
   }
@@ -428,20 +433,31 @@
         var pend = this.stage.querySelector('.pl-nextq'); if (pend) { pend.click(); break; }   /* 已經答完、正等著按「下一題」：看詳解＝直接換下一題 */
         var s = this.solvers.filter(function (o) { return !o.done() && o.el.isConnected && o.el.getClientRects().length; })[0];
         if (s) { s.reveal(); if (!s.predict) break; continue; }
-        if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.stepSolve(); if (this.stepHold) break; continue; }
+        if (this.stepSolve && !this.stepSolved) { this.stepSolved = true; this.runSolve(); if (this.stepHold) break; continue; }
         this.unlock('已略過這一步，按「繼續」往下走'); break;
       }
       } finally { revealing = false; }
       var shown = this.stage.querySelectorAll('.pl-rule, .pl-fb--sol'), el = shown[shown.length - 1];
       if (el) { el.style.scrollMarginBottom = '110px'; try { el.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {} }
     },
+    /* 跑這一步的詳解示範，並在最新出現的綠框「最前面」寫上「正確答案是：…」（沒有綠框就自己放一個）。
+       答案文字優先用 api.solve／setSolve 的第三個參數；沒有的話，用示範過程中最後一則提示訊息。 */
+    runSolve: function () {
+      var stage = this.stage, before = [].slice.call(stage.querySelectorAll('.pl-rule')), ans0 = this.stepAns; solveToast = '';
+      if (ans0 === undefined && this.cfg.answers && this.cfg.answers[this.i]) ans0 = this.cfg.answers[this.i];   /* 單元可以用 answers: {步驟編號: '答案'} 一次登記 */
+      this.stepSolve();   /* 示範裡 done() 會重新登記下一個動作，所以答案要先記下來 */
+      var ans = ans0 === undefined ? solveToast : ans0; if (!ans) return;
+      var news = [].slice.call(stage.querySelectorAll('.pl-rule')).filter(function (n) { return before.indexOf(n) < 0; }), line = '<div class="pl-ans"><b>正確答案是：</b>' + ans + '</div>';
+      if (news.length) { var inner = news[news.length - 1].lastElementChild; if (inner && !inner.querySelector('.pl-ans')) inner.insertAdjacentHTML('afterbegin', line); }
+      else { var bx = ruleBox(line, '詳解'); bx.classList.add('pl-ansbox'); stage.append(bx); }
+    },
     go: function (n, first) {
       if (n < 0 || n >= this.cfg.steps.length) return; var self = this; this.i = n;
       Array.prototype.forEach.call(this.dots.children, function (d, k) { d.className = k < n ? 'on' : k === n ? 'cur' : ''; });
       var tt = document.querySelector('.pl-toast'); if (tt) tt.classList.remove('show'); this.stage.innerHTML = ''; var last = n === this.cfg.steps.length - 1;
       this.foot.style.display = last ? 'none' : ''; this.back.style.visibility = n === 0 ? 'hidden' : 'visible'; this.lock('');
-      var api = { unlock: function (m) { self.unlock(m); }, lock: function (m) { self.lock(m); }, solve: function (fn, hold) { self.stepSolve = fn; self.stepSolved = false; self.stepHold = !!hold; }, ctx: this.ctx, lesson: this, isLast: last };
-      this.solvers = []; this.stepSolve = null; this.stepSolved = false; this.stepHold = false; curLesson = this;
+      var api = { unlock: function (m) { self.unlock(m); }, lock: function (m) { self.lock(m); }, solve: function (fn, hold, ans) { self.stepSolve = fn; self.stepSolved = false; self.stepHold = !!hold; self.stepAns = ans === undefined ? undefined : ans; }, ctx: this.ctx, lesson: this, isLast: last };
+      this.solvers = []; this.stepSolve = null; this.stepSolved = false; this.stepHold = false; this.stepAns = undefined; curLesson = this;
       track('step', { id: this.cfg.id, n: n });
       this.cfg.steps[n](this.stage, api);
       if (!first || window.innerWidth <= 900 || window.innerHeight < 1000) this.toTop(first);

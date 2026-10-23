@@ -116,7 +116,7 @@
     /* 4 柱體與錐體 */
     function (st, api) {
       var gate = { on: true }, seen = {}, ns = null, cur = 'tprism', fold = 0;
-      P.choice(st, api, { id: 'sn-p4', predict: true, label: '先猜猜看', prompt: '圓錐的<b>側面</b>攤平，會是什麼形狀？', row: true, options: [{ t: '長方形' }, { t: '扇形' }, { t: '圓形' }], onAnswer: function (i) { api.ctx.p4 = i; gate.on = false; api.lock('四種立體都摺一次'); } });
+      P.choice(st, api, { id: 'sn-p4', predict: true, label: '先猜猜看', prompt: '圓錐的<b>側面</b>攤平，會是什麼形狀？', row: true, options: [{ t: '長方形' }, { ok: true, t: '扇形' }, { t: '圓形' }], onAnswer: function (i) { api.ctx.p4 = i; gate.on = false; api.lock('四種立體都摺一次'); } });
       ns = new NetScene(st, { aspect: 1.8, maxH: Math.max(130, Math.min(180, window.innerHeight - 600)), labels: false });
       var pn = h('div', { class: 'pl-caption' }), pr = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pr);
       var seg = PS.seg(st, [{ k: 'tprism', t: '三角柱' }, { k: 'spyr', t: '四角錐' }, { k: 'cyl', t: '圓柱' }, { k: 'cone', t: '圓錐' }], function (k) { if (gate.on) { seg.set(cur, false); P.toast('先做上面的預測'); return; } load(k); });
@@ -131,7 +131,7 @@
     /* 5 螞蟻爬立方體 */
     function (st, api) {
       var gate = { on: true };
-      P.choice(st, api, { id: 'sn-p5', predict: true, label: '先猜猜看', prompt: '螞蟻從 <b>A</b> 爬到對角的 <b>G</b>。沿著稜走要 3 格。<b>爬過面</b>能更短嗎？', row: true, options: [{ t: '3 格最短' }, { t: '可以更短' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('調整路線，再把上面攤平'); } });
+      P.choice(st, api, { id: 'sn-p5', predict: true, label: '先猜猜看', prompt: '螞蟻從 <b>A</b> 爬到對角的 <b>G</b>。沿著稜走要 3 格。<b>爬過面</b>能更短嗎？', row: true, options: [{ t: '3 格最短' }, { ok: true, t: '可以更短' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('調整路線，再把上面攤平'); } });
       var sc = PS.scene(st, { fitR: 1.75, yaw: -0.55, pitch: 0.5, center: [0, 0.4, 0] });
       var t = 0.2, psi = 0, done = false, A = [-.5, -.5, .5], G = [.5, .5, -.5], hinge = [0, .5, .5];
       var CF = D.cubeFaces(-.5, -.5, -.5, 1, '#fff'), cols = ['#9db7ee', '#f3a6c3', '#9ad9b3', '#f0d58b', '#c5b0ef', '#f4b78e'];
@@ -194,5 +194,5 @@
         classes: ['J91S：立體圖形', 'J71S CH5：三視圖與空間觀察', 'PK3C：錐體與球體'],
         next: { href: 'play-solid-section.html', text: '下一個：截面' } });
     }];
-  new P.Lesson({ id: 'solid-nets', title: '展開圖', steps: steps });
+  new P.Lesson({ id: 'solid-nets', title: '展開圖', answers: { 0: '展開圖的 6 個正方形，摺起來剛好是正方體的 6 個面', 1: '不是每個「6 個正方形連在一起」的圖都能摺成正方體', 2: '正方體的展開圖共 11 種' }, steps: steps });
 })();

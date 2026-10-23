@@ -49,7 +49,7 @@
     /* 1. 預測＋拖端點 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, s, chips = {};
-      P.choice(st, api, { id: 'qi-p1', predict: true, label: '先猜猜看', prompt: '<b>y ＝ x² − 4x ＋ 1</b> 的頂點在 (2, −3)。如果只看 <b>3 ≤ x ≤ 5</b> 這一段，最小值在<b>頂點</b>嗎？', row: true, options: [{ t: '在頂點' }, { t: '不在頂點' }, { t: '不一定' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把兩個端點 m、n 拖到不同的位置'); } });
+      P.choice(st, api, { id: 'qi-p1', predict: true, label: '先猜猜看', prompt: '<b>y ＝ x² − 4x ＋ 1</b> 的頂點在 (2, −3)。如果只看 <b>3 ≤ x ≤ 5</b> 這一段，最小值在<b>頂點</b>嗎？', row: true, options: [{ t: '在頂點' }, { ok: true, t: '不在頂點' }, { t: '不一定' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把兩個端點 m、n 拖到不同的位置'); } });
       st.append(P.instr('拖動 <b>m</b>、<b>n</b>，只看粉紅色這一段曲線。綠點是這一段的<b>最高點</b>，藍點是<b>最低點</b>。看看它們出現在哪裡。'));
       s = scene(st, { m: 3, n: 5, gate: gate, onChange: function (m, n) {
         if (gate.on) return; seen[where(m, n)] = 1;
@@ -86,14 +86,14 @@
         return function (b0, done, setSolve) {
           b0.append(h('div', { class: 'pl-q', html: cfg.prompt }));
           var fin = false, s = scene(b0, { m: 0, n: 1, sm: true, onSettle: function (m, n, ex, pl) { if (cfg.ok(m, n, ex) && !fin) { fin = true; pl.b.goalMark([pl.X(m), pl.Y(-5.5)]); P.toast(cfg.msg); done(); } } });
-          setSolve(function () { s.set(cfg.answer[0], cfg.answer[1]); }); b0.append(P.hint(cfg.hint));
+          setSolve(function () { s.set(cfg.answer[0], cfg.answer[1]); }, cfg.ans); b0.append(P.hint(cfg.hint));
         };
       }
       var near = function (a, b2) { return Math.abs(a - b2) < 1e-6; };
       var tasks = [
-        task({ prompt: '調整 <b>m</b>、<b>n</b>，讓<b>最小值出現在頂點</b>，而且<b>最大值在右端點</b>。', ok: function (m, n, ex) { return where(m, n) === 'vertex' && F(n) > F(m); }, answer: [0, 5], msg: '頂點在範圍內，右端點比左端點高', hint: '範圍要包住 x ＝ 2。左右端點誰比較高？' }),
-        task({ prompt: '調整 <b>m</b>、<b>n</b>，讓<b>最大值是 6</b>，<b>最小值是 −2</b>。（有不只一種答案）', ok: function (m, n, ex) { return near(ex.max, 6) && near(ex.min, -2); }, answer: [3, 5], msg: '最大值 6、最小值 −2', hint: 'f(x) ＝ 6 和 f(x) ＝ −2 的 x 各是多少？頂點可以在範圍裡嗎？' }),
-        task({ prompt: '調整 <b>m</b>、<b>n</b>，讓<b>最大值比最小值剛好大 4</b>。', ok: function (m, n, ex) { return near(ex.max - ex.min, 4); }, answer: [0, 2], msg: '最大值 − 最小值 ＝ 4', hint: '頂點是 (2, −3)。最小值是 −3 嗎？最大值要是多少？' })];
+        task({ prompt: '調整 <b>m</b>、<b>n</b>，讓<b>最小值出現在頂點</b>，而且<b>最大值在右端點</b>。', ok: function (m, n, ex) { return where(m, n) === 'vertex' && F(n) > F(m); }, answer: [0, 5], ans: '例如 [0, 5]（範圍包住頂點 x ＝ 2，右端點 x ＝ 5 比左端點高）', msg: '頂點在範圍內，右端點比左端點高', hint: '範圍要包住 x ＝ 2。左右端點誰比較高？' }),
+        task({ prompt: '調整 <b>m</b>、<b>n</b>，讓<b>最大值是 6</b>，<b>最小值是 −2</b>。（有不只一種答案）', ok: function (m, n, ex) { return near(ex.max, 6) && near(ex.min, -2); }, answer: [3, 5], ans: '[3, 5]，或 [−1, 1]（最大值 6、最小值 −2）', msg: '最大值 6、最小值 −2', hint: 'f(x) ＝ 6 和 f(x) ＝ −2 的 x 各是多少？頂點可以在範圍裡嗎？' }),
+        task({ prompt: '調整 <b>m</b>、<b>n</b>，讓<b>最大值比最小值剛好大 4</b>。', ok: function (m, n, ex) { return near(ex.max - ex.min, 4); }, answer: [0, 2], ans: '例如 [0, 2] 或 [2, 4]（最小值 −3 在頂點，最大值是 1）', msg: '最大值 − 最小值 ＝ 4', hint: '頂點是 (2, −3)。最小值是 −3 嗎？最大值要是多少？' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'quad-interval' }); } });
     },
     /* 4. 完成 */
@@ -106,5 +106,5 @@
         parent: { pitfall: '孩子最常見的錯：定義域有限制時，直接拿頂點當答案，沒有檢查頂點的 x 是不是在範圍內；或只比兩個端點，忘了頂點可能在範圍裡。', place: '高中二次函數的最大最小值，是分類討論與應用題的基礎。', ask: ['y ＝ x² − 4x ＋ 1，只看 3 ≤ x ≤ 5，最小值是多少？為什麼不是 −3？', '範圍包住頂點時，最大值會在哪裡？', '為什麼不用比範圍中間的點？'] },
         classes: ['S101（2507 第 23 堂）：多項式函數，含最大最小值與區間', 'J91A（2507 第 18 堂）：二次函數的最大最小值', 'J91S（2607 第 4 堂）：CH12 二次函數'], next: { href: 'play-quad-ineq.html', text: '下一個：二次不等式' } });
     }];
-  new P.Lesson({ id: 'quad-interval', title: '二次函數：限定範圍的最大最小值', steps: steps });
+  new P.Lesson({ id: 'quad-interval', title: '二次函數：限定範圍的最大最小值', answers: { 1: '範圍在頂點左邊：最小值在右端點；包住頂點：最小值在頂點；在頂點右邊：最小值在左端點' }, steps: steps });
 })();

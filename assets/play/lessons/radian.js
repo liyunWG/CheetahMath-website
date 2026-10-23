@@ -18,7 +18,7 @@
     /* 1. 把半徑捲到圓周上 */
     function (st, api) {
       var gate = { on: true }, k = 0, done = false;
-      P.choice(st, api, { id: 'rd-p1', predict: true, label: '先猜猜看', prompt: '拿一條和<b>半徑一樣長</b>的繩子，沿著圓周一段一段捲。捲滿<b>一圈</b>需要幾條？', row: true, options: [{ t: '3 條多一點' }, { t: '6 條多一點' }, { t: '剛好 8 條' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按「再捲一段」，一段一段捲'); } });
+      P.choice(st, api, { id: 'rd-p1', predict: true, label: '先猜猜看', prompt: '拿一條和<b>半徑一樣長</b>的繩子，沿著圓周一段一段捲。捲滿<b>一圈</b>需要幾條？', row: true, options: [{ t: '3 條多一點' }, { ok: true, t: '6 條多一點' }, { t: '剛好 8 條' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按「再捲一段」，一段一段捲'); } });
       var host = stage(st), b = circleBoard(host), g = h('g'); b.gMid.append(g);
       b.line([0.6, 1.0], [0.6 + R, 1.0], 'pl-line pl-line--amber pl-line--bold'); b.text([0.6 + R / 2, 0.35], '一條繩子 ＝ 半徑 r', 'pl-text pl-text--sm');
       var pk = P.pill('', 'is-blue'), pa = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pk, pa), bt = h('button', { type: 'button', class: 'button button--primary pl-small' }, '再捲一段'), br = h('button', { type: 'button', class: 'button button--secondary pl-small' }, '重來');
@@ -99,5 +99,5 @@
         classes: ['S111（2507 第 1–8 堂；2607 第 1–8 堂）：CH1 三角函數 II（第 1 堂為弧度、弧長、扇形面積）', 'J82S（2601 第 18 堂）：CH10 圓（弧長與扇形面積）', 'S102（2601 第 18–23 堂）：CH4 三角函數'],
         next: { href: 'play-circle-area.html', text: '下一個：圓面積' } });
     }];
-  new P.Lesson({ id: 'radian', title: '弧度：把半徑捲到圓周上', steps: steps });
+  new P.Lesson({ id: 'radian', title: '弧度：把半徑捲到圓周上', answers: { 1: '弧度 ＝ 弧長 ÷ 半徑；180° ＝ π、90° ＝ π/2、60° ＝ π/3、360° ＝ 2π' }, steps: steps });
 })();

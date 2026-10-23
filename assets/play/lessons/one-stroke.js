@@ -95,7 +95,7 @@
     /* 1. 預測＋一筆畫 */
     function (st, api) {
       var gate = { on: true }, done = false, g;
-      P.choice(st, api, { id: 'os-p1', predict: true, label: '先猜猜看', prompt: '筆<b>不離開紙</b>、每條線<b>只走一次</b>（點可以重複經過），這個圖能一筆畫完嗎？', row: true, options: [{ t: '能' }, { t: '不能' }, { t: '不確定' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把綠色的筆拖到一個點出發'); } });
+      P.choice(st, api, { id: 'os-p1', predict: true, label: '先猜猜看', prompt: '筆<b>不離開紙</b>、每條線<b>只走一次</b>（點可以重複經過），這個圖能一筆畫完嗎？', row: true, options: [{ ok: true, t: '能' }, { t: '不能' }, { t: '不確定' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把綠色的筆拖到一個點出發'); } });
       var b = PA.board(st, 11, 10), pU = P.pill('', 'is-blue'), pS = P.pill('', ''); st.append(h('div', { class: 'pl-readout' }, pU, pS));
       g = makeGraph(b, Object.assign({ disabled: function () { return gate.on; }, showDeg: false, onChange: function (gg) { pU.textContent = '走過 ' + gg.used() + ' / ' + gg.total() + ' 條線'; if (!gg.finished()) { pS.className = 'pl-pill'; pS.textContent = gg.path().length ? '從 ' + gg.path()[0] + ' 出發，繼續走…' : '把筆拖到任一個點出發'; } },
         onFinish: function (gg) { var p = gg.path(); pS.className = 'pl-pill is-ok'; pS.textContent = '✓ 一筆畫完：' + p[0] + ' 出發，' + p[p.length - 1] + ' 結束'; if (!done) { done = true; P.track('aha', { id: 'one-stroke', step: 1 }); P.toast(api.ctx.p1 === 0 ? '你猜對了！能一筆畫' : '一筆畫成功！'); st.append(P.hint('你是從哪一個點出發、在哪一個點結束的？下一步來找原因。')); api.unlock('一筆畫成功！'); } },
@@ -164,5 +164,5 @@
         parent: { pitfall: '孩子常靠亂試，試不出來就放棄，不知道可以「先數點再決定」。也容易以為「只要線多就畫不完」，其實關鍵是奇點的個數。', place: '小學到國中的圖論入門，也是「先觀察規律、再證明」的好例子。', ask: ['一個點連著 4 條線，筆走進來、再走出去，會剩下幾條？', '為什麼奇點一定是成對出現的？', '這個圖如果有 4 個奇點，要拿掉幾條線才能一筆畫？'] },
         classes: ['PI1A（2507 第 1 堂）：一筆畫問題', 'PK3D（2512 第 19 堂）：七橋問題', 'PI2A（2507 習題課第 4 堂）：歐拉公式'], next: { href: 'play-perp-bisector.html', text: '下一個：垂直平分線與外心' } });
     }];
-  new P.Lesson({ id: 'one-stroke', title: '一筆畫與奇點', steps: steps });
+  new P.Lesson({ id: 'one-stroke', title: '一筆畫與奇點', answers: { 0: '能一筆畫完（這個圖只有 2 個奇點，從奇點出發就行）', 1: '能一筆畫的圖，起點和終點只能是奇點（連著奇數條線的點）', 2: '奇點是 0 個或 2 個，而且圖連在一起，就能一筆畫' }, steps: steps });
 })();

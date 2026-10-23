@@ -50,7 +50,7 @@
     /* 2 歐拉公式 */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, S = null;
-      P.choice(st, api, { id: 'sb-p2', predict: true, label: '先猜猜看', prompt: '數一數各種多面體的 <b>頂點 − 稜 + 面</b>，結果會是…？', row: true, options: [{ t: '每個都不同' }, { t: '全部都一樣' }, { t: '都是 0' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('把 6 種多面體都看一遍'); } });
+      P.choice(st, api, { id: 'sb-p2', predict: true, label: '先猜猜看', prompt: '數一數各種多面體的 <b>頂點 − 稜 + 面</b>，結果會是…？', row: true, options: [{ t: '每個都不同' }, { ok: true, t: '全部都一樣' }, { t: '都是 0' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('把 6 種多面體都看一遍'); } });
       var sc = PS.scene(st, { fitR: 1.1 });
       var pc = P.pill('', 'is-blue'), pe2 = P.pill('', 'is-pink'), pf = P.pill('', 'is-green'), pr = P.pill('', ''), ro = h('div', { class: 'pl-readout' }, pc, pe2, pf, pr);
       var items = [['tpyramid', '三角錐'], ['cube', '正方體'], ['tprism', '三角柱'], ['spyramid', '四角錐'], ['pprism', '五角柱'], ['octa', '八面體']];
@@ -138,5 +138,5 @@
         classes: ['J91S：立體圖形', 'J71S CH5：三視圖（立體觀察的先備）', 'PK3C：錐體與球體'],
         next: { href: 'play-solid-lines.html', text: '下一個：空間中的線與面' } });
     }];
-  new P.Lesson({ id: 'solid-basic', title: '立體圖形的基本性質', steps: steps });
+  new P.Lesson({ id: 'solid-basic', title: '立體圖形的基本性質', answers: { 0: '立體圖形由面、稜、頂點組成；正方體有 8 個頂點、12 條稜、6 個面' }, steps: steps });
 })();

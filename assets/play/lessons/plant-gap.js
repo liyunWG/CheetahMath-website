@@ -10,7 +10,7 @@
     /* 1. 預測＋把樹苗拖到路上 */
     function (st, api) {
       var gate = { on: true }, filled = [0, 0, 0, 0, 0, 0], n = 0, done = false, hd;
-      P.choice(st, api, { id: 'pg-p1', predict: true, label: '先猜猜看', prompt: '一條 <b>20 公尺</b>的路，每隔 <b>4 公尺</b>種一棵樹，<b>頭尾兩端都要種</b>。一共需要幾棵？', row: true, options: [{ t: '4 棵' }, { t: '5 棵' }, { t: '6 棵' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把樹苗拖到路上的圓點'); } });
+      P.choice(st, api, { id: 'pg-p1', predict: true, label: '先猜猜看', prompt: '一條 <b>20 公尺</b>的路，每隔 <b>4 公尺</b>種一棵樹，<b>頭尾兩端都要種</b>。一共需要幾棵？', row: true, options: [{ t: '4 棵' }, { t: '5 棵' }, { ok: true, t: '6 棵' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把樹苗拖到路上的圓點'); } });
       var b = PA.board(st, 12, 7), gs = h('g'), gt = h('g'); b.gMid.append(gs, gt);
       for (var i = 0; i < 5; i++) { seg(b, gs, XS[i], XS[i + 1], RY, i); b.text([(XS[i] + XS[i + 1]) / 2, RY - 0.95], '第 ' + (i + 1) + ' 段', 'pl-text pl-text--sm pl-text--blue', gs); }
       var socks = XS.map(function (x, k) { var c = h('circle', { cx: x, cy: b.Y(RY), r: 0.34, class: 'pa-slot' }); c.style.cursor = 'pointer'; c.addEventListener('click', function () { plant(k); }); gs.append(c); return c; });
@@ -120,5 +120,5 @@
         parent: { pitfall: '孩子常用「全長 ÷ 間隔」直接當作棵數，忘了頭尾要補一棵（或圍成一圈時不用補）。也常把「兩端都種、只種一端、兩端都不種」混在一起背。', place: '小學三到五年級的應用問題，也是第一次遇到「差一」的思考：數的是點還是段。', ask: ['為什麼 5 根手指之間只有 4 個空隙？', '鋸 4 刀，木頭變成幾段？鋸 10 刀呢？', '圓形的跑道，為什麼棵數和段數一樣多？'] },
         classes: ['PK1A（2607 第 13、14 堂）：植樹問題、間隔問題', 'PI1A（2607 第 12、11 堂；2507 第 13、12 堂）：植樹問題、間隔問題', 'PK2B（2512 第 6 堂）：方陣問題'], next: { href: 'play-time-axis.html', text: '下一個：時間軸統籌' } });
     }];
-  new P.Lesson({ id: 'plant-gap', title: '植樹與間隔：數空隙，不是數樹', steps: steps });
+  new P.Lesson({ id: 'plant-gap', title: '植樹與間隔：數空隙，不是數樹', answers: { 1: '兩端都種：棵數 ＝ 段數 ＋ 1；只種一端：＝ 段數；兩端都不種：＝ 段數 − 1', 2: '環形（圍成一圈）：棵數 ＝ 段數' }, steps: steps });
 })();

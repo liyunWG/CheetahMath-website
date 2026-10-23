@@ -35,7 +35,7 @@
     /* 1. 預測＋每個點數和有幾格 */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, s = 7;
-      P.choice(st, api, { id: 'dg-p1', predict: true, label: '先猜猜看', prompt: '同時丟兩顆骰子，<b>點數和</b>是哪一個最容易出現？', row: true, options: [{ t: '和是 2' }, { t: '和是 7' }, { t: '和是 12' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('用 ＋ － 換點數和，看有幾格'); } });
+      P.choice(st, api, { id: 'dg-p1', predict: true, label: '先猜猜看', prompt: '同時丟兩顆骰子，<b>點數和</b>是哪一個最容易出現？', row: true, options: [{ t: '和是 2' }, { ok: true, t: '和是 7' }, { t: '和是 12' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('用 ＋ － 換點數和，看有幾格'); } });
       var b = PA.board(st, 11, 10), grid = makeGrid(b, { num: true });
       var pS = P.pill('', 'is-blue'), pK = P.pill('', 'is-amber'), pP = P.pill('', 'is-ok'); st.append(h('div', { class: 'pl-readout' }, pS, pK, pP));
       function draw() { grid.hi(function (a, c) { return a + c === s; }); var k = 0; for (var a = 1; a <= 6; a++) { var c = s - a; if (c >= 1 && c <= 6) k++; } pS.textContent = '點數和是 ' + s; pK.textContent = '有 ' + k + ' 格'; pP.textContent = '機率 ' + k + '/36' + (frac(k) !== k + '/36' ? ' ＝ ' + frac(k) : ''); return k; }

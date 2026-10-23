@@ -45,7 +45,7 @@
     /* 1. 預測＋搬三角形 */
     function (st, api) {
       var gate = { on: true }, a = 3, b = 4, done = false;
-      P.choice(st, api, { id: 'py-p1', predict: true, label: '先猜猜看', prompt: '兩種擺法，<b>四個三角形</b>都一樣，大正方形也一樣大。<b>空白的面積</b>會…？', row: true, options: [{ t: '擺法 A 較大' }, { t: '擺法 B 較大' }, { t: '一樣大' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿，把三個三角形搬一搬'); } });
+      P.choice(st, api, { id: 'py-p1', predict: true, label: '先猜猜看', prompt: '兩種擺法，<b>四個三角形</b>都一樣，大正方形也一樣大。<b>空白的面積</b>會…？', row: true, options: [{ t: '擺法 A 較大' }, { t: '擺法 B 較大' }, { ok: true, t: '一樣大' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拉滑桿，把三個三角形搬一搬'); } });
       var host = stage(st), board = new P.Board(host, { w: 7, h: 7 }), draw = figure(board, a, b), pill = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pill);
       function upd(t) {
         draw(t);
@@ -128,7 +128,7 @@
             pa.textContent = '橫 ' + dx; pb.textContent = '直 ' + dy; pc.textContent = '長度² ＝ ' + dx + '² ＋ ' + dy + '² ＝ ' + (dx * dx + dy * dy); return dx * dx + dy * dy;
           }
           var hd = bd.handle({ pos: [3, 2], onMove: function (t) { var n = draw(t); if (ti < targets.length && n === targets[ti]) { ti++; if (ti >= targets.length) { P.toast('三個目標都找到了！'); P.track('aha', { id: 'pythagoras', step: 4 }); done(); } else { P.toast('✓ 找到了，下一個'); txt(); } } } });
-          setSolve(function () { while (ti < targets.length) hd.moveTo([O[0] + sol[ti][0], O[1] + sol[ti][1]]); });
+          setSolve(function () { while (ti < targets.length) hd.moveTo([O[0] + sol[ti][0], O[1] + sol[ti][1]]); }, '橫 2、直 3（長度² ＝ 13）；橫 3、直 4（25）；橫 5、直 5（50）');
           txt(); draw([3, 2]); b0.append(P.hint('提示：長度² ＝ 橫² ＋ 直²。想想哪兩個平方數（1、4、9、16、25…）加起來剛好是目標。'));
         },
         /* 關 2：哪些三角形是直角？ */
@@ -153,7 +153,7 @@
           }
           var cand = []; for (var x = 1; x <= 11; x++) for (var y = 1; y <= 9; y++) if (y !== 2) cand.push([x, y]);
           var hd = bd.handle({ pos: [6, 5], candidates: cand, onMove: draw }); draw([6, 5]);
-          setSolve(function () { [[2, 6], [10, 5], [6, 6]].forEach(hd.moveTo); }); b0.append(P.hint('提示：較短兩邊的平方和 ＝ 最長邊的平方，就是直角（畢氏定理的逆定理）。'));
+          setSolve(function () { [[2, 6], [10, 5], [6, 6]].forEach(hd.moveTo); }, 'C 放在 (2, 6)、(10, 5)、(6, 6) 這三個位置，直角剛好各出現在 A、B、C 一次'); b0.append(P.hint('提示：較短兩邊的平方和 ＝ 最長邊的平方，就是直角（畢氏定理的逆定理）。'));
         },
         /* 關 3：長、寬、對角線都是整數的長方形 */
         function (b0, done, setSolve) {
@@ -167,7 +167,7 @@
             if (ok) { var key = Math.min(w, hh) + ',' + Math.max(w, hh); if (!seen[key]) { seen[key] = 1; n++; bd.goalMark(p); pn.textContent = '找到 ' + Math.min(n, 2) + ' / 2'; if (n >= 2) { P.toast('找到兩種了！它們都是「畢氏三元數」'); P.track('aha', { id: 'pythagoras', step: 6 }); done(); } } }
           }
           var hd = bd.handle({ pos: [7, 5], valid: function (t) { return t[0] >= 1 && t[1] >= 1; }, onMove: draw }); draw([7, 5]);
-          setSolve(function () { [[3, 4], [6, 8]].forEach(hd.moveTo); }); b0.append(P.hint('對角線是直角三角形的斜邊，所以 長² ＋ 寬² 要剛好是某個整數的平方。'));
+          setSolve(function () { [[3, 4], [6, 8]].forEach(hd.moveTo); }, '長 3、寬 4（對角線 5）和 長 6、寬 8（對角線 10）'); b0.append(P.hint('對角線是直角三角形的斜邊，所以 長² ＋ 寬² 要剛好是某個整數的平方。'));
         },
         /* 關 4：梯子靠牆 */
         function (b0, done, setSolve) {
@@ -183,7 +183,7 @@
             if (ok && !seen[xx]) { seen[xx] = 1; n++; bd.goalMark(p); pk.textContent = '找到 ' + n + ' / 2'; if (n >= 2) { P.toast('5-12-13 就是這樣出現的！'); P.track('aha', { id: 'pythagoras', step: 7 }); done(); } }
           }
           var hd = bd.handle({ pos: [8, 0], candidates: cand, onMove: draw }); draw([8, 0]);
-          setSolve(function () { [[5, 0], [12, 0]].forEach(hd.moveTo); }); b0.append(P.hint('梯腳、牆、梯子圍成直角三角形，斜邊固定是 13。'));
+          setSolve(function () { [[5, 0], [12, 0]].forEach(hd.moveTo); }, '梯腳離牆 5 公尺（梯頂高 12 公尺）和 離牆 12 公尺（梯頂高 5 公尺）'); b0.append(P.hint('梯腳、牆、梯子圍成直角三角形，斜邊固定是 13。'));
         }];
       P.taskSeq(box, api, tasks, { lock: '完成 4 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'pythagoras' }); } });
     },
@@ -202,5 +202,5 @@
         classes: ['J81A（2507 第 13–18 堂；2607 第 10–15 堂）：CH2 勾股定理', 'J81S（2507 第 2–3 堂＋習題課第 4–7 堂；2607 第 1–2 堂）：平方根與畢氏定理', 'J72S（2601 第 22–24 堂）：CH02 平方根與畢氏定理', 'PK3C（2507 第 5 堂；2607 第 5 堂）：勾股定理（畢氏定理）', 'PK4A（2507 第 19 堂；2607 第 15 堂）：勾股定理'],
         next: { href: 'play-circle-angles.html', text: '下一個：圓周角與圓心角' } });
     }];
-  new P.Lesson({ id: 'pythagoras', title: '畢氏定理：重排四個直角三角形', steps: steps });
+  new P.Lesson({ id: 'pythagoras', title: '畢氏定理：重排四個直角三角形', answers: { 2: 'a² ＋ b² ＝ c² 對任何直角三角形都成立（例如 a ＝ 2、b ＝ 3 時，c ＝ √13）' }, steps: steps });
 })();

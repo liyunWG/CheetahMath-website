@@ -84,7 +84,7 @@
     /* 1. 預測＋拖 x */
     function (st, api) {
       var gate = { on: true }, seen = { L: 0, R: 0 }, done = false, s;
-      P.choice(st, api, { id: 'abs1-p1', predict: true, label: '先猜猜看', prompt: '<b>x ＝ 0</b> 時，<b>|x − 2|</b> 等於多少？', row: true, options: [{ t: '−2' }, { t: '2' }, { t: '0' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把 x 拖到零點的左邊和右邊各看看'); } });
+      P.choice(st, api, { id: 'abs1-p1', predict: true, label: '先猜猜看', prompt: '<b>x ＝ 0</b> 時，<b>|x − 2|</b> 等於多少？', row: true, options: [{ t: '−2' }, { ok: true, t: '2' }, { t: '0' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把 x 拖到零點的左邊和右邊各看看'); } });
       st.append(P.instr('拖動數線上的 <b>x</b>，看看 <b>|x − 2|</b> 怎麼變。'));
       s = scene(st, { k: 1, c: -2, gate: gate, onX: function (v) {
         if (gate.on) return; if (v < 2) seen.L = 1; else seen.R = 1;
@@ -124,7 +124,7 @@
             if (ab === cfg.target && !found[v]) { found[v] = 1; n++; pN.textContent = '找到 ' + n + ' / ' + cfg.sols.length; P.toast('找到了：x ＝ ' + f(v) + (n < cfg.sols.length ? '，還有別的位置' : '')); if (n === cfg.sols.length) done(); }
           } });
           b0.append(h('div', { class: 'pl-readout' }, pN));
-          setSolve(function () { if (cfg.placeZero) s.toZero(); cfg.sols.forEach(function (v) { s.setX(v); }); });
+          setSolve(function () { if (cfg.placeZero) s.toZero(); cfg.sols.forEach(function (v) { s.setX(v); }); }, cfg.ans);
           b0.append(P.hint(cfg.hint));
         };
       }
@@ -145,12 +145,12 @@
         var btns = {}; var row = h('div', { class: 'pl-row pl-row--center' });
         ['R', 'L'].forEach(function (key) { var bt = h('button', { type: 'button', class: 'button button--secondary pl-small' }, info[key].label); bt.addEventListener('click', function () { press(key); }); btns[key] = bt; row.append(bt); });
         b0.append(row, out);
-        setSolve(function () { press('R'); press('L'); }); b0.append(P.hint('兩段都看過，才知道哪個解能留下來。'));
+        setSolve(function () { press('R'); press('L'); }, 'x ＝ 1（x ＝ −1 不在 x ≥ 2 這一段，要淘汰）'); b0.append(P.hint('兩段都看過，才知道哪個解能留下來。'));
       }
       var tasks = [
-        findTask({ prompt: '拖動 <b>x</b>，找出<b>所有</b>讓 <b>|x − 2| ＝ 3</b> 的 x。', k: 1, c: -2, target: 3, sols: [-1, 5], hint: '絕對值是到 2 的距離。距離 3 的位置有幾個？' }),
+        findTask({ prompt: '拖動 <b>x</b>，找出<b>所有</b>讓 <b>|x − 2| ＝ 3</b> 的 x。', k: 1, c: -2, target: 3, sols: [-1, 5], ans: 'x ＝ −1 和 x ＝ 5（到 2 的距離都是 3）', hint: '絕對值是到 2 的距離。距離 3 的位置有幾個？' }),
         segTask,
-        findTask({ prompt: '這題的裡面是 <b>2x − 4</b>。先把 <b>零點</b> 放好，再找出所有讓 <b>|2x − 4| ＝ 6</b> 的 x。', k: 2, c: -4, target: 6, placeZero: true, sols: [-1, 5], hint: '零點是讓 2x − 4 等於 0 的 x，不是 4。' })];
+        findTask({ prompt: '這題的裡面是 <b>2x − 4</b>。先把 <b>零點</b> 放好，再找出所有讓 <b>|2x − 4| ＝ 6</b> 的 x。', k: 2, c: -4, target: 6, placeZero: true, sols: [-1, 5], ans: '零點是 x ＝ 2；解是 x ＝ −1 和 x ＝ 5', hint: '零點是讓 2x − 4 等於 0 的 x，不是 4。' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'abs-split' }); } });
     },
     /* 4. 完成 */

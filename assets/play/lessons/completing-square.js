@@ -56,7 +56,7 @@
     /* 1. 切開長條，拼成缺角的正方形 */
     function (st, api) {
       var gate = { on: true }, c = 0, hit = false;
-      P.choice(st, api, { id: 'cs-p1', predict: true, label: '先猜猜看', prompt: '<b>x² ＋ 6x</b>：一個 x×x 的正方形，旁邊接一條「6 長」的長條。想補成一個<b>完整的大正方形</b>，缺掉的那一小塊會是多大？', row: true, options: [{ t: '3 × 3' }, { t: '6 × 6' }, { t: '3 × 6' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動剪刀，把長條切開'); } });
+      P.choice(st, api, { id: 'cs-p1', predict: true, label: '先猜猜看', prompt: '<b>x² ＋ 6x</b>：一個 x×x 的正方形，旁邊接一條「6 長」的長條。想補成一個<b>完整的大正方形</b>，缺掉的那一小塊會是多大？', row: true, options: [{ ok: true, t: '3 × 3' }, { t: '6 × 6' }, { t: '3 × 6' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動剪刀，把長條切開'); } });
       st.append(P.instr('橘色長條是 <b>6x</b>。拖動上方的<b>剪刀</b>決定切在哪裡：左邊那塊<b>轉 90° 放到正方形下面</b>，右邊那塊靠在正方形旁邊。'));
       var host = stage(st), b = new P.Board(host, { w: 11, h: 11.8 }), upd = figure(b, { holeLabel: true });
       b.line([OX + X, 11], [OX + X + 6, 11], 'pl-line pl-line--soft pl-line--bold'); for (var k = 0; k <= 6; k++) b.dot([OX + X + k, 11], 'pl-dot', null, 0.1);
@@ -154,5 +154,5 @@
         classes: ['J81A（2507 第 19 堂 CH3；第 23 堂 CH4）：因式分解中的配方法、一元二次方程', 'J81S（2507 第 14–15 堂；2607 第 10–11 堂）：CH05 一元二次方程式（主題二 配方法）', 'J91A（2507 第 14 堂）：二次函數（配方抓頂點）', 'J91S（2607 第 2 堂）：CH12 二次函數（配方法與二次函數）'],
         next: { href: 'play-multiplication.html', text: '回頭看：乘法公式的圖解' } });
     }];
-  new P.Lesson({ id: 'completing-square', title: '配方法＝補成正方形', steps: steps });
+  new P.Lesson({ id: 'completing-square', title: '配方法＝補成正方形', answers: { 1: 'x² ＋ 6x 補 9、x² ＋ 10x 補 25、x² ＋ 12x 補 36（要補的數 ＝ 一次項係數一半的平方）' }, steps: steps });
 })();

@@ -16,7 +16,7 @@
     /* 1. 切成扇形拼起來 */
     function (st, api) {
       var gate = { on: true }, NS = [4, 6, 8, 12, 16, 24, 36, 60], ni = 0, done = false, r = 2, CC = [2.4, 3.4], X0 = 6.2, Y0 = 2.2;
-      P.choice(st, api, { id: 'ca-p1', predict: true, label: '先猜猜看', prompt: '把圓切成<b>越來越多</b>的小扇形，再<b>交錯拼起來</b>，拼成的形狀會越來越像？', row: true, options: [{ t: '三角形' }, { t: '長方形' }, { t: '圓形' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按「＋」把圓切得更細'); } });
+      P.choice(st, api, { id: 'ca-p1', predict: true, label: '先猜猜看', prompt: '把圓切成<b>越來越多</b>的小扇形，再<b>交錯拼起來</b>，拼成的形狀會越來越像？', row: true, options: [{ t: '三角形' }, { ok: true, t: '長方形' }, { t: '圓形' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('按「＋」把圓切得更細'); } });
       var host = stage(st), b = new P.Board(host, { w: 14, h: 6 }), g = h('g'); b.gMid.append(g);
       var pills = pillRow(st, ['is-blue', 'is-pink', 'is-amber']), sn = P.stepper('切成幾等分', 1, NS.length, 1, function (v) { ni = v - 1; draw(); }, function (v) { return NS[v - 1] + ' 份'; }); st.append(h('div', { class: 'pl-steprow' }, sn.el));
       function draw() {
@@ -127,5 +127,5 @@
         classes: ['PK3B（2512 第 20–21 堂）：關於圓的周長、圓面積', 'PK3C（2507 第 15 堂；2607 第 14 堂）：圓與扇形的周長面積（割補進階）', 'J82S（2601 第 18 堂）：CH10 圓（弧長與扇形面積）'],
         next: { href: 'play-solid-volume.html', text: '下一個：立體圖形的體積與表面積' } });
     }];
-  new P.Lesson({ id: 'circle-area', title: '圓面積：切成扇形再拼起來', steps: steps });
+  new P.Lesson({ id: 'circle-area', title: '圓面積：切成扇形再拼起來', answers: { 1: '面積 ＝ ½ × 2πr × r ＝ πr²（和切扇形算出來的一樣）', 2: '圓面積 ≈ 3.14 × r²，也就是 πr²' }, steps: steps });
 })();

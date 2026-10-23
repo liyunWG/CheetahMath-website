@@ -38,7 +38,7 @@
     /* 1. 預測＋拖 x */
     function (st, api) {
       var gate = { on: true }, seen = {}, done = false, s;
-      P.choice(st, api, { id: 'pw-p1', predict: true, label: '先猜猜看', prompt: '<b>f(x) ＝ x ＋ 1</b>（x ＜ 0）；<b>x²</b>（0 ≤ x ≤ 2）；<b>4</b>（x ＞ 2）。<br><b>f(0)</b> 等於多少？', row: true, options: [{ t: '1' }, { t: '0' }, { t: '都可以' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 x 到三段各看看'); } });
+      P.choice(st, api, { id: 'pw-p1', predict: true, label: '先猜猜看', prompt: '<b>f(x) ＝ x ＋ 1</b>（x ＜ 0）；<b>x²</b>（0 ≤ x ≤ 2）；<b>4</b>（x ＞ 2）。<br><b>f(0)</b> 等於多少？', row: true, options: [{ t: '1' }, { ok: true, t: '0' }, { t: '都可以' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 x 到三段各看看'); } });
       st.append(P.instr('拖動 <b>x</b>（最下面那排）。上面的粉紅點是 <b>(x, f(x))</b>。看看 x 在哪一段，就用那一段的公式。'));
       s = scene(st, { plane: P1, pieces: [{ fn: function (x) { return x + 1; }, dom: [-3.5, 0], label: ROWS[0] }, { fn: function (x) { return x * x; }, dom: [0, 2], label: ROWS[1] }, { fn: function () { return 4; }, dom: [2, 4.5], label: ROWS[2] }],
         fnAll: F, pieceOf: pieceOf, xs: xsRange(-3, 4), start: 3, marks: [[0, 1, false], [0, 0, true], [2, 4, true]], gate: gate, onChange: function (x) {
@@ -85,16 +85,16 @@
           s = scene(b0, Object.assign({ sm: true, target: cfg.goalY, onSettle: function (x, y, pl) {
             if (Math.abs(y - cfg.goalY) < 1e-9 && !found[x]) { found[x] = 1; n++; pN.textContent = '找到 ' + n + ' / ' + cfg.need; pl.b.goalMark([pl.X(x), pl.Y(pl.y0 + 1.1)]); P.toast('找到了：x ＝ ' + f(x) + (n < cfg.need ? '，還有別的' : '')); if (n === cfg.need && !fin) { fin = true; b0.append(P.ruleBox(cfg.rule, '分段函數')); done(); } }
           } }, cfg.scene));
-          b0.append(h('div', { class: 'pl-readout' }, pN)); setSolve(function () { cfg.sols.forEach(function (v) { s.setX(v); }); }); b0.append(P.hint(cfg.hint));
+          b0.append(h('div', { class: 'pl-readout' }, pN)); setSolve(function () { cfg.sols.forEach(function (v) { s.setX(v); }); }, cfg.ans); b0.append(P.hint(cfg.hint));
         };
       }
       var scene1 = { plane: P1, pieces: [{ fn: function (x) { return x + 1; }, dom: [-3.5, 0], label: ROWS[0] }, { fn: function (x) { return x * x; }, dom: [0, 2], label: ROWS[1] }, { fn: function () { return 4; }, dom: [2, 4.5], label: ROWS[2] }], fnAll: F, pieceOf: pieceOf, xs: xsRange(-3, 4), start: 3, marks: [[0, 1, false], [0, 0, true], [2, 4, true]] };
       function A(x) { return Math.abs(x - 2); }
       var scene3 = { plane: { x0: -1.5, x1: 5.5, y0: -2, y1: 5, ty: 1 }, pieces: [{ fn: function (x) { return 2 - x; }, dom: [-1.5, 2], label: 'x ＜ 2：f(x) ＝ 2 − x' }, { fn: function (x) { return x - 2; }, dom: [2, 5.5], label: 'x ≥ 2：f(x) ＝ x − 2' }], fnAll: A, pieceOf: function (x) { return x < 2 ? 0 : 1; }, xs: xsRange(-1, 5), start: 5, marks: [[2, 0, true]] };
       var tasks = [
-        task({ prompt: '拖動 <b>x</b>，找出讓 <b>f(x) ＝ 1</b> 的 x。（想想看有幾個）', goalY: 1, need: 1, scene: scene1, sols: [1], msg: 'f(1) ＝ 1² ＝ 1', rule: '只有 <b>x ＝ 1</b>。第 1 段的 x ＋ 1 ＝ 1 要 x ＝ 0，可是 0 不在第 1 段（x ＜ 0），所以那是<b>空心點</b>，取不到；f(0) 其實是 0。', hint: '每一段各算一次，算出來的 x 還要在那一段的範圍裡。' }),
-        task({ prompt: '找出讓 <b>f(x) ＝ 4</b> 的 x，要找 <b>3 個不同的位置</b>。', goalY: 4, need: 3, scene: scene1, sols: [2, 2.5, 3], msg: 'f(x) ＝ 4', rule: '第 2 段在 x ＝ 2 時是 4，第 3 段整段都是 4（x ＞ 2）。所以 <b>x ≥ 2</b> 都是答案，有<b>無限多個</b>。', hint: '平平的那一段，每個 x 的 f(x) 是多少？' }),
-        task({ prompt: '<b>f(x) ＝ |x − 2|</b> 可以寫成兩段（和絕對值那一課一樣）。拖動 <b>x</b>，找出讓 <b>f(x) ＝ 1</b> 的<b>兩個</b> x。', goalY: 1, need: 2, scene: scene3, sols: [1, 3], msg: 'f(1) ＝ 1，f(3) ＝ 1', rule: '|x − 2| ＝ 1：左段 2 − x ＝ 1 得 x ＝ 1，右段 x − 2 ＝ 1 得 x ＝ 3。兩段各一個，都在自己的範圍裡。', hint: '到 2 的距離是 1 的位置有幾個？' })];
+        task({ prompt: '拖動 <b>x</b>，找出讓 <b>f(x) ＝ 1</b> 的 x。（想想看有幾個）', goalY: 1, need: 1, scene: scene1, sols: [1], ans: 'x ＝ 1（只有這一個；f(0) ＝ 0，不是 1）', msg: 'f(1) ＝ 1² ＝ 1', rule: '只有 <b>x ＝ 1</b>。第 1 段的 x ＋ 1 ＝ 1 要 x ＝ 0，可是 0 不在第 1 段（x ＜ 0），所以那是<b>空心點</b>，取不到；f(0) 其實是 0。', hint: '每一段各算一次，算出來的 x 還要在那一段的範圍裡。' }),
+        task({ prompt: '找出讓 <b>f(x) ＝ 4</b> 的 x，要找 <b>3 個不同的位置</b>。', goalY: 4, need: 3, scene: scene1, sols: [2, 2.5, 3], ans: 'x ≥ 2 的每一個 x（例如 x ＝ 2、2.5、3），有無限多個', msg: 'f(x) ＝ 4', rule: '第 2 段在 x ＝ 2 時是 4，第 3 段整段都是 4（x ＞ 2）。所以 <b>x ≥ 2</b> 都是答案，有<b>無限多個</b>。', hint: '平平的那一段，每個 x 的 f(x) 是多少？' }),
+        task({ prompt: '<b>f(x) ＝ |x − 2|</b> 可以寫成兩段（和絕對值那一課一樣）。拖動 <b>x</b>，找出讓 <b>f(x) ＝ 1</b> 的<b>兩個</b> x。', goalY: 1, need: 2, scene: scene3, sols: [1, 3], ans: 'x ＝ 1 和 x ＝ 3', msg: 'f(1) ＝ 1，f(3) ＝ 1', rule: '|x − 2| ＝ 1：左段 2 − x ＝ 1 得 x ＝ 1，右段 x − 2 ＝ 1 得 x ＝ 3。兩段各一個，都在自己的範圍裡。', hint: '到 2 的距離是 1 的位置有幾個？' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'piecewise-fn' }); } });
     },
     /* 4. 完成 */
@@ -105,7 +105,7 @@
         depth: { here: 0.3, cheetah: [{ at: 0.55, label: '連續與不連續<br>取整數函數' }, { at: 0.85, label: '分段函數的最大最小值<br>反函數' }] },
         teasers: [{ title: '分段函數的最大最小值', q: '分段函數在每一段取最大最小，整體的最大最小值怎麼比？', where: 'S101 2507 第 23 堂：多項式函數（最大最小值與分段）', lv: 'L3' }, { title: '用分段函數處理絕對值', q: '|x − 1| ＋ |x − 4| 畫成分段函數，圖形長什麼樣？', where: 'S101 2507 第 5 堂：數與式（絕對值）', lv: 'L2' }],
         parent: { pitfall: '孩子常常不先判斷 x 在哪一段就直接代公式；也常把交界點的空心點、實心點用反，或以為所有分段函數的圖都是連在一起的。', place: '高中函數，與絕對值、最大最小值的基礎。', ask: ['f(0) 要用哪一段公式？為什麼？', '空心點和實心點差在哪裡？', '兩段的圖什麼時候會接起來？'] },
-        classes: ['S101（2507 第 21、23、25 堂）：多項式函數，含分段函數', 'S101（2507 第 5 堂）：數與式，含絕對值'], next: { href: 'play-quad-open.html', text: '再看：二次函數' } });
+        classes: ['S101（2507 第 21、23、25 堂）：多項式函數，含分段函數', 'S101（2507 第 5 堂）：數與式，含絕對值'], next: { href: 'play-trig-range.html', text: '下一個：單位圓與三角函數的範圍' } });
     }];
-  new P.Lesson({ id: 'piecewise-fn', title: '函數與區間：分段函數', steps: steps });
+  new P.Lesson({ id: 'piecewise-fn', title: '函數與區間：分段函數', answers: { 1: 'c ＝ 0 時兩段接得起來（空心點落在實心點上）' }, steps: steps });
 })();

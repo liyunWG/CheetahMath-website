@@ -63,7 +63,7 @@
     /* 1 切切看 */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, cur = 'tilt';
-      P.choice(st, api, { id: 'ss-p1', predict: true, label: '先猜猜看', prompt: '用<b>一個平面</b>切正方體，<b>切面最多</b>可能是幾邊形？', row: true, options: [{ t: '四邊形' }, { t: '五邊形' }, { t: '六邊形' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('換切法、拉滑桿，找出三、四、五、六邊形'); } });
+      P.choice(st, api, { id: 'ss-p1', predict: true, label: '先猜猜看', prompt: '用<b>一個平面</b>切正方體，<b>切面最多</b>可能是幾邊形？', row: true, options: [{ t: '四邊形' }, { t: '五邊形' }, { ok: true, t: '六邊形' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('換切法、拉滑桿，找出三、四、五、六邊形'); } });
       var ss = new SecScene(st, { maxH: Math.max(150, Math.min(200, window.innerHeight - 590)) }), pr = P.pill('', 'is-amber'), ro = h('div', { class: 'pl-readout' }, pr), tags = h('div', { class: 'ps-pills' }), tp = {};
       [3, 4, 5, 6].forEach(function (k) { tp[k] = P.pill(NAMES[k] + ' ？', ''); tags.append(tp[k]); });
       function upd(v) {
@@ -150,5 +150,5 @@
         classes: ['J91S：立體圖形', 'PK3C：錐體與球體', 'J71S CH5：三視圖與空間觀察'],
         next: { href: 'play.html', text: '回獵豹玩中學看全部單元' } });
     }];
-  new P.Lesson({ id: 'solid-section', title: '截面', steps: steps });
+  new P.Lesson({ id: 'solid-section', title: '截面', answers: { 1: '切面可以是正六邊形（通過中心、垂直體對角線），每邊 ＝ √2／2 ≈ 0.71' }, steps: steps });
 })();

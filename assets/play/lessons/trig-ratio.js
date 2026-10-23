@@ -28,7 +28,7 @@
     /* 1. 拉大三角形，比值不變 */
     function (st, api) {
       var th = Math.atan2(4, 3) / rad, c = Math.cos(th * rad), sn = Math.sin(th * rad), gate = { on: true }, seen = {}, n = 0, done = false;
-      P.choice(st, api, { id: 'tr-p1', predict: true, label: '先猜猜看', prompt: '直角三角形的<b>角度固定</b>，把它<b>拉大</b>。「對邊 ÷ 斜邊」的值會…？', row: true, options: [{ t: '變大' }, { t: '變小' }, { t: '不變' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動綠點，把三角形拉大縮小'); } });
+      P.choice(st, api, { id: 'tr-p1', predict: true, label: '先猜猜看', prompt: '直角三角形的<b>角度固定</b>，把它<b>拉大</b>。「對邊 ÷ 斜邊」的值會…？', row: true, options: [{ t: '變大' }, { t: '變小' }, { ok: true, t: '不變' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動綠點，把三角形拉大縮小'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'); board.gMid.append(g);
       var r1 = pillRow(st, ['is-pink', 'is-blue', 'is-green']), r2 = pillRow(st, ['is-amber', 'is-amber', 'is-amber']);
       var cand = []; for (var L = 2; L <= 9.5; L += 0.5) cand.push([O[0] + L * c, O[1] + L * sn]);
@@ -108,5 +108,5 @@
         parent: { pitfall: '孩子常背「sin ＝ 對邊 ÷ 斜邊」卻不知道<b>為什麼比值是固定的</b>——因為是相似三角形；也常搞混對邊、鄰邊是<b>相對於哪個角</b>。', place: '國三的重點，是高中三角函數、測量與向量的起點。', ask: ['三角形拉大了，為什麼對邊 ÷ 斜邊沒有變？', '知道 30° 角的 sin 是 0.5，斜邊 10 的話對邊是多少？', '站在離大樓 20 公尺處，仰角 45°，大樓大約多高？'] },
         classes: ['J91A（2607 第 1–3 堂）：三角比', 'J82S（2601 第 8–13 堂）：CH9 相似形', 'J82A（2601 第 23–28 堂）：CH1 相似形', 'S102（2601 第 18–23 堂）：CH4 三角函數'], next: { href: 'play-radian.html', text: '下一個：弧度' } });
     }];
-  new P.Lesson({ id: 'trig-ratio', title: '三角比：相似的比值不變', steps: steps });
+  new P.Lesson({ id: 'trig-ratio', title: '三角比：相似的比值不變', answers: { 1: 'θ 越大，sin θ 越大、cos θ 越小、tan θ 越大' }, steps: steps });
 })();

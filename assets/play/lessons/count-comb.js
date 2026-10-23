@@ -52,7 +52,7 @@
     /* 1 握手／循環賽 */
     function (st, api) {
       var gate = { on: true }, n = 5, gr, done = false, host, cap = h('div', { class: 'pl-caption' }), pill = P.pill('', 'is-green');
-      P.choice(st, api, { id: 'cc-p1', predict: true, label: '先猜猜看', prompt: '5 個球隊，任兩隊都要比賽一次。共要安排幾場？', row: true, options: [{ t: '5 場' }, { t: '10 場' }, { t: '20 場' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點兩個隊連一條線，連出所有比賽'); } });
+      P.choice(st, api, { id: 'cc-p1', predict: true, label: '先猜猜看', prompt: '5 個球隊，任兩隊都要比賽一次。共要安排幾場？', row: true, options: [{ t: '5 場' }, { ok: true, t: '10 場' }, { t: '20 場' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點兩個隊連一條線，連出所有比賽'); } });
       host = PC.stage(st);
       function build() {
         host.innerHTML = ''; done = false; var total = n * (n - 1) / 2;
@@ -71,7 +71,7 @@
     function (st, api) {
       var gate = { on: true }, n = 5, k = 2, seen = {}, list = h('div', { class: 'pc-found' }), cap = h('div', { class: 'pl-caption' }), bx;
       list.style.maxHeight = '110px';
-      P.choice(st, api, { id: 'cc-p2', predict: true, label: '先猜猜看', prompt: '從 5 本不同的書挑 2 本（不分先後），有幾種組合？', row: true, options: [{ t: '5 種' }, { t: '10 種' }, { t: '20 種' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('改變書的本數和挑幾本'); } });
+      P.choice(st, api, { id: 'cc-p2', predict: true, label: '先猜猜看', prompt: '從 5 本不同的書挑 2 本（不分先後），有幾種組合？', row: true, options: [{ t: '5 種' }, { ok: true, t: '10 種' }, { t: '20 種' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('改變書的本數和挑幾本'); } });
       bx = PC.boxes(st, []);
       function combos(n, k) { var out = [], rec = function (s, pre) { if (pre.length === k) { out.push(pre); return; } for (var i = s; i < n; i++) rec(i + 1, pre + 'abcdef'.charAt(i)); }; rec(0, ''); return out; }
       function draw() {
@@ -176,5 +176,5 @@
         classes: ['宗翰講義：基本計數／排組原理（主題 4 C(n,2)）', 'PK3D：插板法', 'A1012prep：富比尼原理'],
         next: { href: 'play-count-perm.html', text: '下一個：排列' } });
     }];
-  new P.Lesson({ id: 'count-comb', title: '組合與算兩次', steps: steps });
+  new P.Lesson({ id: 'count-comb', title: '組合與算兩次', answers: { 2: 'C(5,3) ＝ C(5,2) ＝ 10' }, steps: steps });
 })();

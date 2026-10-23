@@ -30,7 +30,7 @@
     /* 1. 預測＋作平行線 */
     function (st, api) {
       var gate = { on: true }, done = false, p = [6, 5], a1 = 35, a2 = 50, A = [6 - 3 / Math.tan(a1 * rad), 8], C = [6 - 3 / Math.tan(a2 * rad), 2], E = [9, 6];
-      P.choice(st, api, { id: 'al-p1', predict: true, label: '先猜猜看', prompt: '已知 <b>AB ∥ CD</b>，∠A ＝ <b>35°</b>，∠C ＝ <b>50°</b>。中間折起來的 <b>∠APC</b> 是多少？', row: true, options: [{ t: '85°' }, { t: '15°' }, { t: '95°' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('畫一條過 P、平行 AB 的輔助線'); } });
+      P.choice(st, api, { id: 'al-p1', predict: true, label: '先猜猜看', prompt: '已知 <b>AB ∥ CD</b>，∠A ＝ <b>35°</b>，∠C ＝ <b>50°</b>。中間折起來的 <b>∠APC</b> 是多少？', row: true, options: [{ ok: true, t: '85°' }, { t: '15°' }, { t: '95°' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('畫一條過 P、平行 AB 的輔助線'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }), g = h('g'); board.gMid.append(g);
       var pk = P.pill('', 'is-amber'), pr = P.pill('', ''); st.append(h('div', { class: 'pl-readout' }, pk), h('div', { class: 'pl-readout' }, pr));
       function draw() {
@@ -158,5 +158,5 @@
         parent: { pitfall: '孩子遇到平行線的折線題常常「看著圖發呆」，不知道從哪裡下手；常見的錯是把兩個角直接相加或相減。輔助線要畫在「折點」上，並和已知的平行線同方向。', place: '國中平行線、三角形的角度與面積題的基本功，也是之後所有幾何證明的起點。', ask: ['這張圖看起來少了什麼？要畫哪一條線？', '為什麼輔助線要過折點、而且要平行？', '鈍角三角形的高，為什麼會跑到三角形外面？'] },
         classes: ['J82A（2601 第 6、8、10–12 堂）：平面閉折線', 'J82A（2601 第 23 堂）：幾何小花', 'PK2A（2507 第 7、11 堂）：角度問題（五）（六）', 'J81A（2507 第 13–18 堂）：CH2 勾股定理'], next: { href: 'play-line-intersect.html', text: '下一個：兩條直線的交點' } });
     }];
-  new P.Lesson({ id: 'aux-line', title: '畫輔助線：畫一條線，條件就串起來', steps: steps });
+  new P.Lesson({ id: 'aux-line', title: '畫輔助線：畫一條線，條件就串起來', answers: { 3: '外角 ＝ 和它不相鄰的兩個內角的和：∠ACD ＝ ∠A ＋ ∠B' }, steps: steps });
 })();

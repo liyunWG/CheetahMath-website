@@ -83,7 +83,7 @@
     /* 1. 預測＋拖 x：|x−1|＋|x−4| */
     function (st, api) {
       var gate = { on: true }, seen = [0, 0, 0], done = false, s;
-      P.choice(st, api, { id: 'abs2-p1', predict: true, label: '先猜猜看', prompt: '<b>x ＝ 2</b> 時，<b>|x − 1| ＋ |x − 4|</b> 等於多少？', row: true, options: [{ t: '1' }, { t: '3' }, { t: '5' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把 x 拖到三段各看看'); } });
+      P.choice(st, api, { id: 'abs2-p1', predict: true, label: '先猜猜看', prompt: '<b>x ＝ 2</b> 時，<b>|x − 1| ＋ |x − 4|</b> 等於多少？', row: true, options: [{ t: '1' }, { ok: true, t: '3' }, { t: '5' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('把 x 拖到三段各看看'); } });
       st.append(P.instr('拖動數線上的 <b>x</b>，看看 <b>|x − 1| ＋ |x − 4|</b> 的和怎麼變（上面的折線就是和）。'));
       s = scene(st, { a: 1, b: 4, vmin: -2, vmax: 8, gate: gate, best: 3, onX: function (v) {
         if (gate.on) return; seen[v < 1 ? 0 : v < 4 ? 1 : 2] = 1;
@@ -122,14 +122,14 @@
             if (sum === cfg.goal && !found[v]) { found[v] = 1; n++; pN.textContent = '找到 ' + n + ' / ' + cfg.need; P.toast('找到了：x ＝ ' + f(v) + (n < cfg.need ? '，還有別的位置' : '')); if (n === cfg.need) done(); }
           } });
           b0.append(h('div', { class: 'pl-readout' }, pN));
-          setSolve(function () { cfg.sols.forEach(function (v) { s.setX(v); }); });
+          setSolve(function () { cfg.sols.forEach(function (v) { s.setX(v); }); }, cfg.ans);
           b0.append(P.hint(cfg.hint));
         };
       }
       var tasks = [
-        findTask({ prompt: '拖動 <b>x</b>，找出<b>所有</b>讓 <b>|x − 1| ＋ |x − 4| ＝ 5</b> 的 x（虛線是和 ＝ 5）。', a: 1, b: 4, vmin: -2, vmax: 8, target: 5, goal: 5, need: 2, sols: [0, 5], hint: '三段裡，哪幾段的和會碰到虛線？' }),
-        findTask({ prompt: '讓 <b>|x − 1| ＋ |x − 4|</b> 的和<b>最小</b>。找出 <b>3 個不同的位置</b>，和都是最小值。', a: 1, b: 4, vmin: -2, vmax: 8, best: 3, goal: 3, need: 3, sols: [1, 2.5, 4], hint: '看折線圖，最低的地方不只一個點。' }),
-        findTask({ prompt: '零點在 <b>2</b> 和 <b>6</b>。找出所有讓 <b>|x − 2| ＋ |x − 6| ＝ 8</b> 的 x（虛線是和 ＝ 8）。', a: 2, b: 6, vmin: -2, vmax: 8, target: 8, goal: 8, need: 2, sols: [0, 8], hint: '中間一段的和是多少？它碰得到虛線嗎？' })];
+        findTask({ prompt: '拖動 <b>x</b>，找出<b>所有</b>讓 <b>|x − 1| ＋ |x − 4| ＝ 5</b> 的 x（虛線是和 ＝ 5）。', a: 1, b: 4, vmin: -2, vmax: 8, target: 5, goal: 5, need: 2, sols: [0, 5], ans: 'x ＝ 0 和 x ＝ 5', hint: '三段裡，哪幾段的和會碰到虛線？' }),
+        findTask({ prompt: '讓 <b>|x − 1| ＋ |x − 4|</b> 的和<b>最小</b>。找出 <b>3 個不同的位置</b>，和都是最小值。', a: 1, b: 4, vmin: -2, vmax: 8, best: 3, goal: 3, need: 3, sols: [1, 2.5, 4], ans: '1 到 4 之間的每個 x 都可以（例如 x ＝ 1、2.5、4），和的最小值是 3', hint: '看折線圖，最低的地方不只一個點。' }),
+        findTask({ prompt: '零點在 <b>2</b> 和 <b>6</b>。找出所有讓 <b>|x − 2| ＋ |x − 6| ＝ 8</b> 的 x（虛線是和 ＝ 8）。', a: 2, b: 6, vmin: -2, vmax: 8, target: 8, goal: 8, need: 2, sols: [0, 8], ans: 'x ＝ 0 和 x ＝ 8（中間一段的和只有 4，碰不到 8）', hint: '中間一段的和是多少？它碰得到虛線嗎？' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'abs-split-2' }); } });
     },
     /* 4. 完成 */

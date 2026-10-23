@@ -47,7 +47,7 @@
     /* 1 巧克力：看縫不看顆 */
     function (st, api) {
       var gate = { on: true };
-      P.choice(st, api, { id: 'cb-p1', predict: true, label: '先猜猜看', prompt: '5 顆巧克力排成一列，分成幾次拿完（每次拿連續的幾顆）。例如 (2, 1, 2)。共有幾種拿法？', row: true, options: [{ t: '5 種' }, { t: '16 種' }, { t: '32 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點「連／切」，找出不同的拿法'); } });
+      P.choice(st, api, { id: 'cb-p1', predict: true, label: '先猜猜看', prompt: '5 顆巧克力排成一列，分成幾次拿完（每次拿連續的幾顆）。例如 (2, 1, 2)。共有幾種拿法？', row: true, options: [{ t: '5 種' }, { ok: true, t: '16 種' }, { t: '32 種' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('點「連／切」，找出不同的拿法'); } });
       var host = PC.stage(st), found = PC.found(st, { label: '已找到拿法' }), cap = h('div', { class: 'pl-caption' }, '點縫，切開＝不同次拿；連著＝同一次拿'), q = h('div', {}), asked = false;
       var ch = chocolate(host, 5, function (bits, cs) { if (gate.on) { P.toast('先做上面的預測'); return; } cap.innerHTML = '拿法：(' + cs.join(', ') + ')　←　切法：' + bits.map(function (b) { return b ? '切' : '連'; }).join('、'); found.add(bits.join(''), '(' + cs.join(',') + ')'); check(); });
       function check() { if (found.count >= 8 && !asked) { asked = true; found.el.querySelector('.pc-found').style.display = 'none'; cap.style.display = 'none'; PC.shrink(host.querySelector('svg'), 100); var qb = h('div', {}); q.append(PC.boxes(q, [2, 2, 2, 2].map(function (n, i) { return { n: n, label: '縫 ' + (i + 1) }; }), { result: 16 }).el, qb); qb.append(h('div', { class: 'pl-q', html: '「拿法」和「切法」一一對應：4 條縫，每條 2 種（切／連）。那 <b>10 顆</b>巧克力有幾種拿法？' })); P.numBox(qb, { answer: 512, okMsg: '對！10 顆有 9 條縫：2⁹ ＝ 512。', onOk: function () { P.track('aha', { id: 'count-bijection', step: 1 }); PC.tuck(qb); st.append(P.ruleBox('<b>看「縫」不看「顆」</b>：每種拿法對應一種切法，每條縫「切／連」二選一。<br>n 顆有 n−1 條縫：<b>2ⁿ⁻¹</b> 種。5 顆 ＝ 2⁴ ＝ 16，10 顆 ＝ 2⁹ ＝ 512。', '一一對應')); P.toast(api.ctx.p1 === 1 ? '你猜對了！16 種' : '16 種'); api.unlock('換成看縫，一行算完！'); }, wrong: function (v) { return v === 1024 ? '10 顆有 9 條縫，不是 10 條。' : '提示：n 顆有幾條縫？每條縫 2 種選擇。'; } }); } }
@@ -73,7 +73,7 @@
     /* 3 後右下：排成一列 */
     function (st, api) {
       var gate = { on: true }, ex = [1, 1, 1], list = h('div', { class: 'pc-found' }), cap = h('div', { class: 'pl-caption' }), seen = {};
-      P.choice(st, api, { id: 'cb-p3', predict: true, label: '先猜猜看', prompt: '立方體從一個頂點走到對角頂點，要「右 2 次、後 2 次、下 2 次」，不多不少。最短路徑有幾種？', row: true, options: [{ t: '6 種' }, { t: '90 種' }, { t: '720 種' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('改變右、後、下的次數'); } });
+      P.choice(st, api, { id: 'cb-p3', predict: true, label: '先猜猜看', prompt: '立方體從一個頂點走到對角頂點，要「右 2 次、後 2 次、下 2 次」，不多不少。最短路徑有幾種？', row: true, options: [{ t: '6 種' }, { ok: true, t: '90 種' }, { t: '720 種' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('改變右、後、下的次數'); } });
       list.style.maxHeight = '110px';
       function perms(arr) { var out = {}, rec = function (rest, pre) { if (!rest.length) { out[pre] = 1; return; } rest.forEach(function (x, i) { rec(rest.slice(0, i).concat(rest.slice(i + 1)), pre + x); }); }; rec(arr, ''); return Object.keys(out); }
       function draw() {
@@ -102,7 +102,7 @@
     /* 5 窮舉：按答對題數分層 */
     function (st, api) {
       var gate = { on: true }, lit = {}, nlit = 0, c = 0;
-      P.choice(st, api, { id: 'cb-p5', predict: true, label: '先猜猜看', prompt: '10 題選擇題：答對 4 分、答錯倒扣 1 分、不答 0 分。最多有幾種不同的總分？', row: true, options: [{ t: '41 種' }, { t: '45 種' }, { t: '51 種' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('按答對題數，一層一層點亮分數'); } });
+      P.choice(st, api, { id: 'cb-p5', predict: true, label: '先猜猜看', prompt: '10 題選擇題：答對 4 分、答錯倒扣 1 分、不答 0 分。最多有幾種不同的總分？', row: true, options: [{ t: '41 種' }, { ok: true, t: '45 種' }, { t: '51 種' }], onAnswer: function (i) { api.ctx.p5 = i; gate.on = false; api.lock('按答對題數，一層一層點亮分數'); } });
       var host = PC.stage(st), svg = PC.svg(host, 320, 96, 'pl-svg--sm'), g = sv('g', {}), pill = P.pill('', 'is-blue'), cap = h('div', { class: 'pl-caption' }), q = h('div', {}), asked = false, layers = {}; svg.append(g);
       function draw() {
         g.innerHTML = ''; for (var s = -10; s <= 40; s++) { var x = 6 + (s + 10) * 6.1, on = lit[s]; g.append(sv('rect', { x: x, y: 28, width: 5.4, height: 34, rx: 1, fill: on ? '#1f9d55' : '#e3dccd' })); }

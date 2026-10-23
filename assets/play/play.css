@@ -100,6 +100,8 @@ body.page-play-lesson .page{padding-bottom:40px}
 .pl-sol__tag{display:inline-block;margin-right:6px;padding:1px 7px;border-radius:999px;background:var(--pl-amber);color:#fff;font-size:11.5px;font-weight:900;letter-spacing:.08em;vertical-align:1px}
 /* 性質框 */
 .pl-rule{display:grid;gap:2px;margin:10px 0;padding:10px 14px;border-radius:16px;background:var(--pl-green-soft);border:1px solid rgba(31,157,85,.3);border-left:6px solid var(--pl-green);font-size:16.5px;line-height:1.65;color:var(--text);animation:pl-pop .4s ease}
+.pl-ans{display:block;font-weight:800;color:#14683a;margin:0 0 6px;padding:0 0 6px;border-bottom:1px dashed rgba(31,157,85,.45);font-size:1.06em}
+b.pl-ans{display:inline;border:0;padding:0;margin:0;font-size:inherit}
 .pl-rule__lb{font-size:11.5px;font-weight:900;letter-spacing:.12em;color:var(--pl-green)}
 .pl-rule b{color:var(--pl-pink)}
 @keyframes pl-pop{0%{transform:scale(.94);opacity:0}100%{transform:scale(1);opacity:1}}

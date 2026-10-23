@@ -44,7 +44,7 @@
     /* 2 鏡射 */
     function (st, api) {
       var gate = { on: true };
-      P.choice(st, api, { id: 'tr-p2', predict: true, label: '先猜猜看', prompt: '直線 y = x 是一面鏡子。點 P(2, 7) 的鏡中像 P′ 在哪？', row: true, options: [{ t: '(7, 2)' }, { t: '(−2, −7)' }, { t: '(2, −7)' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('拖動 P，換 3 個位置'); } });
+      P.choice(st, api, { id: 'tr-p2', predict: true, label: '先猜猜看', prompt: '直線 y = x 是一面鏡子。點 P(2, 7) 的鏡中像 P′ 在哪？', row: true, options: [{ ok: true, t: '(7, 2)' }, { t: '(−2, −7)' }, { t: '(2, −7)' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('拖動 P，換 3 個位置'); } });
       var host = stage(st), board = new P.Board(host, { w: 10, h: 10 }); P.snapSwitch(board, host);
       board.line([0, 0], [10, 10], 'pl-line pl-line--green pl-line--dash'); lab(board, [8, 9.4], '鏡線 y = x', 'pl-text pl-text--green pl-text--sm');
       var g = h('g'); board.gMid.append(g); var seen = {}, n = 0, cand = allPts(10, 10), pa = P.pill('', 'is-blue'), pb = P.pill('', 'is-pink'), ro = h('div', { class: 'pl-readout' }, pa, pb);
@@ -72,7 +72,7 @@
     /* 3 旋轉 */
     function (st, api) {
       var gate = { on: true }, C0 = [6, 5], T = [[8, 5], [10, 6], [8, 8]];
-      P.choice(st, api, { id: 'tr-p3', predict: true, label: '先猜猜看', prompt: '△ABC 繞中心 ★ <b>逆時針</b>轉 90°，A 會跑到 ★ 的…？', row: true, options: [{ t: '正上方' }, { t: '正左方' }, { t: '正下方' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按 ＋ 轉轉看'); } });
+      P.choice(st, api, { id: 'tr-p3', predict: true, label: '先猜猜看', prompt: '△ABC 繞中心 ★ <b>逆時針</b>轉 90°，A 會跑到 ★ 的…？', row: true, options: [{ ok: true, t: '正上方' }, { t: '正左方' }, { t: '正下方' }], onAnswer: function (i) { api.ctx.p3 = i; gate.on = false; api.lock('按 ＋ 轉轉看'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 });
       board.poly(T, 'pl-poly pl-poly--ghost'); var arc = h('g'); board.gMid.append(arc);
       var tri = board.poly(T, 'pl-poly pl-poly--pink'), spokes = T.map(function () { return board.line(C0, C0, 'pl-line pl-line--amber pl-line--dash'); });
@@ -155,5 +155,5 @@
         classes: ['J71S（CH5）：坐標、對稱、平移與旋轉', 'J82A 幾何小花：旋轉移形、輔助線', 'PK4B：幾何變換、割補', 'S112：矩陣與線性變換'],
         next: { href: 'play-multiplication.html', text: '下一個：乘法公式的圖解' } });
     }];
-  new P.Lesson({ id: 'transformations', title: '幾何變換', steps: steps });
+  new P.Lesson({ id: 'transformations', title: '幾何變換', answers: { 0: '平移：每個點都移動同一個方向、同一個距離，形狀、大小、朝向都不變' }, steps: steps });
 })();

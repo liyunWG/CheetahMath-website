@@ -55,7 +55,7 @@
     /* 2. 預測＋沿平分線拖動 P */
     function (st, api) {
       var gate = { on: true };
-      P.choice(st, api, { id: 'ab-p2', predict: true, label: '先猜猜看', prompt: '在角平分線上放一點 P。它到<b>兩邊的距離</b>會…？', options: [{ t: '離上面那條邊比較近' }, { t: '離下面那條邊比較近' }, { t: '一樣遠' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('沿平分線拖動 P'); } });
+      P.choice(st, api, { id: 'ab-p2', predict: true, label: '先猜猜看', prompt: '在角平分線上放一點 P。它到<b>兩邊的距離</b>會…？', options: [{ t: '離上面那條邊比較近' }, { t: '離下面那條邊比較近' }, { ok: true, t: '一樣遠' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('沿平分線拖動 P'); } });
       var host = stage(st), board = new P.Board(host, { w: 12, h: 10 }); P.snapSwitch(board, host);
       baseArms(board);
       var bis = []; for (var k = 1; k <= 5; k++) bis.push([1 + 2 * k, 1 + k]);
@@ -196,5 +196,5 @@
         classes: ['J82S（2601 第 4、21 堂）：CH7 三角形的基本性質、CH11 幾何證明與三心', 'J81S（2507 第 25 堂）：CH7 三角形的基本性質', 'J91A（2507 第 10–13 堂；2607 第 12–16 堂）：三角形的四心', 'J82A（2601 加課 3）：CH3 尺規'],
         next: { href: 'play-transformations.html', text: '下一個：幾何變換' } });
     }];
-  new P.Lesson({ id: 'angle-bisector', title: '角平分線', steps: steps });
+  new P.Lesson({ id: 'angle-bisector', title: '角平分線', answers: { 0: '角平分線：把一個角分成兩個相等的角的射線', 2: '到角兩邊一樣遠的點，全都在角平分線上', 3: '角平分線是這個角的對稱軸，所以到兩邊的距離一定相等', 4: '三個角的角平分線交在同一點（內心），它到三邊一樣遠' }, steps: steps });
 })();

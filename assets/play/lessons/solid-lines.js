@@ -35,7 +35,7 @@
     /* 1 直線的三種關係 */
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, sel = [];
-      P.choice(st, api, { id: 'sl-p1', predict: true, label: '先猜猜看', prompt: '在<b>空間</b>裡，兩條<b>不平行</b>的直線，一定會相交嗎？', row: true, options: [{ t: '一定會' }, { t: '不一定' }, { t: '一定不會' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('依序點兩條稜，多試幾組'); } });
+      P.choice(st, api, { id: 'sl-p1', predict: true, label: '先猜猜看', prompt: '在<b>空間</b>裡，兩條<b>不平行</b>的直線，一定會相交嗎？', row: true, options: [{ t: '一定會' }, { ok: true, t: '不一定' }, { t: '一定不會' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('依序點兩條稜，多試幾組'); } });
       var sc = mkCube(st, { maxH: Math.max(170, Math.min(250, window.innerHeight - 520)) }), ro = h('div', { class: 'pl-readout' }), pr = P.pill('點兩條稜，看它們的關係', ''); ro.append(pr);
       var tags = h('div', { class: 'ps-pills' }), tp = {}; ['parallel', 'meet', 'skew'].forEach(function (k) { tp[k] = P.pill(RN[k] + ' ？', ''); tags.append(tp[k]); });
       sc.onTap = function (pos) {
@@ -57,7 +57,7 @@
     /* 2 與一條稜歪斜的有幾條 */
     function (st, api) {
       var cls = null, ref = 0, shown = {};
-      P.choice(st, api, { id: 'sl-p2', predict: true, label: '先猜猜看', prompt: '正方體有 12 條稜。與稜 <b>AB</b> <b>歪斜</b>的稜有幾條？', row: true, options: [{ t: '2 條' }, { t: '4 條' }, { t: '6 條' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按三個按鈕，看各幾條'); } });
+      P.choice(st, api, { id: 'sl-p2', predict: true, label: '先猜猜看', prompt: '正方體有 12 條稜。與稜 <b>AB</b> <b>歪斜</b>的稜有幾條？', row: true, options: [{ t: '2 條' }, { ok: true, t: '4 條' }, { t: '6 條' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('按三個按鈕，看各幾條'); } });
       var gate = { on: true };
       var sc = mkCube(st, { maxH: Math.max(170, Math.min(240, window.innerHeight - 540)) }), ps = P.pill('', 'is-ok'), pm = P.pill('', 'is-amber'), pk = P.pill('', 'is-pink'), ro = h('div', { class: 'pl-readout' }, ps, pm, pk);
       function show(k) {
@@ -168,5 +168,5 @@
         classes: ['J91S：立體圖形', 'J71S CH5：三視圖（立體觀察的先備）', 'PK3C：錐體與球體'],
         next: { href: 'play-solid-transform.html', text: '下一個：立體變換' } });
     }];
-  new P.Lesson({ id: 'solid-lines', title: '空間中的線與面', steps: steps });
+  new P.Lesson({ id: 'solid-lines', title: '空間中的線與面', answers: { 2: '直線和平面只有三種關係：在平面上、平行、相交（垂直是相交的特例）' }, steps: steps });
 })();
