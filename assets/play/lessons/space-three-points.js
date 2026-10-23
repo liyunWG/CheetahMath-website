@@ -10,6 +10,16 @@
   function collinear(a, b, c) { var n = cross(a, b, c); return !n[0] && !n[1] && !n[2]; }
   function sideOf(eq, p) { return V.dot(eq.n, p) - eq.d; }
 
+  /* 直線 AB（整條，琥珀色虛線）＋ 直線上的格點（小圓點，C 放到這些點上就和 A、B 共線）；distance：C 到直線 AB 的距離 */
+  function gcd3(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { var t = a % b; a = b; b = t; } return a; }
+  function lineHelp(spec, A, B, rings) {
+    var l = line3(A, B, COL.amber, 3, [6, 4]); if (l) spec.lines.push(l); if (!rings) return;
+    var d = V.sub(B, A), g = gcd3(gcd3(d[0], d[1]), d[2]) || 1, st = [d[0] / g, d[1] / g, d[2] / g], t;
+    for (t = -12; t <= 12; t++) { var q = [A[0] + st[0] * t, A[1] + st[1] * t, A[2] + st[2] * t]; if (q.join() === A.join() || q.join() === B.join()) continue; if (q[0] < BOX.x[0] || q[0] > BOX.x[1] || q[1] < BOX.y[0] || q[1] > BOX.y[1] || q[2] < BOX.z[0] || q[2] > BOX.z[1]) continue; spec.dots.push({ p: q, r: 6, color: COL.amber }); }
+  }
+  function distLine(A, B, C) { var u = V.sub(B, A), w = V.sub(C, A), cr = V.cross(u, w); return V.len(cr) / V.len(u); }
+  function distTxt(A, B, C) { var d = distLine(A, B, C); return d < 1e-9 ? 'C 到直線 AB 的距離 ＝ 0：C 就在直線 AB 上 ✓' : 'C 到直線 AB 的距離 ＝ ' + (Math.round(d * 100) / 100) + '（要變成 0，就在線上）'; }
+
   /* 平面 ABC ＋ 一個會動的點 D 的舞台 */
   function planeStage(host, o) {
     var pts = o.pts, S = P3.stage(host, { pts: pts, box: BOX, gate: o.gate, onEnd: o.onEnd, onMove: o.onMove, controls: o.controls, build: function (S2) {
@@ -43,16 +53,15 @@
     function (st, api) {
       var gate = { on: true }, seen = {}, n = 0, done = false, pts = [ptAt('A', [-2, 1, 0], COL.blue, { fixed: true }), ptAt('B', [2, 1, 0], COL.blue, { fixed: true }), ptAt('C', [0, 3, 2], COL.pink)], pE = P.pill('', 'is-green'), seenC = false; pE.style.whiteSpace = 'normal';
       P.choice(st, api, { id: 'tp-p2', predict: true, label: '先猜猜看', prompt: '<b>A、B、C 三點在同一條直線上</b>時，可以決定一個平面嗎？', row: true, options: [{ ok: true, t: '不行（有無限多個平面）' }, { t: '可以，只有 1 個' }, { t: '可以，有 2 個' }], onAnswer: function (i) { api.ctx.p2 = i; gate.on = false; api.lock('拖動點 C'); } });
-      st.append(P.instr('A、B 固定，拖動<b>點 C</b>（可以改成「上下移動」），看藍色平面。當 C 走到<b>直線 AB 上</b>會發生什麼事？'));
-      var S = planeStage(st, { pts: pts, gate: function () { return gate.on; }, onMove: function () { }, extra: function (spec, S2, eq) {
-        var l = line3(pts[0].p, pts[1].p, COL.blue, 2, [5, 4]); if (!eq && l) spec.lines.push(l); },
+      st.append(P.instr('A、B 固定，拖動<b>點 C</b>，看藍色平面。<b>琥珀色虛線</b>是直線 AB，線上的<b>小圓點</b>是格點；下面會告訴你 C 離直線 AB 還有多遠。把 C 放到<b>直線 AB 上</b>（例如那些小圓點），會發生什麼事？'));
+      var S = planeStage(st, { pts: pts, gate: function () { return gate.on; }, onMove: function () { }, extra: function (spec) { lineHelp(spec, pts[0].p, pts[1].p, true); },
         onEnd: function () { } });
-      st.append(h('div', { class: 'pl-readout' }, pE));
-      function upd() { var eq = P3.planeEq(pts[0].p, pts[1].p, pts[2].p); if (eq) { pE.textContent = '平面 ABC：' + P3.eqStr(eq) + '（只有這一個）'; pE.className = 'pl-pill is-green'; } else { pE.textContent = 'A、B、C 在同一條直線上：過它們的平面有無限多個，決定不了平面'; pE.className = 'pl-pill is-pink'; } return eq; }
+      var pDist = P.pill('', 'is-amber'); pDist.style.whiteSpace = 'normal'; st.append(h('div', { class: 'pl-readout' }, pDist), h('div', { class: 'pl-readout' }, pE));
+      function upd() { var eq = P3.planeEq(pts[0].p, pts[1].p, pts[2].p); pDist.textContent = distTxt(pts[0].p, pts[1].p, pts[2].p); pDist.className = 'pl-pill ' + (eq ? 'is-amber' : 'is-ok'); if (eq) { pE.textContent = '平面 ABC：' + P3.eqStr(eq) + '（只有這一個）'; pE.className = 'pl-pill is-green'; } else { pE.textContent = 'A、B、C 在同一條直線上：過它們的平面有無限多個，決定不了平面'; pE.className = 'pl-pill is-pink'; } return eq; }
       var oldRebuild = S.rebuild; S.rebuild = function () { oldRebuild(); var eq = upd(); if (gate.on) return; if (!eq) seenC = true; else { var k = pts[2].p.join(); if (!seen[k]) { seen[k] = 1; n++; } } if (seenC && n >= 3 && !done) { done = true; P.track('aha', { id: 'space-three-points', step: 2 }); if (api.ctx.p2 === 0) P.toast('你猜對了：共線決定不了平面'); st.append(P.ruleBox('<b>不在同一直線上</b>的三點，決定<b>唯一</b>一個平面（公理）。三點共線時，過它們的平面有無限多個，就像一條直線；所以條件是「不共線」。', '三點決定一個平面')); api.unlock('不共線的三點才決定唯一的平面'); } };
       S.rebuild();
       api.solve(function () { gate.on = false; S.moveTo(2, [1, 2, 1]); S.moveTo(2, [-1, 3, 0]); S.moveTo(2, [0, 1, 2]); S.moveTo(2, [0, 1, 0]); }, false, '不行：三點共線時，有無限多個平面，決定不了平面');
-      st.append(P.hint('把 C 拖到不同的地方；再把它拖到 A、B 的連線上看看（高度要和 A、B 一樣）。')); api.lock('先做上面的預測');
+      st.append(P.hint('把 C 放到不同的地方；再把它放到琥珀色虛線上的小圓點，或用按鈕一格一格走，看「距離」變成 0。')); api.lock('先做上面的預測');
     },
     /* 3. 第四點共面 */
     function (st, api) {
@@ -73,16 +82,16 @@
         return function (b0, done, setSolve) {
           b0.append(h('div', { class: 'pl-q', html: cfg.prompt })); var fin = false, pE = P.pill('', 'is-green'), pD = P.pill('', 'is-pink'); [pE, pD].forEach(function (p) { p.style.whiteSpace = 'normal'; });
           var pts = cfg.pts.map(function (q, i) { return ptAt(q[0], q[1], q[2] === 'move' ? COL.pink : COL.blue, { fixed: q[2] !== 'move' }); });
-          var S = planeStage(b0, { pts: pts, also: cfg.also, onEnd: function (pt, i, S2) { if (cfg.ok(pts) && !fin) { fin = true; P.toast(cfg.msg); b0.append(P.ruleBox(cfg.rule, '找到了')); done(); } } });
+          var S = planeStage(b0, { pts: pts, also: cfg.also, extra: cfg.line ? function (spec) { lineHelp(spec, pts[0].p, pts[1].p, false); } : null, onEnd: function (pt, i, S2) { if (cfg.ok(pts) && !fin) { fin = true; P.toast(cfg.msg); b0.append(P.ruleBox(cfg.rule, '找到了')); done(); } } });
           b0.append(h('div', { class: 'pl-readout' }, pE), h('div', { class: 'pl-readout' }, pD));
-          var old = S.rebuild; S.rebuild = function () { old(); var eq = P3.planeEq(pts[0].p, pts[1].p, pts[2].p); if (!eq) { pE.textContent = 'A、B、C 共線：不能決定平面'; pE.className = 'pl-pill is-pink'; } else { pE.textContent = '平面 ABC：' + P3.eqStr(eq); pE.className = 'pl-pill is-green'; } if (pts[3]) { if (eq) { var s = sideOf(eq, pts[3].p); pD.textContent = 'D 代入左邊 ＝ ' + (s + eq.d) + (s === 0 ? '（＝ ' + eq.d + '，在平面上 ✓）' : '（不等於 ' + eq.d + '）'); pD.className = 'pl-pill ' + (s === 0 ? 'is-ok' : 'is-pink'); } else pD.textContent = ''; } else pD.textContent = '點 C ' + sv(pts[2].p); }; S.rebuild();
+          var old = S.rebuild; S.rebuild = function () { old(); var eq = P3.planeEq(pts[0].p, pts[1].p, pts[2].p); if (!eq) { pE.textContent = 'A、B、C 共線：不能決定平面'; pE.className = 'pl-pill is-pink'; } else { pE.textContent = '平面 ABC：' + P3.eqStr(eq); pE.className = 'pl-pill is-green'; } if (pts[3]) { if (eq) { var s = sideOf(eq, pts[3].p); pD.textContent = 'D 代入左邊 ＝ ' + (s + eq.d) + (s === 0 ? '（＝ ' + eq.d + '，在平面上 ✓）' : '（不等於 ' + eq.d + '）'); pD.className = 'pl-pill ' + (s === 0 ? 'is-ok' : 'is-pink'); } else pD.textContent = ''; } else pD.textContent = cfg.line ? distTxt(pts[0].p, pts[1].p, pts[2].p) : '點 C ' + sv(pts[2].p); }; S.rebuild();
           setSolve(function () { cfg.ans.forEach(function (a) { S.moveTo(a[0], a[1]); }); }, cfg.answer); b0.append(P.hint(cfg.hint));
         };
       }
       var P4 = [['A', [-2, 0, -1]], ['B', [2, 0, 0]], ['C', [0, 2, 1]]];
       var tasks = [
         task({ prompt: 'A、B、C 固定。把<b>點 D</b> 拖到它們決定的<b>平面上</b>（D 不能和 A、B、C 重合）。', pts: P4.map(function (q) { return [q[0], q[1], 'fix']; }).concat([['D', [1, 3, 0], 'move']]), also: true, ok: function (p) { var eq = P3.planeEq(p[0].p, p[1].p, p[2].p); return sideOf(eq, p[3].p) === 0 && !p.slice(0, 3).some(function (q) { return q.p.join() === p[3].p.join(); }); }, ans: [[3, [3, 1, 1]]], answer: 'D ＝ (3, 1, 1)（平面 x ＋ 3y − 4z ＝ 2；(−1, 1, 0) 也可以）', msg: 'D 在平面 ABC 上：四點共面', rule: '平面 ABC 是 x ＋ 3y − 4z ＝ 2。D(3, 1, 1)：3 ＋ 3 − 4 ＝ 2 ✓，所以 D 在平面上，四點共面。', hint: '用「代入左邊」那一列：要等於平面方程式右邊的數字。' }),
-        task({ prompt: 'A、B 固定。拖動<b>點 C</b>，讓 A、B、C <b>三點共線</b>（這時決定不了平面）。', pts: [['A', [-2, 1, -1], 'fix'], ['B', [0, 2, 0], 'fix'], ['C', [1, 1, 2], 'move']], ok: function (p) { return collinear(p[0].p, p[1].p, p[2].p); }, ans: [[2, [2, 3, 1]]], answer: 'C ＝ (2, 3, 1)（A、B、C 在同一條直線上，B 是 A、C 的中點）', msg: 'A、B、C 共線：決定不了平面', rule: 'A(−2, 1, −1) 到 B(0, 2, 0) 是 (2, 1, 1)，再走一次 (2, 1, 1) 就是 C(2, 3, 1)。三點共線，平面就不唯一了。', hint: '從 A 走到 B 的「方向」是 (2, 1, 1)，再從 B 照同樣方向走一次。' }),
+        task({ prompt: 'A、B 固定。拖動<b>點 C</b>，讓 A、B、C <b>三點共線</b>（這時決定不了平面）。', pts: [['A', [-2, 1, -1], 'fix'], ['B', [0, 2, 0], 'fix'], ['C', [1, 1, 2], 'move']], line: true, ok: function (p) { return collinear(p[0].p, p[1].p, p[2].p); }, ans: [[2, [2, 3, 1]]], answer: 'C ＝ (2, 3, 1)（A、B、C 在同一條直線上，B 是 A、C 的中點）', msg: 'A、B、C 共線：決定不了平面', rule: 'A(−2, 1, −1) 到 B(0, 2, 0) 是 (2, 1, 1)，再走一次 (2, 1, 1) 就是 C(2, 3, 1)。三點共線，平面就不唯一了。', hint: '從 A 走到 B 的「方向」是 (2, 1, 1)，再從 B 照同樣方向走一次。' }),
         task({ prompt: 'A、B、C 固定。拖動<b>點 D</b>，讓 D 在平面 ABC 上，而且 <b>D 的高度是 3</b>。', pts: P4.map(function (q) { return [q[0], q[1], 'fix']; }).concat([['D', [1, 1, 0], 'move']]), also: true, ok: function (p) { var eq = P3.planeEq(p[0].p, p[1].p, p[2].p); return sideOf(eq, p[3].p) === 0 && p[3].p[1] === 3; }, ans: [[3, [1, 3, 2]]], answer: 'D ＝ (1, 3, 2) 或 (−3, 3, 1)（平面 x ＋ 3y − 4z ＝ 2，y ＝ 3 時 x − 4z ＝ −7）', msg: 'D 在平面上，高度 3', rule: '高度 y ＝ 3 代入 x ＋ 3y − 4z ＝ 2，得 x − 4z ＝ −7：(1, 3, 2)（1 − 8 ＝ −7 ✓）或 (−3, 3, 1)（−3 − 4 ＝ −7 ✓）。', hint: '高度 3 代進方程式，剩下 x 與 z 的關係。' })];
       P.taskSeq(box, api, tasks, { lock: '完成 3 個關卡', onDone: function () { api.unlock('全部完成！'); P.track('transfer_ok', { id: 'space-three-points' }); } });
     },
