@@ -86,6 +86,7 @@ body.page-play-lesson .page{padding-bottom:40px}
 .pl-msg.is-good{color:var(--pl-green);font-weight:800}
 .pl-msg.is-bad{color:var(--pl-pink);font-weight:700}
 .pl-foot{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(255,252,246,.97);backdrop-filter:blur(10px)}
+.pl-credit{padding:0 16px 8px;font-size:11px;line-height:1.4;text-align:center;color:var(--muted);opacity:.7;user-select:none;-webkit-user-select:none}
 .pl-foot__msg{flex:1;font-size:13px;color:var(--muted);min-height:20px;line-height:1.4}
 .pl-next{min-width:120px;min-height:50px}
 .pl-next[disabled]{opacity:.45;filter:grayscale(.5);pointer-events:none}

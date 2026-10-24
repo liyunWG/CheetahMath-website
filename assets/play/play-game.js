@@ -62,7 +62,7 @@
     var root = document.getElementById('play-root'); root.innerHTML = '';
     var body = h('div', { class: 'pl-body pgm-body' }), right = h('div', { class: 'pgm-head__r' });
     var head = h('div', { class: 'pl-head pgm-head' }, h('a', { class: 'pl-head__back', href: 'play.html#games' }, '← 遊戲區'), h('div', { class: 'pl-head__title' }, cfg.title), right);
-    var card = h('section', { class: 'pl-lesson pgm-card', 'aria-label': cfg.title }, head, body);
+    var card = h('section', { class: 'pl-lesson pgm-card', 'aria-label': cfg.title }, head, body, P.credit());
     root.append(card); document.title = cfg.title + '｜獵豹玩中學｜獵豹科教';
     function toTop() { var top = card.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: top, behavior: 'auto' }); }
     if (window.innerWidth <= 900) { toTop(); window.addEventListener('load', toTop); setTimeout(toTop, 500); }

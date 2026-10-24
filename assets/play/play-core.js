@@ -404,6 +404,9 @@
           h('a', { class: 'button button--secondary', href: 'play.html' }, '回獵豹玩中學'))));
   }
 
+  /* 版權標示：每個單元／遊戲畫面最下方一行小字（在內容之後、按鈕列之前，順著版面排，不浮動，不會蓋到任何文字或圖） */
+  function credit() { return h('div', { class: 'pl-credit' }, '© 2026 Liyun Chang（星媽）'); }
+
   /* ------------------------------------------------------------ Lesson 引擎 */
   function Lesson(cfg) {
     var self = this; this.cfg = cfg; this.i = -1; this.ctx = {};
@@ -417,7 +420,7 @@
     this.next.addEventListener('click', function () { self.go(self.i + 1); }); this.back.addEventListener('click', function () { self.go(self.i - 1); });
     this.sol.addEventListener('click', function () { self.solve(); });
     this.foot = h('div', { class: 'pl-foot' }, this.back, this.msg, this.sol, this.next);
-    this.card = h('section', { class: 'pl-lesson', 'aria-label': cfg.title }, h('div', { class: 'pl-head' }, h('a', { class: 'pl-head__back', href: 'play.html' }, '← 獵豹玩中學'), h('div', { class: 'pl-head__title' }, cfg.title), this.dots), this.stage, this.foot);
+    this.card = h('section', { class: 'pl-lesson', 'aria-label': cfg.title }, h('div', { class: 'pl-head' }, h('a', { class: 'pl-head__back', href: 'play.html' }, '← 獵豹玩中學'), h('div', { class: 'pl-head__title' }, cfg.title), this.dots), this.stage, credit(), this.foot);
     root.append(this.card);
     document.title = cfg.title + '｜獵豹玩中學｜獵豹科教';
     track('start', { id: cfg.id }); this.go(0, true);
@@ -470,5 +473,5 @@
     toTop: function (instant) { var top = this.card.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: top, behavior: (reduce || instant) ? 'auto' : 'smooth' }); this._y = instant ? Math.max(0, top) : this._y; }
   };
 
-  window.Play = { h: h, store: store, track: track, Spring: Spring, run: run, ease: ease, pop: pop, shake: shake, Board: Board, snapSwitch: snapSwitch, ruleBox: ruleBox, instr: instr, hint: hint, pill: pill, toast: toast, choice: choice, numBox: numBox, fillSlots: fillSlots, slider: slider, stepper: stepper, complete: complete, taskSeq: taskSeq, Lesson: Lesson, askTeacher: askTeacher, later: later, LINE_URL: LINE_URL };
+  window.Play = { h: h, store: store, track: track, Spring: Spring, run: run, ease: ease, pop: pop, shake: shake, Board: Board, snapSwitch: snapSwitch, ruleBox: ruleBox, instr: instr, hint: hint, pill: pill, toast: toast, choice: choice, numBox: numBox, fillSlots: fillSlots, slider: slider, stepper: stepper, complete: complete, credit: credit, taskSeq: taskSeq, Lesson: Lesson, askTeacher: askTeacher, later: later, LINE_URL: LINE_URL };
 })();
