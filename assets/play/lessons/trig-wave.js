@@ -13,7 +13,7 @@
 
   /* 畫面＋三個滑桿。o: a, b, c（初值）、sliders（要顯示哪幾個）、target（虛線 {a,b,c}）、sm、onChange(a,b,c)、onSettle(a,b,c) */
   function scene(host, o) {
-    var pl = plane(host, o.sm), b = pl.b, A = o.a, B = o.b, C = o.c, S = {};
+    var pl = plane(host, o.sm), b = pl.b, gd = pl.guides({ max: 3 }), A = o.a, B = o.b, C = o.c, S = {};
     var cur = pl.curve('pl-line pl-line--blue'), tg = pl.curve('pl-line pl-line--amber pl-line--dash');
     if (o.target) tg.set(Y(o.target.a, o.target.b, o.target.c));
     var lMax = b.line([pl.X(0), pl.Y(0)], [pl.X(360), pl.Y(0)], 'pl-line pl-line--green pl-line--dash', pl.gA), lMin = b.line([pl.X(0), pl.Y(0)], [pl.X(360), pl.Y(0)], 'pl-line pl-line--pink pl-line--dash', pl.gA);
@@ -23,6 +23,8 @@
     function upd() {
       cur.set(Y(A, B, C)); var mx = C + Math.abs(A), mn = C - Math.abs(A), T = 360 / B;
       b.setLine(lMax, [pl.X(0), pl.Y(mx)], [pl.X(360), pl.Y(mx)]); b.setLine(lMin, [pl.X(0), pl.Y(mn)], [pl.X(360), pl.Y(mn)]); b.setLine(per, [pl.X(0), pl.Y(-5.5)], [pl.X(T), pl.Y(-5.5)]);
+      /* 最大值、最小值標在左緣，一個週期的長度標在下緣 */
+      gd.set([{ x: 0, y: mx, cls: 'green' }, { x: 0, y: mn, cls: 'pink' }, { x: T, y: -5.5, cls: 'amber', ax: 'x' }]);
       pE.textContent = eq(A, B, C); pM.textContent = '最大值 ＝ c ＋ |a| ＝ ' + f(C) + ' ＋ ' + f(Math.abs(A)) + ' ＝ ' + f(mx); pN.textContent = '最小值 ＝ c − |a| ＝ ' + f(mn); pT.textContent = '週期 ＝ 360° ÷ ' + f(B) + ' ＝ ' + f(T) + '°（下方橘線是一個週期）';
       if (o.onChange) o.onChange(A, B, C);
     }

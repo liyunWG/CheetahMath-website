@@ -27,13 +27,15 @@
 
   /* 畫面：曲線＋與 x 軸的交點。o: s, k 的初值、ops（要顯示哪幾個不等式的解） */
   function scene(host, o) {
-    var pl = plane(host, o.sm), b = pl.b, ay = pl.Y(0), s = o.s, k = o.k, cur = pl.curve('pl-line pl-line--blue'), gR = h('g'); pl.gA.append(gR);
+    var pl = plane(host, o.sm), b = pl.b, ay = pl.Y(0), s = o.s, k = o.k, cur = pl.curve('pl-line pl-line--blue'), gd = pl.guides({ max: 3 }), gR = h('g'); pl.gA.append(gR);
     var pD = P.pill('', 'is-amber'); host.append(h('div', { class: 'pl-readout' }, pD));
     var rows = (o.ops || ['＞', '＜']).map(function (op) { var p = P.pill('', 'is-green'); p.style.whiteSpace = 'normal'; host.append(h('div', { class: 'pl-readout' }, p)); return { op: op, p: p }; });
     var S = { get: function () { return { s: s, k: k }; } };
     function upd() {
       cur.set(F(s, k)); gR.innerHTML = '';
       var d = disc(k), r = rootsTxt(k); if (r) (d === 0 ? [r[0], r[0]] : r).forEach(function (v) { gR.append(b.dot([pl.X(v), ay], 'pl-dot pl-dot--pink', null, 0.22)); });   /* D ＝ 0：兩個根重合，畫兩個疊在一起的點 */
+      /* 讀值虛線：根（交點）在下緣、頂點高度與 x ＝ 0 的高度（＝ ±k）在左緣 */
+      gd.set([{ x: 2, y: s * (k - 4), cls: 'blue' }, { x: 0, y: s * k, cls: 'amber' }].concat(r ? (d === 0 ? [r[0]] : r).map(function (v) { return { x: v, y: 0, cls: 'pink', ax: 'x' }; }) : []));
       pD.textContent = 'D ＝ 16 − 4k ＝ ' + f(d) + (d > 0 ? '（和 x 軸有 2 個交點）' : d === 0 ? '（剛好碰到 x 軸 1 個點）' : '（碰不到 x 軸）'); pD.className = 'pl-pill ' + (d > 0 ? 'is-green' : d === 0 ? 'is-blue' : 'is-pink');
       rows.forEach(function (r2) { r2.p.textContent = eqName(s, k) + ' ' + r2.op + ' 0：' + solText(s, k, r2.op); });
       if (o.onChange) o.onChange(s, k);

@@ -33,14 +33,14 @@
       var gate = { on: true }, seen = {}, done = false, xv = 4, pl = null, gS = null, painted = { L: 1, M: 0, R: 1, p1: 0, p2: 0 };
       P.choice(st, api, { id: 'qn-p1', predict: true, label: '先猜猜看', prompt: '<b>x² − 5x ＋ 6 ＜ 0</b> 的解，畫在數線上會是什麼樣子？', row: true, options: [{ ok: true, t: '中間一段' }, { t: '左右兩邊' }, { t: '只有一個點' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動 T，看拋物線在 x 軸的哪一側'); } });
       st.append(P.instr('拖動 <b>T</b> 在 x 軸上走。T 正上方（或正下方）的點是拋物線 <b>y ＝ x² − 5x ＋ 6</b>。看它在 x 軸的<b>上方</b>還是<b>下方</b>。'));
-      pl = plane(st); var b = pl.b, cur = pl.curve('pl-line pl-line--blue'), ay = pl.Y(0); gS = h('g'); b.gMid.insertBefore(gS, pl.gC);
+      pl = plane(st); var b = pl.b, gd = pl.guides({ max: 1 }), cur = pl.curve('pl-line pl-line--blue'), ay = pl.Y(0); gS = h('g'); b.gMid.insertBefore(gS, pl.gC);
       cur.set(g(1));
       var drop = b.line([pl.X(xv), ay], [pl.X(xv), pl.Y(g(1)(xv))], 'pl-line pl-line--soft', pl.gA), dot = b.dot([pl.X(xv), pl.Y(g(1)(xv))], 'pl-dot pl-dot--pink', pl.gA, 0.2), marks = h('g'); pl.gA.append(marks);
       var tT = b.text([pl.X(xv), ay + 1.25], 'T', 'pl-text pl-text--blue', pl.gA);
       var pF = P.pill('', 'is-amber'), pS = P.pill('', 'is-green'); st.append(h('div', { class: 'pl-readout' }, pF, pS));
       var cands = []; for (var v = 0; v <= 5 + 1e-9; v += 0.5) cands.push([pl.X(v), ay]);
       function upd() {
-        var y = g(1)(xv), sg = sign(y); b.setLine(drop, [pl.X(xv), ay], [pl.X(xv), pl.Y(y)]); dot.setAttribute('cx', pl.X(xv)); dot.setAttribute('cy', b.Y(pl.Y(y))); b.setText(tT, [pl.X(xv), ay + (y > 0 ? -1.25 : 1.25)], 'T');
+        var y = g(1)(xv), sg = sign(y); b.setLine(drop, [pl.X(xv), ay], [pl.X(xv), pl.Y(y)]); dot.setAttribute('cx', pl.X(xv)); dot.setAttribute('cy', b.Y(pl.Y(y))); b.setText(tT, [pl.X(xv), ay + (y > 0 ? -1.25 : 1.25)], 'T'); gd.set([{ x: xv, y: y, cls: 'pink', ax: 'both' }]);
         pF.textContent = 'x ＝ ' + f(xv) + ' 時，x² − 5x ＋ 6 ＝ ' + f(y); pS.textContent = sg > 0 ? '在 x 軸上方：＞ 0' : sg < 0 ? '在 x 軸下方：＜ 0' : '在 x 軸上：＝ 0'; pS.className = 'pl-pill ' + (sg > 0 ? 'is-green' : sg < 0 ? 'is-pink' : 'is-amber');
         if (gate.on) return; var key = xv < R1 ? 'L' : xv > R2 ? 'R' : (xv > R1 && xv < R2) ? 'M' : 'z';
         if (key !== 'z' && !seen[key]) { seen[key] = 1; marks.append(b.dot([pl.X(xv), ay - 0.62], sg > 0 ? 'pl-dot pl-dot--green' : 'pl-dot pl-dot--pink', null, 0.13)); }
@@ -59,13 +59,13 @@
     function (st, api) {
       var seen = {}, done = false, s = 1, xv = 1, flipped = false;
       st.append(P.instr('按鈕把拋物線<b>上下翻個面</b>（x² 前面的符號變負）。再拖動 <b>T</b>，看「＞ 0」和「＜ 0」的位置有沒有跟著換。'));
-      var pl = plane(st), b = pl.b, cur = pl.curve('pl-line pl-line--blue'), ay = pl.Y(0), title = b.text([3.2, 7.45], '', 'pl-text pl-text--blue', pl.gA);
+      var pl = plane(st), b = pl.b, gd = pl.guides({ max: 1 }), cur = pl.curve('pl-line pl-line--blue'), ay = pl.Y(0), title = b.text([3.2, 7.45], '', 'pl-text pl-text--blue', pl.gA);
       var drop = b.line([pl.X(xv), ay], [pl.X(xv), pl.Y(g(1)(xv))], 'pl-line pl-line--soft', pl.gA), dot = b.dot([pl.X(xv), pl.Y(g(1)(xv))], 'pl-dot pl-dot--pink', pl.gA, 0.2), tT = b.text([pl.X(xv), ay + 1.25], 'T', 'pl-text pl-text--blue', pl.gA);
       var pF = P.pill('', 'is-amber'), pS = P.pill('', 'is-green'); st.append(h('div', { class: 'pl-readout' }, pF, pS));
       var cands = []; for (var v = 0; v <= 5 + 1e-9; v += 0.5) cands.push([pl.X(v), ay]);
       function upd() {
         var y = g(s)(xv), sg = sign(y); cur.set(g(s)); b.setText(title, [3.2, 7.45], 'y ＝ ' + eqStr(s));
-        b.setLine(drop, [pl.X(xv), ay], [pl.X(xv), pl.Y(y)]); dot.setAttribute('cx', pl.X(xv)); dot.setAttribute('cy', b.Y(pl.Y(y))); b.setText(tT, [pl.X(xv), ay + (y > 0 ? -1.25 : 1.25)], 'T');
+        b.setLine(drop, [pl.X(xv), ay], [pl.X(xv), pl.Y(y)]); dot.setAttribute('cx', pl.X(xv)); dot.setAttribute('cy', b.Y(pl.Y(y))); b.setText(tT, [pl.X(xv), ay + (y > 0 ? -1.25 : 1.25)], 'T'); gd.set([{ x: xv, y: y, cls: 'pink', ax: 'both' }]);
         pF.textContent = 'x ＝ ' + f(xv) + ' 時，y ＝ ' + f(y); pS.textContent = sg > 0 ? '在 x 軸上方：＞ 0' : sg < 0 ? '在 x 軸下方：＜ 0' : '在 x 軸上：＝ 0'; pS.className = 'pl-pill ' + (sg > 0 ? 'is-green' : sg < 0 ? 'is-pink' : 'is-amber');
         if (s < 0) { seen.flip = 1; if (xv > R1 && xv < R2 && sg > 0) seen.midPos = 1; if ((xv < R1 || xv > R2) && sg < 0) seen.outNeg = 1; }
         if (seen.flip && seen.midPos && seen.outNeg && !done) {

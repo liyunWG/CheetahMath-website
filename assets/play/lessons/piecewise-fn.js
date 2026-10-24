@@ -15,13 +15,13 @@
   /* 畫面：分段函數圖＋拖動的 x（在下緣一排，往上連到曲線上的點）。
      o: pieces（每段 {fn, dom, label}）、fnAll(x)、plane、xs（x 能停的位置）、rows（顯示哪幾個公式）、start、gate、sm、onChange(x, y)、onSettle(x, y)。 */
   function scene(host, o) {
-    var pl = plane(host, o.plane, o.sm), b = pl.b, xv = o.start, RYH = o.plane.y0 + 1.1, cs = o.pieces.map(function (p) { var c = pl.curve('pl-line pl-line--blue'); c.set(p.fn, p.dom); return c; });
+    var pl = plane(host, o.plane, o.sm), b = pl.b, gd = pl.guides({ max: 1 }), xv = o.start, RYH = o.plane.y0 + 1.1, cs = o.pieces.map(function (p) { var c = pl.curve('pl-line pl-line--blue'); c.set(p.fn, p.dom); return c; });
     (o.marks || []).forEach(function (m) { circ(pl, m[0], m[1], m[2]); });
     var drop = b.line([pl.X(xv), pl.Y(RYH)], [pl.X(xv), pl.Y(o.fnAll(xv))], 'pl-line pl-line--soft', pl.gA), dot = b.dot([pl.X(xv), pl.Y(o.fnAll(xv))], 'pl-dot pl-dot--pink', pl.gA, 0.2), tX = b.text([pl.X(xv) + 0.7, pl.Y(RYH)], 'x', 'pl-text pl-text--blue', pl.gA);
     var pF = P.pill('', 'is-amber'); host.append(h('div', { class: 'pl-readout' }, pF));
     var rows = o.pieces.map(function (p, i) { var q = wrap(P.pill(p.label, ['is-pink', 'is-amber', 'is-green'][i % 3])), r = h('div', { class: 'pl-readout' }, q); host.append(r); return q; });
     function upd() {
-      var y = o.fnAll(xv); b.setLine(drop, [pl.X(xv), pl.Y(RYH)], [pl.X(xv), pl.Y(y)]); dot.setAttribute('cx', pl.X(xv)); dot.setAttribute('cy', b.Y(pl.Y(y))); b.setText(tX, [pl.X(xv) + 0.7, pl.Y(RYH)], 'x');
+      var y = o.fnAll(xv); b.setLine(drop, [pl.X(xv), pl.Y(RYH)], [pl.X(xv), pl.Y(y)]); dot.setAttribute('cx', pl.X(xv)); dot.setAttribute('cy', b.Y(pl.Y(y))); b.setText(tX, [pl.X(xv) + 0.7, pl.Y(RYH)], 'x'); gd.set([{ x: xv, y: y, cls: 'pink', ax: 'both' }]);
       var pi = o.pieceOf(xv); rows.forEach(function (q, i) { q.style.opacity = i === pi ? 1 : 0.35; });
       var ok = o.target !== undefined && Math.abs(y - o.target) < 1e-9; pF.textContent = 'x ＝ ' + f(xv) + ' → 用第 ' + (pi + 1) + ' 段 → f(x) ＝ ' + f(y); pF.className = 'pl-pill ' + (ok ? 'is-ok' : 'is-amber');
       if (o.onChange) o.onChange(xv, y);
@@ -54,13 +54,13 @@
     },
     /* 2. 兩段接不接得起來 */
     function (st, api) {
-      var seen = {}, done = false, c = 1, pl = PF.plane(st, { x0: -3.5, x1: 4.5, y0: -3, y1: 6, hh: 8, tx: 1, ty: 2 }), b = pl.b, c1 = pl.curve('pl-line pl-line--blue'), c2 = pl.curve('pl-line pl-line--blue'), c3 = pl.curve('pl-line pl-line--blue');
+      var seen = {}, done = false, c = 1, pl = PF.plane(st, { x0: -3.5, x1: 4.5, y0: -3, y1: 6, hh: 8, tx: 1, ty: 2 }), b = pl.b, gd = pl.guides({ max: 1 }), c1 = pl.curve('pl-line pl-line--blue'), c2 = pl.curve('pl-line pl-line--blue'), c3 = pl.curve('pl-line pl-line--blue');
       st.insertBefore(P.instr('左邊那一段改成 <b>x ＋ c</b>。拉動滑桿改變 <b>c</b>，看左段的空心點什麼時候和右段的實心點<b>接在一起</b>。'), st.firstChild);
       var hole = h('circle', { r: 0.24, fill: '#fff', stroke: '#2f6fdc', 'stroke-width': 0.13 }), solid = circ(pl, 0, 0, true); pl.gC.append(hole);
       c2.set(function (x) { return x * x; }, [0, 2]); c3.set(function () { return 4; }, [2, 4.5]); circ(pl, 2, 4, true);
       var pC = P.pill('', 'is-amber'), pJ = P.pill('', 'is-pink'); st.append(h('div', { class: 'pl-readout' }, pC, pJ));
       function upd() {
-        c1.set(function (x) { return x + c; }, [-3.5, 0]); hole.setAttribute('cx', pl.X(0)); hole.setAttribute('cy', b.Y(pl.Y(c)));
+        c1.set(function (x) { return x + c; }, [-3.5, 0]); hole.setAttribute('cx', pl.X(0)); hole.setAttribute('cy', b.Y(pl.Y(c))); gd.set([{ x: 0, y: c, cls: 'pink' }]);
         var join = c === 0; pC.textContent = '左段：x ＋ ' + (c < 0 ? '(' + f(c) + ')' : f(c)) + '，靠近 x ＝ 0 時趨近 ' + f(c); pJ.textContent = join ? '空心點落在實心點上：接得起來 ✓' : '空心點在 (0, ' + f(c) + ')，實心點在 (0, 0)：中間「跳」了 ' + f(Math.abs(c)); pJ.className = 'pl-pill ' + (join ? 'is-ok' : 'is-pink');
         if (!join) seen.jump = 1; if (join) seen.join = 1;
         if (seen.jump && seen.join && !done) {

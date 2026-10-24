@@ -27,9 +27,11 @@
     var dMax = b.dot([0, 0], 'pl-dot pl-dot--green', pl.gA, 0.22), dMin = b.dot([0, 0], 'pl-dot pl-dot--blue', pl.gA, 0.22);
     var pR = P.pill('', 'is-pink'), pV = P.pill('', 'is-amber'), pM = P.pill('', 'is-green'), pN = P.pill('', 'is-blue'); [pR, pV, pM, pN].forEach(function (p) { p.style.whiteSpace = 'normal'; });
     host.append(h('div', { class: 'pl-readout' }, pR, pV), h('div', { class: 'pl-readout' }, pM, pN));
-    var S = {};
+    var S = {}, gd = pl.guides({ max: 4 });
     function upd() {
       var ex = extremes(m, n); seg.set(F, [m, n]);
+      /* 虛線拉到左邊 y 軸、標出精確值：最高點（綠）、最低點（藍）、兩個端點的函數值（粉紅） */
+      gd.set([{ x: ex.xmax, y: ex.max, cls: 'green' }, { x: ex.xmin, y: ex.min, cls: 'blue' }, { x: m, y: F(m), cls: 'pink' }, { x: n, y: F(n), cls: 'pink' }]);
       b.setLine(dm, [pl.X(m), pl.Y(RY)], [pl.X(m), pl.Y(F(m))]); b.setLine(dn, [pl.X(n), pl.Y(RY)], [pl.X(n), pl.Y(F(n))]); b.setText(tm, [pl.X(m) - 0.75, pl.Y(RY)], 'm'); b.setText(tn, [pl.X(n) + 0.75, pl.Y(RY)], 'n');
       dMax.setAttribute('cx', pl.X(ex.xmax)); dMax.setAttribute('cy', b.Y(pl.Y(ex.max))); dMin.setAttribute('cx', pl.X(ex.xmin)); dMin.setAttribute('cy', b.Y(pl.Y(ex.min)));
       pR.textContent = '範圍 [' + f(m) + ', ' + f(n) + ']'; var inside = VX > m && VX < n, atEnd = VX === m || VX === n; pV.textContent = '頂點 x ＝ 2 ' + (inside ? '在範圍內' : atEnd ? '剛好在端點上' : '在範圍外');

@@ -43,12 +43,21 @@
       if (y >= ymin - 0.4 && y <= ymin + 12.4) { d += (pen ? ' L ' : ' M ') + (x - xmin).toFixed(3) + ' ' + b.Y(y - ymin).toFixed(3); pen = true; } else pen = false;
     }
     b.gMid.append(h('path', { d: d, class: 'pl-line pl-line--blue pl-line--bold', fill: 'none' }));
-    for (k = Math.ceil(xmin / 2) * 2; k <= xmin + 12; k += 2) if (k !== 0) b.text([k - xmin, -ymin - 0.5], mn(k), 'pl-text pl-text--sm');
-    for (k = Math.ceil(ymin / 2) * 2; k <= ymin + 12; k += 2) if (k !== 0) b.text([-xmin - 0.45, k - ymin - 0.15], mn(k), 'pl-text pl-text--sm');
+    var xt = [], yt = [];
+    for (k = Math.ceil(xmin / 2) * 2; k <= xmin + 12; k += 2) if (k !== 0) xt.push({ v: k, el: b.text([k - xmin, -ymin - 0.5], mn(k), 'pl-text pl-text--sm') });
+    for (k = Math.ceil(ymin / 2) * 2; k <= ymin + 12; k += 2) if (k !== 0) yt.push({ v: k, el: b.text([-xmin - 0.45, k - ymin - 0.15], mn(k), 'pl-text pl-text--sm') });
+    /* 讀值虛線：從點拉到兩條軸，在軸旁標出精確的 x、y（刻度只標偶數，奇數要靠這裡讀） */
+    var gh = b.line([0, 0], [0, 0], 'pl-line pl-line--pink pl-line--dash'), gv = b.line([0, 0], [0, 0], 'pl-line pl-line--pink pl-line--dash');
+    var gtx = b.text([0, 0], '', 'pl-text pl-text--sm pl-text--pink'), gty = b.text([0, 0], '', 'pl-text pl-text--sm pl-text--pink');
+    function guide(X0, Y0) {
+      b.setLine(gh, [-xmin, Y0 - ymin], [X0 - xmin, Y0 - ymin]); b.setLine(gv, [X0 - xmin, -ymin], [X0 - xmin, Y0 - ymin]);
+      b.setText(gtx, [X0 - xmin, -ymin - 0.5], mn(X0)); b.setText(gty, [-xmin - 0.45, Y0 - ymin - 0.15], mn(Y0));
+      xt.forEach(function (t) { t.el.style.display = Math.abs(t.v - X0) < 1.2 ? 'none' : ''; }); yt.forEach(function (t) { t.el.style.display = Math.abs(t.v - Y0) < 0.9 ? 'none' : ''; });
+    }
     var cand = []; for (x = Math.ceil(xmin + 0.5); x <= xmin + 11.5; x++) { y = f(x); if (y >= ymin + 0.2 && y <= ymin + 11.8) cand.push([x - xmin, y - ymin]); }
     var sx = startX === undefined ? cand[0][0] + xmin : startX;
-    var hd = b.handle({ pos: [sx - xmin, f(sx) - ymin], candidates: cand, onMove: function (t) { var X0 = t[0] + xmin; onMove(X0, f(X0), t); } });
-    onMove(sx, f(sx), [sx - xmin, f(sx) - ymin]);
+    var hd = b.handle({ pos: [sx - xmin, f(sx) - ymin], candidates: cand, onMove: function (t) { var X0 = t[0] + xmin; guide(X0, f(X0)); onMove(X0, f(X0), t); } });
+    guide(sx, f(sx)); onMove(sx, f(sx), [sx - xmin, f(sx) - ymin]);
     return { b: b, f: f, hd: hd, go: function (X0) { hd.moveTo([X0 - xmin, f(X0) - ymin]); }, pos: function (X0) { return [X0 - xmin, f(X0) - ymin]; } };
   }
 

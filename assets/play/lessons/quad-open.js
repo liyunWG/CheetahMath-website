@@ -36,13 +36,13 @@
     },
     /* 2. 拖動點 P(1, a) */
     function (st, api) {
-      var seen = {}, done = false, a = 1, pl = plane(st), b = pl.b, cur = pl.curve('pl-line pl-line--blue'), drop = b.line([pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(1)], 'pl-line pl-line--soft', pl.gA);
+      var seen = {}, done = false, a = 1, pl = plane(st), b = pl.b, cur = pl.curve('pl-line pl-line--blue'), gd = pl.guides({ max: 1 }), drop = b.line([pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(1)], 'pl-line pl-line--soft', pl.gA);
       st.insertBefore(P.instr('拖動點 <b>P</b>：它的位置是 <b>(1, a)</b>。拋物線 <b>y ＝ ax²</b> 會跟著 P 動，看看 P 的高度和 a 有什麼關係。'), st.firstChild);
       var tP = b.text([pl.X(1) + 0.7, pl.Y(1)], 'P', 'pl-text pl-text--pink', pl.gA);
       var pA = P.pill('', 'is-blue'), pH = P.pill('', 'is-amber'); st.append(h('div', { class: 'pl-readout' }, pA, pH));
       var cands = []; for (var y = -4; y <= 4 + 1e-9; y += 0.5) cands.push([pl.X(1), pl.Y(y)]);
       function upd() {
-        setCurve(cur, a); b.setLine(drop, [pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(a)]); b.setText(tP, [pl.X(1) + 0.7, pl.Y(a)], 'P');
+        setCurve(cur, a); b.setLine(drop, [pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(a)]); b.setText(tP, [pl.X(1) + 0.7, pl.Y(a)], 'P'); gd.set([{ x: 1, y: a, cls: 'pink' }]);
         pA.textContent = 'P ＝ (1, ' + f(a) + ')：' + eq(a); pH.textContent = 'x ＝ 1 時，y ＝ a ＝ ' + f(a);
         if (a > 0) seen.pos = 1; if (a < 0) seen.neg = 1; if (Math.abs(a) >= 3) seen.big = 1; if (a !== 0 && Math.abs(a) <= 0.5) seen.small = 1;
         if (seen.pos && seen.neg && seen.big && seen.small && !done) {
@@ -63,13 +63,13 @@
       function task(cfg) {
         return function (b0, done, setSolve) {
           b0.append(h('div', { class: 'pl-q', html: cfg.prompt }));
-          var pl = plane(b0, true), b = pl.b, a = 1, fin = false, cur = pl.curve('pl-line pl-line--blue'), tg = pl.curve('pl-line pl-line--amber pl-line--dash');
+          var pl = plane(b0, true), b = pl.b, a = 1, fin = false, cur = pl.curve('pl-line pl-line--blue'), tg = pl.curve('pl-line pl-line--amber pl-line--dash'), gd = pl.guides({ max: 1 });
           if (cfg.target !== undefined) tg.set(function (x) { return cfg.target * x * x; });
           var drop = b.line([pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(1)], 'pl-line pl-line--soft', pl.gA), tP = b.text([pl.X(1) + 0.7, pl.Y(1)], 'P', 'pl-text pl-text--pink', pl.gA);
           var pA = P.pill('', 'is-blue'); b0.append(h('div', { class: 'pl-readout' }, pA));
           var cands = []; for (var y = -4; y <= 4 + 1e-9; y += 0.5) cands.push([pl.X(1), pl.Y(y)]);
           function upd() {
-            setCurve(cur, a); b.setLine(drop, [pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(a)]); b.setText(tP, [pl.X(1) + 0.7, pl.Y(a)], 'P');
+            setCurve(cur, a); b.setLine(drop, [pl.X(1), pl.Y(0)], [pl.X(1), pl.Y(a)]); b.setText(tP, [pl.X(1) + 0.7, pl.Y(a)], 'P'); gd.set([{ x: 1, y: a, cls: 'pink' }]);
             var ok = cfg.ok(a); pA.textContent = 'a ＝ ' + f(a) + '：' + eq(a); pA.className = 'pl-pill ' + (ok ? 'is-ok' : 'is-blue');
           }
           /* 放開手才算數（拖動途中經過正確位置不算） */

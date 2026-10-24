@@ -25,10 +25,10 @@
       var gate = { on: true }, seen = {}, n = 0, done = false, hv = 2, k = 1, a = 1;
       P.choice(st, api, { id: 'qv-p1', predict: true, label: '先猜猜看', prompt: '拋物線 <b>y ＝ (x − 2)² ＋ 1</b>，最低的那個點在哪裡？', row: true, options: [{ ok: true, t: '(2, 1)' }, { t: '(−2, 1)' }, { t: '(2, −1)' }], onAnswer: function (i) { api.ctx.p1 = i; gate.on = false; api.lock('拖動頂點 V 到不同的位置'); } });
       st.append(P.instr('拖動 <b>V</b>（拋物線的最低點），看 <b>y ＝ (x − h)² ＋ k</b> 怎麼變，還有展開之後的樣子。'));
-      var pl = plane(st), b = pl.b, cur = pl.curve('pl-line pl-line--blue'), axs = b.line([pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)], 'pl-line pl-line--soft', pl.gA), tV = b.text([pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V', 'pl-text pl-text--pink', pl.gA);
+      var pl = plane(st), b = pl.b, gd = pl.guides({ max: 1 }), cur = pl.curve('pl-line pl-line--blue'), axs = b.line([pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)], 'pl-line pl-line--soft', pl.gA), tV = b.text([pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V', 'pl-text pl-text--pink', pl.gA);
       var pV = P.pill('', 'is-blue'), pX = P.pill('', 'is-amber'), pM = P.pill('', 'is-green'); pV.style.whiteSpace = pX.style.whiteSpace = 'normal'; st.append(h('div', { class: 'pl-readout' }, pV), h('div', { class: 'pl-readout' }, pX), h('div', { class: 'pl-readout' }, pM));
       function upd() {
-        cur.set(function (x) { return (x - hv) * (x - hv) + k; }); b.setLine(axs, [pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)]); b.setText(tV, [pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V');
+        cur.set(function (x) { return (x - hv) * (x - hv) + k; }); b.setLine(axs, [pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)]); b.setText(tV, [pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V'); gd.set([{ x: hv, y: k, cls: 'pink', ax: 'both' }]);
         pV.textContent = '頂點式：' + vform(a, hv, k); pX.textContent = '展開：' + xform(a, hv, k); pM.textContent = 'V ＝ (' + f(hv) + ', ' + f(k) + ')　最小值 ＝ ' + f(k) + '（x ＝ ' + f(hv) + ' 時）';
         if (gate.on) return; var key = hv + ',' + k; if (!seen[key]) { seen[key] = 1; n++; } if (hv < 0) seen.neg = 1; if (hv > 0) seen.pos = 1;
         if (n >= 4 && seen.neg && seen.pos && !done) {
@@ -45,11 +45,11 @@
     function (st, api) {
       var seen = {}, done = false, hv = 1, k = 2, a = 1;
       st.append(P.instr('現在多了 <b>a</b>：<b>y ＝ a(x − h)² ＋ k</b>。拉動滑桿改變 a，再拖動 <b>V</b>，看頂點是最低點還是最高點。'));
-      var pl = plane(st), b = pl.b, cur = pl.curve('pl-line pl-line--blue'), axs = b.line([pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)], 'pl-line pl-line--soft', pl.gA), tV = b.text([pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V', 'pl-text pl-text--pink', pl.gA);
+      var pl = plane(st), b = pl.b, gd = pl.guides({ max: 1 }), cur = pl.curve('pl-line pl-line--blue'), axs = b.line([pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)], 'pl-line pl-line--soft', pl.gA), tV = b.text([pl.X(hv) + 0.7, pl.Y(k) - 0.55], 'V', 'pl-text pl-text--pink', pl.gA);
       var pV = P.pill('', 'is-blue'), pM = P.pill('', 'is-green'); pV.style.whiteSpace = pM.style.whiteSpace = 'normal'; st.append(h('div', { class: 'pl-readout' }, pV), h('div', { class: 'pl-readout' }, pM));
       function upd() {
         var line = a === 0; line ? cur.set(function () { return k; }) : cur.set(function (x) { return a * (x - hv) * (x - hv) + k; });
-        b.setLine(axs, [pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)]); b.setText(tV, [pl.X(hv) + 0.7, pl.Y(k) + (a < 0 ? 0.55 : -0.55)], 'V');
+        b.setLine(axs, [pl.X(hv), pl.Y(-4)], [pl.X(hv), pl.Y(10)]); b.setText(tV, [pl.X(hv) + 0.7, pl.Y(k) + (a < 0 ? 0.55 : -0.55)], 'V'); gd.set([{ x: hv, y: k, cls: 'pink', ax: 'both' }]);
         pV.textContent = line ? 'a ＝ 0 不是二次函數' : '頂點式：' + vform(a, hv, k); pV.className = 'pl-pill ' + (line ? 'is-amber' : 'is-blue');
         pM.textContent = line ? '要 a ≠ 0' : a > 0 ? 'a ＞ 0：最小值 ＝ ' + f(k) + '（x ＝ ' + f(hv) + '）' : 'a ＜ 0：最大值 ＝ ' + f(k) + '（x ＝ ' + f(hv) + '）'; pM.className = 'pl-pill ' + (a > 0 ? 'is-green' : a < 0 ? 'is-pink' : 'is-amber');
         if (a > 0) seen.pos = 1; if (a < 0) seen.neg = 1;
@@ -72,11 +72,11 @@
       function climb(cfg) {
         return function (b0, done, setSolve) {
           b0.append(h('div', { class: 'pl-q', html: cfg.prompt }));
-          var pl = PF.plane(b0, Object.assign({ hh: 8, sm: true }, cfg.plane)), b = pl.b, fin = false, cur = pl.curve('pl-line pl-line--blue'), xv = cfg.start;
+          var pl = PF.plane(b0, Object.assign({ hh: 8, sm: true }, cfg.plane)), b = pl.b, fin = false, cur = pl.curve('pl-line pl-line--blue'), gd = pl.guides({ max: 1 }), xv = cfg.start;
           cur.set(cfg.fn); var tQ = b.text([pl.X(xv) + 0.7, pl.Y(cfg.fn(xv))], 'Q', 'pl-text pl-text--pink', pl.gA), pQ = P.pill('', 'is-blue'), pH = P.pill('', 'is-amber'); b0.append(h('div', { class: 'pl-readout' }, pQ, pH));
           var cands = cfg.xs.map(function (x) { return [pl.X(x), pl.Y(cfg.fn(x))]; }), axs = b.line([pl.X(xv), pl.Y(pl.y0)], [pl.X(xv), pl.Y(cfg.fn(xv))], 'pl-line pl-line--soft', pl.gA);
           function upd() {
-            var y = cfg.fn(xv); b.setText(tQ, [pl.X(xv) + 0.7, pl.Y(y)], 'Q'); b.setLine(axs, [pl.X(xv), pl.Y(pl.y0)], [pl.X(xv), pl.Y(y)]);
+            var y = cfg.fn(xv); b.setText(tQ, [pl.X(xv) + 0.7, pl.Y(y)], 'Q'); b.setLine(axs, [pl.X(xv), pl.Y(pl.y0)], [pl.X(xv), pl.Y(y)]); gd.set([{ x: xv, y: y, cls: 'pink', ax: 'both' }]);
             pQ.textContent = 'Q ＝ (' + f(xv) + ', ' + f(y) + ')'; var ok = Math.abs(y - cfg.goalY) < 1e-9; pH.textContent = cfg.ask + ' ＝ ' + f(y); pH.className = 'pl-pill ' + (ok ? 'is-ok' : 'is-amber');
           }
           function settle() { if (Math.abs(cfg.fn(xv) - cfg.goalY) < 1e-9 && !fin) { fin = true; b.goalMark([pl.X(xv), pl.Y(cfg.fn(xv))]); P.toast(cfg.msg); done(); } }
@@ -88,10 +88,10 @@
       /* 拖 V 對準虛線 */
       function match(b0, done, setSolve) {
         b0.append(h('div', { class: 'pl-q', html: '橘色虛線是 <b>y ＝ −(x ＋ 1)² ＋ 3</b>。拖動 <b>V</b>，讓藍色拋物線<b>y ＝ −(x − h)² ＋ k</b> 剛好蓋住它。' }));
-        var pl = PF.plane(b0, { x0: -4, x1: 4, y0: -4, y1: 6, hh: 8, tx: 1, ty: 2, sm: true }), b = pl.b, hv = 2, k = 0, fin = false, tg = pl.curve('pl-line pl-line--amber pl-line--dash'), cur = pl.curve('pl-line pl-line--blue');
+        var pl = PF.plane(b0, { x0: -4, x1: 4, y0: -4, y1: 6, hh: 8, tx: 1, ty: 2, sm: true }), b = pl.b, hv = 2, k = 0, fin = false, tg = pl.curve('pl-line pl-line--amber pl-line--dash'), cur = pl.curve('pl-line pl-line--blue'), gd = pl.guides({ max: 1 });
         tg.set(function (x) { return -(x + 1) * (x + 1) + 3; }); var tV = b.text([pl.X(hv) + 0.7, pl.Y(k) + 0.55], 'V', 'pl-text pl-text--pink', pl.gA), pV = P.pill('', 'is-blue'); pV.style.whiteSpace = 'normal'; b0.append(h('div', { class: 'pl-readout' }, pV));
         function upd() {
-          cur.set(function (x) { return -(x - hv) * (x - hv) + k; }); b.setText(tV, [pl.X(hv) + 0.7, pl.Y(k) + 0.55], 'V'); var ok = hv === -1 && k === 3; pV.textContent = vform(-1, hv, k); pV.className = 'pl-pill ' + (ok ? 'is-ok' : 'is-blue');
+          cur.set(function (x) { return -(x - hv) * (x - hv) + k; }); b.setText(tV, [pl.X(hv) + 0.7, pl.Y(k) + 0.55], 'V'); gd.set([{ x: hv, y: k, cls: 'pink', ax: 'both' }]); var ok = hv === -1 && k === 3; pV.textContent = vform(-1, hv, k); pV.className = 'pl-pill ' + (ok ? 'is-ok' : 'is-blue');
         }
         function settle() { if (hv === -1 && k === 3 && !fin) { fin = true; b.goalMark([pl.X(hv), pl.Y(k)]); P.toast('頂點 (−1, 3)：y ＝ −(x ＋ 1)² ＋ 3'); done(); } }
         var hd = b.handle({ pos: [pl.X(hv), pl.Y(k)], candidates: grid(pl, [-3, 3], [-3, 5]), onMove: function (t) { hv = Math.round(pl.Xi(t[0])); k = Math.round(pl.Yi(t[1])); upd(); }, onEnd: function (t) { hv = Math.round(pl.Xi(t[0])); k = Math.round(pl.Yi(t[1])); upd(); settle(); } });
